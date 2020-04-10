@@ -1,6 +1,10 @@
 {
-    "username": "",
-    "password": "",
-    "clientID": "",
-    "channelID": ""
+    "username" : "",
+    "password" : "",
+    "clientID" : "",
+    "channelID" : "",
+    "googleSheetsClientEmail" : "",
+    "googleSheetsPrivateKey" : "",
+    "beatSheetID" : "",
+    "beatSpreadSheetID" : ""
 }

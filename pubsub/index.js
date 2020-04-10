@@ -2,7 +2,7 @@ const player = require('play-sound')(opts = {player: 'mplayer.exe'});
 const WebSocket = require('ws');
 const path = require('path');
 const fs = require('fs');
-const soundsDir = 'c:\\Users\\aaron\\Dropbox\\Projects\\code\\twitch-node\\sounds'; // this is hacky and you should change it. make the script find it's own directory. 
+const soundsDir = 'C:\\Users\\aaron\\Dropbox\\Streaming\\varibot-twitch-node\\sounds'; // this is hacky and you should change it. make the script find it's own directory. 
 const staticSounds = ['goteem.mp3', 'mgsAlert.mp3'];
 const botSettings = require('../botSettings.json');
 
@@ -20,20 +20,23 @@ fs.readdir(soundsDir, (error, files) =>
         console.log(error);
     }
     console.log('Loading sounds...');
-    files.forEach(file => {
-        if(staticSounds.includes(file))
-        {
-            console.log(`Found static sound ${file}, skipping.`);
-        }
-        else
-        {
-            if(file.includes('.mp3'))
+    if(files.length > 0)
+    {
+        files.forEach(file => {
+            if(staticSounds.includes(file))
             {
-                sounds.push(file);
-                console.log(`Loaded sound ${file}.`);
+                console.log(`Found static sound ${file}, skipping.`);
             }
-        }
-    });
+            else
+            {
+                if(file.includes('.mp3'))
+                {
+                    sounds.push(file);
+                    // console.log(`Loaded sound ${file}.`);
+                }
+            }
+        });
+    }
     console.log(`Loaded ${sounds.length} sounds.`);
 });
 

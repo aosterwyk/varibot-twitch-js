@@ -1,6 +1,7 @@
 const tmi = require('tmi.js');
 const pubsubBot = require('../pubsub/index');
 const botSettings = require('../botSettings.json');
+const { GoogleSpreadsheet } = require('google-spreadsheet');
 
 const options = {
     identity: {
@@ -47,36 +48,83 @@ const simpleCommands = {
     purpose: {scope: 'mods', cooldown: 'TODO', result: 'I pass butter'},
 };
 
-function runCommand(targetChannel, inputCmd, args)
+async function beatGame(beatComments)
+{
+    const doc = new GoogleSpreadsheet(botSettings.beatSpreadSheetID);
+    await doc.useServiceAccountAuth({client_email: botSettings.googleSheetsClientEmail, private_key: botSettings.googleSheetsPrivateKey});
+    await doc.loadInfo();
+
+    let now = new Date();
+    let beatTimestamp = `${now.toLocaleDateString()} ${now.toLocaleTimeString()}`;
+    let beatSheet = await doc.sheetsById[botSettings.beatSheetID];
+
+    // get the game
+
+    if(beatComments.length > 0)
+    {
+        let commentsString = '';
+        beatComments.forEach(comment => { commentsString += `${comment} `;});
+        let beatGameArray = ['Test Game', beatTimestamp, commentsString];
+        await beatSheet.addRow(beatGameArray)
+        .catch(error => {console.log(error);});
+        // console.log(`added game to list with comments ${commentsString}`);
+    }
+    else
+    {
+        let beatGameArray = ['Test Game', beatTimestamp];
+        await beatSheet.addRow(beatGameArray)
+        .catch(error => {console.log(error);});
+        // console.log('added game to list without comments');
+    }
+
+}
+
+async function runCommand(targetChannel, fromMod, context, inputCmd, args)
 {
     cmd = inputCmd.substr(1);
-    // console.log('command is ' + cmd);
-    // console.log('args are ' + args);
 
     if(cmd in simpleCommands)
     {
-        console.log('found command ' + cmd + ' in simple commands');
+        // console.log('found command ' + cmd + ' in simple commands');
         console.log(simpleCommands[cmd].result);
         client.say(targetChannel, simpleCommands[cmd].result);
+        return;
+    }
+    else if(cmd == 'beat')
+    {
+        if(fromMod)
+        {
+            await beatGame(args)
+            .catch(error => {console.log(error);});
+        }
+        else
+        {
+            client.say(targetChannel, `${context['display-name']} does not have permission to run this command`);
+        }
     }
     else if(cmd == 'radio')
     {
         currentGame = 'Grand Theft Auto: Vice City Stories';
+        // currentGame = await getGame();
         if(threedUniverseGames.indexOf(currentGame) || hdUniverseGames.indexOf(currentGame))
         {
             try{
                 radioResult = randomRadio(currentGame);
                 // client.say(targetChannel, radioResult);
             }
-            catch(error){console.log(error);}            
+            catch(error){console.log(error);}         
+            return;   
         }
         else
         {
-            // client.say(targetChannel, 'This is not a GTA game.');
+            client.say(targetChannel, 'This is not a GTA game.');
             return;
         }
-        // check if game is a GTA game
-        
+    }
+    else
+    {
+        console.log(`Read command ${cmd} (args: ${args}) from ${context['display-name']}, command not found.`);
+        return;
     }
 }
 
@@ -99,12 +147,14 @@ client.on('message', (target, context, msg, self) => {
     console.log(context['display-name'] + ': ' + msg);
     if(msg.startsWith('!')) { 
         cmdArray = msg.split(' ');
-        runCommand(target, cmdArray[0], cmdArray.slice(1));
+        if(isMod(context))
+        {
+            runCommand(target, true, context, cmdArray[0], cmdArray.slice(1));
+        }
+        else
+        {
+            runCommand(target, false, context, cmdArray[0], cmdArray.slice(1));
+        }
     }
-    // if(isMod(context))
-    // {
-    //     console.log('message came from mod');
-    // }
-
 });
 
