@@ -4,6 +4,7 @@ const pubsubBot = require('../pubsub/index');
 const botSettings = require('../botSettings.json');
 const { GoogleSpreadsheet } = require('google-spreadsheet');
 const twitchAPI = require('../api/index');
+const chalk = require('chalk');
 
 const options = {
     identity: {
@@ -71,7 +72,7 @@ async function beatGame(beatComments, beatChannel)
             beatComments.forEach(comment => { commentsString += `${comment} `;});
             let beatGameArray = [gameName, beatTimestamp, commentsString];
             await beatSheet.addRow(beatGameArray)
-            .catch(error => {console.log(error);});
+            .catch(error => {console.log(chalk.red(error));});
             client.say(beatChannel, `Added ${gameName} (${commentsString}) to list`);
             console.log(`Added ${gameName} (${commentsString}) to list`);
             soundPlayer.play(botSettings.beatGameSound); // if this dies check that mplayer.exe is in %appdata%\npm 
@@ -80,7 +81,7 @@ async function beatGame(beatComments, beatChannel)
         {
             let beatGameArray = [gameName, beatTimestamp];
             await beatSheet.addRow(beatGameArray)
-            .catch(error => {console.log(error);});
+            .catch(error => {console.log(chalk.red(error));});
             client.say(beatChannel, `Added ${gameName} to list`);
             console.log(`Added ${gameName} to list`);
             soundPlayer.play(botSettings.beatGameSound); // if this dies check that mplayer.exe is in %appdata%\npm 
@@ -123,7 +124,7 @@ async function runCommand(targetChannel, fromMod, context, inputCmd, args)
         if(fromMod)
         {           
             await beatGame(args, targetChannel)
-            .catch(error => {console.log(error);});
+            .catch(error => {console.log(chalk.red(error));});
         }
         else
         {
@@ -143,7 +144,7 @@ async function runCommand(targetChannel, fromMod, context, inputCmd, args)
                 radioResult = randomRadio(currentGame);
                 client.say(targetChannel, radioResult);
             }
-            catch(error){console.log(error);}         
+            catch(error){console.log(chalk.red(error));}         
             return;   
         }
         else
@@ -170,14 +171,16 @@ function isMod(checkMsg)
 client.connect();
 
 client.on('connected', (address, port) => {
-    console.log(`Chatbot (${options.identity.username}) connected to ${address}:${port}`);
+    console.log(chalk.green(`Chatbot (${options.identity.username}) connected to ${address}:${port}`));
     console.log('shyguy crash protection ready');
 });
 
 client.on('message', (target, context, msg, self) => {
     if(self) { return; } // bot dees not need to interact with itself
-    // console.log(context);
-    console.log(context['display-name'] + ': ' + msg);
+    // console.log(context['tmi-sent-ts']);
+    // let timestamp = new Date(context['tmi-sent-ts']);
+    let msgTime = new Date();
+    console.log(`[${msgTime.getHours()}:${msgTime.getMinutes()}]${context['display-name']}: ${msg}`);
     if(msg.startsWith('!')) { 
         cmdArray = msg.split(' ');
         if(isMod(context))

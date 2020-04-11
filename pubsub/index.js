@@ -5,6 +5,7 @@ const fs = require('fs');
 const soundsDir = 'C:\\Users\\aaron\\Dropbox\\Streaming\\varibot-twitch-node\\sounds'; // this is hacky and you should change it. make the script find it's own directory. 
 const staticSounds = ['goteem.mp3', 'mgsAlert.mp3'];
 const botSettings = require('../botSettings.json');
+const chalk = require('chalk');
 
 // let botSettings = 
 // { 
@@ -17,7 +18,7 @@ fs.readdir(soundsDir, (error, files) =>
 {
     if(error)
     {
-        console.log(error);
+        console.log(chalk.red(error));
     }
     console.log('Loading sounds...');
     if(files.length > 0)
@@ -58,7 +59,7 @@ function playSound(sound)
     }
     catch(error)
     {
-        console.log(`Error playing sound: ${error}`);
+        console.log(chalk.red(`Error playing sound: ${error}`));
     }
 }
 
@@ -78,7 +79,7 @@ function proecssReward(reward)
 {
     // have this read rewards from a DB one day
     // console.log(JSON.stringify(reward));
-    console.log('Reward ' + reward.data.redemption.reward.title + ' was redeemed by ' + reward.data.redemption.user.display_name + ' for ' + reward.data.redemption.reward.cost + ' points');
+    console.log(chalk.greenBright('Reward ' + reward.data.redemption.reward.title + ' was redeemed by ' + reward.data.redemption.user.display_name + ' for ' + reward.data.redemption.reward.cost + ' points'));
     // redemptionData = reward.data.redemption;
     switch(reward.data.redemption.reward.title)
     {
@@ -140,7 +141,7 @@ pubsubSocket.onopen = function(e)
         }
     };
     pubsubSocket.send(JSON.stringify(connectMsg));
-    console.log(`Pubsub connected. Listed topics: ${connectMsg.data.topics}`);
+    console.log(chalk.green(`Pubsub connected. Listed topics: ${connectMsg.data.topics}`));
     sendPings();
 };
 
