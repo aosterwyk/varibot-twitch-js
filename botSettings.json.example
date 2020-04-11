@@ -2,6 +2,7 @@
     "username" : "",
     "password" : "",
     "clientID" : "",
+    "channel": "",
     "channelID" : "",
     "googleSheetsClientEmail" : "",
     "googleSheetsPrivateKey" : "",
