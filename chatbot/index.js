@@ -43,8 +43,10 @@ function randomRadio(game)
   return returnStation;
 }
 
-const simpleCommands = {
+const simpleCommands = 
+{
     purpose: {scope: 'mods', cooldown: 'TODO', result: 'I pass butter'},
+    list: {scope: 'all', cooldown: 'TODO', result: 'https://docs.google.com/spreadsheets/d/1sAjqGOPH3fosstrF-mBFqMA8Bv5WCpz-wFFDnV_5k6U/edit#gid=1081070171'}
 };
 
 async function beatGame(beatComments, beatChannel)
@@ -92,9 +94,17 @@ async function runCommand(targetChannel, fromMod, context, inputCmd, args)
     if(cmd in simpleCommands)
     {
         // console.log('found command ' + cmd + ' in simple commands');
-        console.log(simpleCommands[cmd].result);
-        client.say(targetChannel, simpleCommands[cmd].result);
-        return;
+        if(simpleCommands[cmd].scope == 'mods' && !fromMod)
+        {
+            console.log(`User ${context['display-name']} tried to use the mod only command ${cmd}`);
+            return;
+        }
+        else
+        {
+            // console.log(simpleCommands[cmd].result);
+            client.say(targetChannel, simpleCommands[cmd].result);
+            return;
+        }
     }
     else if(cmd == 'getgame')
     {
