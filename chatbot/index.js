@@ -1,3 +1,4 @@
+const soundPlayer = require('play-sound')(opts = {player: 'mplayer.exe'});
 const tmi = require('tmi.js');
 const pubsubBot = require('../pubsub/index');
 const botSettings = require('../botSettings.json');
@@ -50,7 +51,7 @@ const simpleCommands =
 };
 
 async function beatGame(beatComments, beatChannel)
-{
+{        
     const doc = new GoogleSpreadsheet(botSettings.beatSpreadSheetID);
     await doc.useServiceAccountAuth({client_email: botSettings.googleSheetsClientEmail, private_key: botSettings.googleSheetsPrivateKey});
     await doc.loadInfo();
@@ -72,6 +73,8 @@ async function beatGame(beatComments, beatChannel)
             await beatSheet.addRow(beatGameArray)
             .catch(error => {console.log(error);});
             client.say(beatChannel, `Added ${gameName} (${commentsString}) to list`);
+            console.log(`Added ${gameName} (${commentsString}) to list`);
+            soundPlayer.play(botSettings.beatGameSound); // if this dies check that mplayer.exe is in %appdata%\npm 
         }
         else
         {
@@ -79,6 +82,8 @@ async function beatGame(beatComments, beatChannel)
             await beatSheet.addRow(beatGameArray)
             .catch(error => {console.log(error);});
             client.say(beatChannel, `Added ${gameName} to list`);
+            console.log(`Added ${gameName} to list`);
+            soundPlayer.play(botSettings.beatGameSound); // if this dies check that mplayer.exe is in %appdata%\npm 
         }
     }
     else
@@ -166,6 +171,7 @@ client.connect();
 
 client.on('connected', (address, port) => {
     console.log(`Chatbot (${options.identity.username}) connected to ${address}:${port}`);
+    console.log('shyguy crash protection ready');
 });
 
 client.on('message', (target, context, msg, self) => {

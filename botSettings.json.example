@@ -7,5 +7,6 @@
     "googleSheetsClientEmail" : "",
     "googleSheetsPrivateKey" : "",
     "beatSheetID" : "",
-    "beatSpreadSheetID" : ""
+    "beatSpreadSheetID" : "",
+    "beatGameSound" : ""
 }
