@@ -1,21 +1,75 @@
 const fetch = require('node-fetch');
 const botSettings = require('../botSettings.json');
 
-async function getChannel(channelName)
+async function twitchAPI(url)
 {
-    url = `https://api.twitch.tv/helix/users?login=${channelName}`;
-    let res = await fetch(url, {method: 'get', headers: {'Client-ID': botSettings.clientID, 'Authorization': `Bearer ${botSettings.password}`}});
-    let data = await res.json();
-    console.log(JSON.stringify(data));
-    return data;
+    // console.log(url);
+    let result = await fetch(url, {method: 'get', headers: {'Client-ID': botSettings.clientID, 'Authorization': `Bearer ${botSettings.password}`}});
+    result = await result.json();
+    return result;
 }
 
-async function start()
+async function getChannelID(channelName)
 {
-    // the second function is just to print the return and is not needed. the async function must be called (awaited) from another async function. 
-    let channelID = await getChannel('varixx');
-
-    console.log(JSON.stringify(channelID));
+    let url = `https://api.twitch.tv/helix/users?login=${channelName}`;
+    result = await twitchAPI(url)
+    .catch(error => {console.log(`Twitch API erorr: ${error}`);});
+    if(result.data.length > 0 && 'id' in result.data[0])
+    {
+        return result.data[0].id;
+    }
+    else
+    {
+        return false;
+    }
 }
 
-start();
+async function getCurrentGame(channelID)
+{
+    // this uses API v5 because helix does not show game when stream is offline
+    let url = `https://api.twitch.tv/kraken/channels/${channelID}`;
+    let result = await fetch(url, {method: 'get', headers: {'Accept': 'application/vnd.twitchtv.v5+json', 'Client-ID': botSettings.clientID, 'Authorization': `OAuth ${botSettings.password}`}});
+    result = await result.json();
+    if('game' in result)
+    {
+        return result.game;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+async function getGameName(findGameID)
+{
+    // you'll eventually need this for helix because it gives the game ID and not the game name 
+     
+    let url = `https://api.twitch.tv/helix/games?id=${findGameID}`;
+    result = await twitchAPI(url)
+    .catch(error => {console.log(`Twitch API erorr: ${error}`);});
+    if(result.data.length > 0 && 'name' in result.data[0])
+    {
+        return result.data[0].name;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+module.exports.getChannelID = getChannelID;
+module.exports.getCurrentGame = getCurrentGame;
+
+// async function removeThisWhenDoneTesting()
+// {
+//     findChannel = 'varixx';
+//     let channelID = await getChannelID(findChannel);
+//     console.log(`Channel ID: ${channelID}`);
+//     let currentGame = await getCurrentGame(channelID);
+//     console.log(`Channel game: ${currentGame}`);
+//     // let gameName = await getGameName(417752); // Talk Shows & Podcasts (from API reference)
+//     // console.log(`Game name: ${gameName}`);    
+// }
+
+// removeThisWhenDoneTesting();
+
