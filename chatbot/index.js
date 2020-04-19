@@ -1,14 +1,17 @@
+const soundPlayer = require('play-sound')(opts = {player: 'mplayer.exe'});
 const tmi = require('tmi.js');
 const pubsubBot = require('../pubsub/index');
 const botSettings = require('../botSettings.json');
 const { GoogleSpreadsheet } = require('google-spreadsheet');
+const twitchAPI = require('../api/index');
+const chalk = require('chalk');
 
 const options = {
     identity: {
         username: botSettings.username,
         password: botSettings.password
     },
-    channels: ['varixx']
+    channels: [botSettings.channel]
 };
 
 threedUniverseGames = ["Grand Theft Auto: Vice City Stories", "Grand Theft Auto: Vice City", "Grand Theft Auto: San Andreas", "Grand Theft Auto: Liberty City Stories", "Grand Theft Auto III"];
@@ -35,8 +38,6 @@ function randomNumber(max)
   return Math.floor((Math.random() * (max - 0)));
 }
 
-// console.log(randomNumber(4));
-
 function randomRadio(game)
 {
   radios = gtaRadios[game];
@@ -44,12 +45,14 @@ function randomRadio(game)
   return returnStation;
 }
 
-const simpleCommands = {
+const simpleCommands = 
+{
     purpose: {scope: 'mods', cooldown: 'TODO', result: 'I pass butter'},
+    list: {scope: 'all', cooldown: 'TODO', result: 'https://docs.google.com/spreadsheets/d/1sAjqGOPH3fosstrF-mBFqMA8Bv5WCpz-wFFDnV_5k6U/edit#gid=1081070171'}
 };
 
-async function beatGame(beatComments)
-{
+async function beatGame(beatComments, beatChannel)
+{        
     const doc = new GoogleSpreadsheet(botSettings.beatSpreadSheetID);
     await doc.useServiceAccountAuth({client_email: botSettings.googleSheetsClientEmail, private_key: botSettings.googleSheetsPrivateKey});
     await doc.loadInfo();
@@ -58,25 +61,36 @@ async function beatGame(beatComments)
     let beatTimestamp = `${now.toLocaleDateString()} ${now.toLocaleTimeString()}`;
     let beatSheet = await doc.sheetsById[botSettings.beatSheetID];
 
-    // get the game
-
-    if(beatComments.length > 0)
+    let lookupChannel = beatChannel.substr(1);
+    let channelID = await twitchAPI.getChannelID(lookupChannel);
+    let gameName = await twitchAPI.getCurrentGame(channelID);            
+    if(gameName)
     {
-        let commentsString = '';
-        beatComments.forEach(comment => { commentsString += `${comment} `;});
-        let beatGameArray = ['Test Game', beatTimestamp, commentsString];
-        await beatSheet.addRow(beatGameArray)
-        .catch(error => {console.log(error);});
-        // console.log(`added game to list with comments ${commentsString}`);
+        if(beatComments.length > 0)
+        {
+            let commentsString = '';
+            beatComments.forEach(comment => { commentsString += `${comment} `;});
+            let beatGameArray = [gameName, beatTimestamp, commentsString];
+            await beatSheet.addRow(beatGameArray)
+            .catch(error => {console.log(chalk.red(error));});
+            client.say(beatChannel, `Added ${gameName} (${commentsString}) to list`);
+            console.log(`Added ${gameName} (${commentsString}) to list`);
+            soundPlayer.play(botSettings.beatGameSound); // if this dies check that mplayer.exe is in %appdata%\npm 
+        }
+        else
+        {
+            let beatGameArray = [gameName, beatTimestamp];
+            await beatSheet.addRow(beatGameArray)
+            .catch(error => {console.log(chalk.red(error));});
+            client.say(beatChannel, `Added ${gameName} to list`);
+            console.log(`Added ${gameName} to list`);
+            soundPlayer.play(botSettings.beatGameSound); // if this dies check that mplayer.exe is in %appdata%\npm 
+        }
     }
     else
     {
-        let beatGameArray = ['Test Game', beatTimestamp];
-        await beatSheet.addRow(beatGameArray)
-        .catch(error => {console.log(error);});
-        // console.log('added game to list without comments');
+        console.log('gameName is empty or does not exist');
     }
-
 }
 
 async function runCommand(targetChannel, fromMod, context, inputCmd, args)
@@ -86,16 +100,31 @@ async function runCommand(targetChannel, fromMod, context, inputCmd, args)
     if(cmd in simpleCommands)
     {
         // console.log('found command ' + cmd + ' in simple commands');
-        console.log(simpleCommands[cmd].result);
-        client.say(targetChannel, simpleCommands[cmd].result);
-        return;
+        if(simpleCommands[cmd].scope == 'mods' && !fromMod)
+        {
+            console.log(`User ${context['display-name']} tried to use the mod only command ${cmd}`);
+            return;
+        }
+        else
+        {
+            // console.log(simpleCommands[cmd].result);
+            client.say(targetChannel, simpleCommands[cmd].result);
+            return;
+        }
+    }
+    else if(cmd == 'getgame')
+    {
+        let lookupChannel = targetChannel.substr(1);
+        let channelID = await twitchAPI.getChannelID(lookupChannel);
+        let gameName = await twitchAPI.getCurrentGame(channelID);
+        console.log(gameName);
     }
     else if(cmd == 'beat')
     {
         if(fromMod)
-        {
-            await beatGame(args)
-            .catch(error => {console.log(error);});
+        {           
+            await beatGame(args, targetChannel)
+            .catch(error => {console.log(chalk.red(error));});
         }
         else
         {
@@ -104,20 +133,24 @@ async function runCommand(targetChannel, fromMod, context, inputCmd, args)
     }
     else if(cmd == 'radio')
     {
-        currentGame = 'Grand Theft Auto: Vice City Stories';
-        // currentGame = await getGame();
-        if(threedUniverseGames.indexOf(currentGame) || hdUniverseGames.indexOf(currentGame))
+        // currentGame = 'Grand Theft Auto: Vice City Stories';
+        let lookupChannel = targetChannel.substr(1);
+        let channelID = await twitchAPI.getChannelID(lookupChannel);
+        let currentGame = await twitchAPI.getCurrentGame(channelID);            
+        if(threedUniverseGames.includes(currentGame) || hdUniverseGames.includes(currentGame))
         {
-            try{
+            try
+            {
                 radioResult = randomRadio(currentGame);
-                // client.say(targetChannel, radioResult);
+                client.say(targetChannel, radioResult);
             }
-            catch(error){console.log(error);}         
+            catch(error){console.log(chalk.red(error));}         
             return;   
         }
         else
         {
-            client.say(targetChannel, 'This is not a GTA game.');
+            // client.say(targetChannel, 'This is not a GTA game.');
+            client.say(targetChannel, `${currentGame} is not a GTA game.`);
             return;
         }
     }
@@ -138,13 +171,16 @@ function isMod(checkMsg)
 client.connect();
 
 client.on('connected', (address, port) => {
-    console.log(`Chatbot (${options.identity.username}) connected to ${address}:${port}`);
+    console.log(chalk.green(`Chatbot (${options.identity.username}) connected to ${address}:${port}`));
+    console.log('shyguy crash protection ready');
 });
 
 client.on('message', (target, context, msg, self) => {
     if(self) { return; } // bot dees not need to interact with itself
-    // console.log(context);
-    console.log(context['display-name'] + ': ' + msg);
+    // console.log(context['tmi-sent-ts']);
+    // let timestamp = new Date(context['tmi-sent-ts']);
+    let msgTime = new Date();
+    console.log(`[${msgTime.getHours()}:${msgTime.getMinutes()}]${context['display-name']}: ${msg}`);
     if(msg.startsWith('!')) { 
         cmdArray = msg.split(' ');
         if(isMod(context))

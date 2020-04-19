@@ -2,9 +2,11 @@
     "username" : "",
     "password" : "",
     "clientID" : "",
+    "channel": "",
     "channelID" : "",
     "googleSheetsClientEmail" : "",
     "googleSheetsPrivateKey" : "",
     "beatSheetID" : "",
-    "beatSpreadSheetID" : ""
+    "beatSpreadSheetID" : "",
+    "beatGameSound" : ""
 }
