@@ -4,6 +4,7 @@
     "clientID" : "",
     "channel": "",
     "channelID" : "",
+    "soundsDir" : "",
     "googleSheetsClientEmail" : "",
     "googleSheetsPrivateKey" : "",
     "beatSheetID" : "",

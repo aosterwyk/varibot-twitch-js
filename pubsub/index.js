@@ -2,9 +2,9 @@ const player = require('play-sound')(opts = {player: 'mplayer.exe'});
 const WebSocket = require('ws');
 const path = require('path');
 const fs = require('fs');
-const soundsDir = 'C:\\Users\\aaron\\Dropbox\\Streaming\\varibot-twitch-node\\sounds'; // this is hacky and you should change it. make the script find it's own directory. 
 const staticSounds = ['goteem.mp3', 'mgsAlert.mp3'];
 const botSettings = require('../botSettings.json');
+const soundsDir = botSettings.soundsDir;
 const chalk = require('chalk');
 
 // let botSettings = 
