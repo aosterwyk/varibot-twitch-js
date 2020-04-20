@@ -51,6 +51,11 @@ const simpleCommands =
     list: {scope: 'all', cooldown: 'TODO', result: 'https://docs.google.com/spreadsheets/d/1sAjqGOPH3fosstrF-mBFqMA8Bv5WCpz-wFFDnV_5k6U/edit#gid=1081070171'}
 };
 
+// async function getOwnedGame(platform)
+// {
+
+// }
+
 async function beatGame(beatComments, beatChannel)
 {        
     const doc = new GoogleSpreadsheet(botSettings.beatSpreadSheetID);

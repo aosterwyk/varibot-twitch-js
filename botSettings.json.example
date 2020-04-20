@@ -9,5 +9,6 @@
     "googleSheetsPrivateKey" : "",
     "beatSheetID" : "",
     "beatSpreadSheetID" : "",
-    "beatGameSound" : ""
+    "beatGameSound" : "",
+    "ownedGamesSpreadSheetID" : ""
 }
