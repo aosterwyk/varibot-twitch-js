@@ -3,6 +3,7 @@ const tmi = require('tmi.js');
 const pubsubBot = require('../pubsub/index');
 const botSettings = require('../botSettings.json');
 const { GoogleSpreadsheet } = require('google-spreadsheet');
+const { getRandomOwnedGame } = require('./ownedGames');
 const twitchAPI = require('../api/index');
 const chalk = require('chalk');
 
@@ -33,31 +34,22 @@ gtaPassedSounds = ["GTA 3 - Mission Complete.mp3", "GTA IV - Mission Complete 2.
 
 const client = new tmi.client(options);
 
-function randomNumber(max)
-{
-  return Math.floor((Math.random() * (max - 0)));
+function randomNumber(min, max) {
+    return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
-function randomRadio(game)
-{
+function randomRadio(game) {
   radios = gtaRadios[game];
-  returnStation = radios[randomNumber(radios.length)];
+  returnStation = radios[randomNumber(0,radios.length)];
   return returnStation;
 }
 
-const simpleCommands = 
-{
+const simpleCommands =  {
     purpose: {scope: 'mods', cooldown: 'TODO', result: 'I pass butter'},
     list: {scope: 'all', cooldown: 'TODO', result: 'https://docs.google.com/spreadsheets/d/1sAjqGOPH3fosstrF-mBFqMA8Bv5WCpz-wFFDnV_5k6U/edit#gid=1081070171'}
 };
 
-// async function getOwnedGame(platform)
-// {
-
-// }
-
-async function beatGame(beatComments, beatChannel)
-{        
+async function beatGame(beatComments, beatChannel) {        
     const doc = new GoogleSpreadsheet(botSettings.beatSpreadSheetID);
     await doc.useServiceAccountAuth({client_email: botSettings.googleSheetsClientEmail, private_key: botSettings.googleSheetsPrivateKey});
     await doc.loadInfo();
@@ -69,10 +61,8 @@ async function beatGame(beatComments, beatChannel)
     let lookupChannel = beatChannel.substr(1);
     let channelID = await twitchAPI.getChannelID(lookupChannel);
     let gameName = await twitchAPI.getCurrentGame(channelID);            
-    if(gameName)
-    {
-        if(beatComments.length > 0)
-        {
+    if(gameName) {
+        if(beatComments.length > 0) {
             let commentsString = '';
             beatComments.forEach(comment => { commentsString += `${comment} `;});
             let beatGameArray = [gameName, beatTimestamp, commentsString];
@@ -82,8 +72,7 @@ async function beatGame(beatComments, beatChannel)
             console.log(`Added ${gameName} (${commentsString}) to list`);
             soundPlayer.play(botSettings.beatGameSound); // if this dies check that mplayer.exe is in %appdata%\npm 
         }
-        else
-        {
+        else {
             let beatGameArray = [gameName, beatTimestamp];
             await beatSheet.addRow(beatGameArray)
             .catch(error => {console.log(chalk.red(error));});
@@ -92,8 +81,7 @@ async function beatGame(beatComments, beatChannel)
             soundPlayer.play(botSettings.beatGameSound); // if this dies check that mplayer.exe is in %appdata%\npm 
         }
     }
-    else
-    {
+    else {
         console.log('gameName is empty or does not exist');
     }
 }
@@ -116,6 +104,19 @@ async function runCommand(targetChannel, fromMod, context, inputCmd, args)
             client.say(targetChannel, simpleCommands[cmd].result);
             return;
         }
+    }
+    else if(cmd == 'randomGame') { 
+        // check that the spreadsheet is not called template
+        let searchPlatform = '';
+        args.forEach(searchString => searchPlatform += searchString);
+        if(searchPlatform.length > 0) {
+            searchPlatform = searchPlatform.trim();
+        }
+        else {
+            searchPlatform = 'genesis';
+        }
+        let randomGame = await getRandomOwnedGame(botSettings.googleSheetsClientEmail, botSettings.googleSheetsPrivateKey, botSettings.ownedGamesSpreadSheetID,searchPlatform);
+        randomGame ? client.say(targetChannel, `${randomGame}`) : console.log('could not find game');
     }
     else if(cmd == 'getgame')
     {
@@ -180,7 +181,7 @@ client.on('connected', (address, port) => {
     console.log('shyguy crash protection ready');
 });
 
-client.on('message', (target, context, msg, self) => {
+client.on('message', async (target, context, msg, self) => {
     if(self) { return; } // bot dees not need to interact with itself
     // console.log(context['tmi-sent-ts']);
     // let timestamp = new Date(context['tmi-sent-ts']);
@@ -190,11 +191,11 @@ client.on('message', (target, context, msg, self) => {
         cmdArray = msg.split(' ');
         if(isMod(context))
         {
-            runCommand(target, true, context, cmdArray[0], cmdArray.slice(1));
+            await runCommand(target, true, context, cmdArray[0], cmdArray.slice(1));
         }
         else
         {
-            runCommand(target, false, context, cmdArray[0], cmdArray.slice(1));
+            await runCommand(target, false, context, cmdArray[0], cmdArray.slice(1));
         }
     }
 });
