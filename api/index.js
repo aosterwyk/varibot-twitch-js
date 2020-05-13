@@ -1,75 +1,50 @@
 const fetch = require('node-fetch');
 const botSettings = require('../botSettings.json');
 
-async function twitchAPI(url)
-{
-    // console.log(url);
+async function twitchAPI(url) {
     let result = await fetch(url, {method: 'get', headers: {'Client-ID': botSettings.clientID, 'Authorization': `Bearer ${botSettings.password}`}});
     result = await result.json();
     return result;
 }
 
-async function getChannelID(channelName)
-{
+async function getChannelID(channelName) {
     let url = `https://api.twitch.tv/helix/users?login=${channelName}`;
     result = await twitchAPI(url)
     .catch(error => {console.log(`Twitch API erorr: ${error}`);});
-    if(result.data.length > 0 && 'id' in result.data[0])
-    {
+    if(result.data.length > 0 && 'id' in result.data[0]) {
         return result.data[0].id;
     }
-    else
-    {
+    else {
         return false;
     }
 }
 
-async function getCurrentGame(channelID)
-{
+async function getCurrentGame(channelID) {
     // this uses API v5 because helix does not show game when stream is offline
     let url = `https://api.twitch.tv/kraken/channels/${channelID}`;
     let result = await fetch(url, {method: 'get', headers: {'Accept': 'application/vnd.twitchtv.v5+json', 'Client-ID': botSettings.clientID, 'Authorization': `OAuth ${botSettings.password}`}});
     result = await result.json();
-    if('game' in result)
-    {
+    if('game' in result) {
         return result.game;
     }
-    else
-    {
+    else {
         return false;
     }
 }
 
-async function getGameName(findGameID)
-{
+async function getGameName(findGameID) {
     // you'll eventually need this for helix because it gives the game ID and not the game name 
-     
     let url = `https://api.twitch.tv/helix/games?id=${findGameID}`;
     result = await twitchAPI(url)
     .catch(error => {console.log(`Twitch API erorr: ${error}`);});
-    if(result.data.length > 0 && 'name' in result.data[0])
-    {
+    if(result.data.length > 0 && 'name' in result.data[0]) {
         return result.data[0].name;
     }
-    else
-    {
+    else {
         return false;
     }
 }
 
 module.exports.getChannelID = getChannelID;
 module.exports.getCurrentGame = getCurrentGame;
-
-// async function removeThisWhenDoneTesting()
-// {
-//     findChannel = 'varixx';
-//     let channelID = await getChannelID(findChannel);
-//     console.log(`Channel ID: ${channelID}`);
-//     let currentGame = await getCurrentGame(channelID);
-//     console.log(`Channel game: ${currentGame}`);
-//     // let gameName = await getGameName(417752); // Talk Shows & Podcasts (from API reference)
-//     // console.log(`Game name: ${gameName}`);    
-// }
-
-// removeThisWhenDoneTesting();
 
