@@ -7,31 +7,19 @@ const botSettings = require('../botSettings.json');
 const soundsDir = botSettings.soundsDir;
 const chalk = require('chalk');
 
-// let botSettings = 
-// { 
-//     channel_id: '9502699', 
-//     auth_token: '98od3y6sx8lhzor3wxti5145em5xp4'
-// };
-
 let sounds = [];
-fs.readdir(soundsDir, (error, files) => 
-{
-    if(error)
-    {
+fs.readdir(soundsDir, (error, files) => {
+    if(error) {
         console.log(chalk.red(error));
     }
     console.log('Loading sounds...');
-    if(files.length > 0)
-    {
+    if(files.length > 0) {
         files.forEach(file => {
-            if(staticSounds.includes(file))
-            {
+            if(staticSounds.includes(file)) {
                 console.log(`Found static sound ${file}, skipping.`);
             }
-            else
-            {
-                if(file.includes('.mp3'))
-                {
+            else {
+                if(file.includes('.mp3')){
                     sounds.push(file);
                     // console.log(`Loaded sound ${file}.`);
                 }
@@ -43,10 +31,8 @@ fs.readdir(soundsDir, (error, files) =>
 
 let pubsubSocket = new WebSocket('wss://pubsub-edge.twitch.tv');
 
-function playSound(sound)
-{
-    try
-    {
+function playSound(sound) {
+    try {
         player.play(sound); // if this dies check that mplayer.exe is in %appdata%\npm 
 
         // you're going to want to make an instance and kill it after 10 seconds or so
@@ -57,26 +43,17 @@ function playSound(sound)
           audio.kill()
         */
     }
-    catch(error)
-    {
+    catch(error) {
         console.log(chalk.red(`Error playing sound: ${error}`));
     }
 }
 
 
-function getChannelID(channel)
-{
-    // this turned into a 2 hour adventure 
-}
-
-function randomSound()
-{
-    
+function randomSound() {
     playSound(randomSound[randomIndex]);
 }
 
-function proecssReward(reward)
-{
+function proecssReward(reward) {
     // have this read rewards from a DB one day
     // console.log(JSON.stringify(reward));
     console.log(chalk.greenBright('Reward ' + reward.data.redemption.reward.title + ' was redeemed by ' + reward.data.redemption.user.display_name + ' for ' + reward.data.redemption.reward.cost + ' points'));
@@ -84,60 +61,43 @@ function proecssReward(reward)
     switch(reward.data.redemption.reward.title)
     {
         case 'Goteem':
-        {
             playSound(`${soundsDir}/goteem.mp3`);
             break;
-        }
         case 'MGS Alert':
-        {
             playSound(`${soundsDir}/mgsAlert.mp3`);
             break;
-        }
         case 'Random sound':
-        {
             let randomIndex = Math.floor(Math.random() * Math.floor(sounds.length));
             console.log(`Playing random sound ${sounds[randomIndex]}`);
             playSound(soundsDir + '/' + sounds[randomIndex]);
             break;
-        }
         default:
-        {
             break;
-        }
     }
     
 }
 
-function sendPings()
-{
+function sendPings() {
     pubsubSocket.send(JSON.stringify({type:"PING"}));
     setTimeout(sendPings,120000); // 2 minutes
 }
 
-function pubsubMessageHandler(msg)
-{
-    if(msg.type == 'MESSAGE')
-    {
+function pubsubMessageHandler(msg) {
+    if(msg.type == 'MESSAGE') {
         pubsubMessage = JSON.parse(msg.data.message);
-        if(pubsubMessage.type == 'reward-redeemed')
-        {
+        if(pubsubMessage.type == 'reward-redeemed') {
             proecssReward(pubsubMessage);
         }
     }
 }
 
-pubsubSocket.onopen = function(e)
-{
-    let connectMsg = 
-    {
+pubsubSocket.onopen = function(e) {
+    let connectMsg =  {
         type: "LISTEN",
         nonce: "44h1k13746815ab1r2",
-        data: 
-        {
+        data:  {
           topics: ["channel-points-channel-v1." + botSettings.channelID],
           auth_token: botSettings.password
-        //   auth_token: "98od3y6sx8lhzor3wxti5145em5xp4"
-        
         }
     };
     pubsubSocket.send(JSON.stringify(connectMsg));
@@ -145,9 +105,7 @@ pubsubSocket.onopen = function(e)
     sendPings();
 };
 
-pubsubSocket.onmessage = function(event) 
-{
-    // console.log(event.data);
+pubsubSocket.onmessage = function(event)  {
     pubsubResonse = JSON.parse(event.data);
     pubsubMessageHandler(pubsubResonse);
 };
