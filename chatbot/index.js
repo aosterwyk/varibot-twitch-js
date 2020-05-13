@@ -86,20 +86,16 @@ async function beatGame(beatComments, beatChannel) {
     }
 }
 
-async function runCommand(targetChannel, fromMod, context, inputCmd, args)
-{
+async function runCommand(targetChannel, fromMod, context, inputCmd, args) {
     cmd = inputCmd.substr(1);
 
-    if(cmd in simpleCommands)
-    {
+    if(cmd in simpleCommands) {
         // console.log('found command ' + cmd + ' in simple commands');
-        if(simpleCommands[cmd].scope == 'mods' && !fromMod)
-        {
+        if(simpleCommands[cmd].scope == 'mods' && !fromMod) {
             console.log(`User ${context['display-name']} tried to use the mod only command ${cmd}`);
             return;
         }
-        else
-        {
+        else {
             // console.log(simpleCommands[cmd].result);
             client.say(targetChannel, simpleCommands[cmd].result);
             return;
@@ -118,15 +114,13 @@ async function runCommand(targetChannel, fromMod, context, inputCmd, args)
         let randomGame = await getRandomOwnedGame(botSettings.googleSheetsClientEmail, botSettings.googleSheetsPrivateKey, botSettings.ownedGamesSpreadSheetID,searchPlatform);
         randomGame ? client.say(targetChannel, `${randomGame}`) : console.log('could not find game');
     }
-    else if(cmd == 'getgame')
-    {
+    else if(cmd == 'getgame') {
         let lookupChannel = targetChannel.substr(1);
         let channelID = await twitchAPI.getChannelID(lookupChannel);
         let gameName = await twitchAPI.getCurrentGame(channelID);
         console.log(gameName);
     }
-    else if(cmd == 'beat')
-    {
+    else if(cmd == 'beat') {
         if(fromMod)
         {           
             await beatGame(args, targetChannel)
@@ -137,38 +131,32 @@ async function runCommand(targetChannel, fromMod, context, inputCmd, args)
             client.say(targetChannel, `${context['display-name']} does not have permission to run this command`);
         }
     }
-    else if(cmd == 'radio')
-    {
+    else if(cmd == 'radio') {
         // currentGame = 'Grand Theft Auto: Vice City Stories';
         let lookupChannel = targetChannel.substr(1);
         let channelID = await twitchAPI.getChannelID(lookupChannel);
         let currentGame = await twitchAPI.getCurrentGame(channelID);            
-        if(threedUniverseGames.includes(currentGame) || hdUniverseGames.includes(currentGame))
-        {
-            try
-            {
+        if(threedUniverseGames.includes(currentGame) || hdUniverseGames.includes(currentGame)) {
+            try {
                 radioResult = randomRadio(currentGame);
                 client.say(targetChannel, radioResult);
             }
             catch(error){console.log(chalk.red(error));}         
             return;   
         }
-        else
-        {
+        else {
             // client.say(targetChannel, 'This is not a GTA game.');
             client.say(targetChannel, `${currentGame} is not a GTA game.`);
             return;
         }
     }
-    else
-    {
+    else {
         console.log(`Read command ${cmd} (args: ${args}) from ${context['display-name']}, command not found.`);
         return;
     }
 }
 
-function isMod(checkMsg)
-{
+function isMod(checkMsg) {
     if(checkMsg.mod){return true;}
     else if(checkMsg.badges && checkMsg.badges.broadcaster) {return true;}
     else{return false;}
@@ -189,12 +177,10 @@ client.on('message', async (target, context, msg, self) => {
     console.log(`[${msgTime.getHours()}:${msgTime.getMinutes()}]${context['display-name']}: ${msg}`);
     if(msg.startsWith('!')) { 
         cmdArray = msg.split(' ');
-        if(isMod(context))
-        {
+        if(isMod(context)) {
             await runCommand(target, true, context, cmdArray[0], cmdArray.slice(1));
         }
-        else
-        {
+        else {
             await runCommand(target, false, context, cmdArray[0], cmdArray.slice(1));
         }
     }
