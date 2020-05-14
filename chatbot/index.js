@@ -1,10 +1,10 @@
 const soundPlayer = require('play-sound')(opts = {player: 'mplayer.exe'});
 const tmi = require('tmi.js');
-const pubsubBot = require('../pubsub/index');
+const pubsubBot = require('../utils/pubsub');
 const botSettings = require('../botSettings.json');
 const { GoogleSpreadsheet } = require('google-spreadsheet');
 const { getRandomOwnedGame } = require('./ownedGames');
-const twitchAPI = require('../api/index');
+const twitchAPI = require('../utils/api');
 const chalk = require('chalk');
 
 const options = {
