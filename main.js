@@ -69,7 +69,7 @@ async function beatGame(beatComments, beatChannel) {
             await beatSheet.addRow(beatGameArray)
             .catch(error => {console.log(chalk.red(error));});
             client.say(beatChannel, `Added ${gameName} (${commentsString}) to list`);
-            console.log(`Added ${gameName} (${commentsString}) to list`);
+            console.log(chalk.cyan(`Added ${gameName} (${commentsString}) to list`));
             soundPlayer.play(botSettings.beatGameSound); // if this dies check that mplayer.exe is in %appdata%\npm 
         }
         else {
@@ -77,12 +77,12 @@ async function beatGame(beatComments, beatChannel) {
             await beatSheet.addRow(beatGameArray)
             .catch(error => {console.log(chalk.red(error));});
             client.say(beatChannel, `Added ${gameName} to list`);
-            console.log(`Added ${gameName} to list`);
+            console.log(chalk.cyan(`Added ${gameName} to list`));
             soundPlayer.play(botSettings.beatGameSound); // if this dies check that mplayer.exe is in %appdata%\npm 
         }
     }
     else {
-        console.log('gameName is empty or does not exist');
+        console.log(chalk.red('gameName is empty or does not exist'));
     }
 }
 
@@ -90,13 +90,11 @@ async function runCommand(targetChannel, fromMod, context, inputCmd, args) {
     cmd = inputCmd.substr(1);
 
     if(cmd in simpleCommands) {
-        // console.log('found command ' + cmd + ' in simple commands');
         if(simpleCommands[cmd].scope == 'mods' && !fromMod) {
             console.log(`User ${context['display-name']} tried to use the mod only command ${cmd}`);
             return;
         }
         else {
-            // console.log(simpleCommands[cmd].result);
             client.say(targetChannel, simpleCommands[cmd].result);
             return;
         }
@@ -112,19 +110,18 @@ async function runCommand(targetChannel, fromMod, context, inputCmd, args) {
             searchPlatform = 'genesis';
         }
         let randomGame = await getRandomOwnedGame(botSettings.googleSheetsClientEmail, botSettings.googleSheetsPrivateKey, botSettings.ownedGamesSpreadSheetID,searchPlatform);
-        randomGame ? client.say(targetChannel, `${randomGame}`) : console.log('could not find game');
+        randomGame ? client.say(targetChannel, `${randomGame}`) : console.log(chalk.red('could not find game'));
     }
-    else if(cmd == 'getgame') {
-        let lookupChannel = targetChannel.substr(1);
-        let channelID = await twitchAPI.getChannelID(lookupChannel);
-        let gameName = await twitchAPI.getCurrentGame(channelID);
-        console.log(gameName);
-    }
+    // else if(cmd == 'getgame') {
+    //     let lookupChannel = targetChannel.substr(1);
+    //     let channelID = await twitchAPI.getChannelID(lookupChannel);
+    //     let gameName = await twitchAPI.getCurrentGame(channelID);
+    //     console.log(gameName);
+    // }
     else if(cmd == 'multi') { 
         let channelId = await twitchAPI.getChannelID(targetChannel.substr(1));
         let channelTitle = await twitchAPI.getStreamTitle(channelId);
         let multiLink = `https://multistre.am/${botSettings.channel}/`
-        console.log(`Stream title: ${channelTitle}`);
         if(channelTitle.includes('!multi') && channelTitle.includes('@')) { 
             let mentionLocation = channelTitle.search('@');
             if(mentionLocation != -1) {
@@ -135,7 +132,7 @@ async function runCommand(targetChannel, fromMod, context, inputCmd, args) {
             }
         }
         else { 
-            console.log('Topic does not have !multi and @ in title');
+            console.log(chalk.red('Topic does not have !multi and @ in title'));
         }
     }
     else if(cmd == 'beat') {
@@ -167,7 +164,7 @@ async function runCommand(targetChannel, fromMod, context, inputCmd, args) {
         }
     }
     else {
-        console.log(`Read command ${cmd} (args: ${args}) from ${context['display-name']}, command not found.`);
+        console.log(chalk.grey(`Read command ${cmd} (args: ${args}) from ${context['display-name']}, command not found.`));
         return;
     }
 }
@@ -185,7 +182,7 @@ client.on('connected', (address, port) => {
 });
 
 client.on('message', async (target, context, msg, self) => {
-    if(self) { return; } // bot dees not need to interact with itself
+    if(self) { return; } // bot does not need to interact with itself
     // console.log(context['tmi-sent-ts']);
     // let timestamp = new Date(context['tmi-sent-ts']);
     let msgTime = new Date();
