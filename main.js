@@ -135,7 +135,7 @@ async function runCommand(targetChannel, fromMod, context, inputCmd, args) {
             }
         }
         else { 
-            console.log('Topic does not have !multi or @ in title');
+            console.log('Topic does not have !multi and @ in title');
         }
     }
     else if(cmd == 'beat') {
