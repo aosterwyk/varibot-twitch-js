@@ -166,7 +166,6 @@ client.connect();
 
 client.on('connected', (address, port) => {
     console.log(chalk.green(`Chatbot (${options.identity.username}) connected to ${address}:${port}`));
-    console.log('shyguy crash protection ready');
 });
 
 client.on('message', async (target, context, msg, self) => {
