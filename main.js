@@ -121,13 +121,11 @@ async function runCommand(targetChannel, fromMod, context, inputCmd, args) {
         console.log(gameName);
     }
     else if(cmd == 'beat') {
-        if(fromMod)
-        {           
+        if(fromMod) {           
             await beatGame(args, targetChannel)
             .catch(error => {console.log(chalk.red(error));});
         }
-        else
-        {
+        else{
             client.say(targetChannel, `${context['display-name']} does not have permission to run this command`);
         }
     }
