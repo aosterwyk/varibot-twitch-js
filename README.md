@@ -1,5 +1,5 @@
 #  varibot-twitch-js
-![Discord](https://img.shields.io/discord/90687557523771392?color=000000&label=%20&logo=discord) ![Twitch Status](https://img.shields.io/twitch/status/varixx?label=%20&logo=twitch)
+![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/varixx/varibot-twitch-js?sort=semver) ![GitHub last commit](https://img.shields.io/github/last-commit/varixx/varibot-twitch-js) ![GitHub last commit (branch)](https://img.shields.io/github/last-commit/varixx/varibot-twitch-js/dev?label=last%20commit%20%28dev%29) ![Discord](https://img.shields.io/discord/90687557523771392?color=000000&label=%20&logo=discord) ![Twitch Status](https://img.shields.io/twitch/status/varixx?label=%20&logo=twitch) 
 
 VariBot is a twitch chat bot with some custom features that were missing from existing bots. Some features include:
 - Updating google spreadsheet of games completed on stream with current game's name and timestamp.
