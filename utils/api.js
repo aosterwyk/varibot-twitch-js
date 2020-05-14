@@ -32,6 +32,19 @@ async function getCurrentGame(channelID) {
     }
 }
 
+async function getStreamTitle(channelID) {
+    // this uses API v5 because helix does not show game when stream is offline
+    let url = `https://api.twitch.tv/kraken/channels/${channelID}`;
+    let result = await fetch(url, {method: 'get', headers: {'Accept': 'application/vnd.twitchtv.v5+json', 'Client-ID': botSettings.clientID, 'Authorization': `OAuth ${botSettings.password}`}});
+    result = await result.json();
+    if('status' in result) {
+        return result.status;
+    }
+    else {
+        return false;
+    }
+}
+
 async function getGameName(findGameID) {
     // you'll eventually need this for helix because it gives the game ID and not the game name 
     let url = `https://api.twitch.tv/helix/games?id=${findGameID}`;
@@ -47,4 +60,5 @@ async function getGameName(findGameID) {
 
 module.exports.getChannelID = getChannelID;
 module.exports.getCurrentGame = getCurrentGame;
+module.exports.getStreamTitle = getStreamTitle;
 

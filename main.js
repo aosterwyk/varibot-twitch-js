@@ -120,6 +120,24 @@ async function runCommand(targetChannel, fromMod, context, inputCmd, args) {
         let gameName = await twitchAPI.getCurrentGame(channelID);
         console.log(gameName);
     }
+    else if(cmd == 'multi') { 
+        let channelId = await twitchAPI.getChannelID(targetChannel.substr(1));
+        let channelTitle = await twitchAPI.getStreamTitle(channelId);
+        let multiLink = `https://multistre.am/${botSettings.channel}/`
+        console.log(`Stream title: ${channelTitle}`);
+        if(channelTitle.includes('!multi') && channelTitle.includes('@')) { 
+            let mentionLocation = channelTitle.search('@');
+            if(mentionLocation != -1) {
+                let secondChannel = channelTitle.slice(mentionLocation);
+                secondChannel = secondChannel.trim().split(' ');
+                multiLink += `${(secondChannel[0].slice(1)).trim()}/layout4`;
+                client.say(targetChannel, multiLink);
+            }
+        }
+        else { 
+            console.log('Topic does not have !multi or @ in title');
+        }
+    }
     else if(cmd == 'beat') {
         if(fromMod) {           
             await beatGame(args, targetChannel)
