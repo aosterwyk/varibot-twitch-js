@@ -3,7 +3,7 @@ const tmi = require('tmi.js');
 const pubsubBot = require('../utils/pubsub');
 const botSettings = require('../botSettings.json');
 const { GoogleSpreadsheet } = require('google-spreadsheet');
-const { getRandomOwnedGame } = require('./ownedGames');
+const { getRandomOwnedGame } = require('../utils/ownedGames');
 const twitchAPI = require('../utils/api');
 const chalk = require('chalk');
 
