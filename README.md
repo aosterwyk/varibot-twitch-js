@@ -7,6 +7,7 @@ VariBot is a twitch chat bot with some custom features that were missing from ex
 - Playing sounds for channel points (pubsub) rewards. 
 - Choosing a random GTA radio station.
 - Listing the GTA timelines based on the game currently being played.
+- Automatic !multi command when "!multi" and "@\<useranme\>" are in stream title.
 
 This project was started to learn node. It may eventually be public. If you're reading this it's probably already public and I forgot to update the readme. Please open an issue for that. 
 
