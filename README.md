@@ -3,6 +3,7 @@
 
 VariBot is a twitch chat bot with some custom features that were missing from existing bots. Some features include:
 - Updating google spreadsheet of games completed on stream with current game's name and timestamp.
+- Choose random game from google spreadsheet.
 - Playing sounds for channel points (pubsub) rewards. 
 - Choosing a random GTA radio station.
 - Listing the GTA timelines based on the game currently being played.
