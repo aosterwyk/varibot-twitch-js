@@ -17,7 +17,9 @@ This project was started to learn node. It may eventually be public. If you're r
 ## Usage
 
 - Copy botSettings.js.example to botSettings.js in root directory. Update required settings. 
-- TO DO - Document steps for getting twitch Client ID and other settings
+- TO DO - Steps for twitch Client ID and token
+- TO DO - Steps for google spreadsheet API access
+- TO DO - Sounds and channel points rewards setup
 - Start with ```npm start```
 
 ## Support
