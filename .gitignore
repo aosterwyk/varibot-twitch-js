@@ -2,3 +2,5 @@
 *.wav
 *.lnk
 botSettings.json
+node_modules/
+.vscode/
