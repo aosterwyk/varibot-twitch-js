@@ -34,6 +34,8 @@ gtaPassedSounds = ["GTA 3 - Mission Complete.mp3", "GTA IV - Mission Complete 2.
 
 const client = new tmi.client(options);
 
+console.log(`${chalk.blueBright('V')}${chalk.cyanBright('a')}${chalk.blueBright('r')}${chalk.cyanBright('i')}${chalk.blueBright('B')}${chalk.cyanBright('o')}${chalk.blueBright('t')}`); 
+
 function randomNumber(min, max) {
     return Math.floor(Math.random() * (max - min + 1) + min);
 }
@@ -176,7 +178,7 @@ function isMod(checkMsg) {
 client.connect();
 
 client.on('connected', (address, port) => {
-    console.log(chalk.green(`Chatbot (${options.identity.username}) connected to ${address}:${port}`));
+    console.log(chalk.green(`Chatbot (${chalk.greenBright(options.identity.username)}) connected to ${address}:${port}`));
 });
 
 client.on('message', async (target, context, msg, self) => {
