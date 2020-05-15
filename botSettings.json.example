@@ -3,7 +3,6 @@
     "password" : "",
     "clientID" : "",
     "channel": "",
-    "channelID" : "",
     "soundsDir" : "",
     "googleSheetsClientEmail" : "",
     "googleSheetsPrivateKey" : "",
