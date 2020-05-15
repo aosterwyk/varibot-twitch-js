@@ -21,8 +21,8 @@ fs.readdir(soundsDir, (error, files) => {
     console.log('Loading sounds...');
     if(files.length > 0) {
         files.forEach(file => {
-            if(staticSounds.includes(file) || pointSounds[file]) {
-                console.log(`Found static sound ${file}, skipping.`);
+            if(staticSounds.includes(file)) { 
+                console.log(chalk.grey(`Found static sound ${file}, skipping.`));
             }
             else {
                 if(file.includes('.mp3')){
