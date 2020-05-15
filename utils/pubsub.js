@@ -79,7 +79,6 @@ pubsubSocket.onopen = async function(e) {
         type: "LISTEN",
         nonce: "44h1k13746815ab1r2",
         data:  {
-        //   topics: ["channel-points-channel-v1." + botSettings.channelID],
           topics: ["channel-points-channel-v1." + channelId],
           auth_token: botSettings.password
         }
