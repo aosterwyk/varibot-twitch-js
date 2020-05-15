@@ -70,7 +70,7 @@ async function beatGame(beatComments, beatChannel) {
             .catch(error => {console.log(chalk.red(error));});
             client.say(beatChannel, `Added ${gameName} (${commentsString}) to list`);
             console.log(chalk.cyan(`Added ${gameName} (${commentsString}) to list`));
-            soundPlayer.play(botSettings.beatGameSound); // if this dies check that mplayer.exe is in %appdata%\npm 
+            soundPlayer.play(`${botSettings.soundsDir}/${botSettings.beatGameSound}`); // if this dies check that mplayer.exe is in %appdata%\npm 
         }
         else {
             let beatGameArray = [gameName, beatTimestamp];
@@ -78,7 +78,7 @@ async function beatGame(beatComments, beatChannel) {
             .catch(error => {console.log(chalk.red(error));});
             client.say(beatChannel, `Added ${gameName} to list`);
             console.log(chalk.cyan(`Added ${gameName} to list`));
-            soundPlayer.play(botSettings.beatGameSound); // if this dies check that mplayer.exe is in %appdata%\npm 
+            soundPlayer.play(`${botSettings.soundsDir}/${botSettings.beatGameSound}`); // if this dies check that mplayer.exe is in %appdata%\npm 
         }
     }
     else {

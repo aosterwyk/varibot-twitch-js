@@ -2,5 +2,6 @@
 *.wav
 *.lnk
 botSettings.json
+channelPointsSounds.json
 node_modules/
 .vscode/
