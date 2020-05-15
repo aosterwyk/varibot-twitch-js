@@ -6,6 +6,7 @@ const botSettings = require('../botSettings.json');
 const soundsDir = botSettings.soundsDir;
 const chalk = require('chalk');
 const pointSounds = require('../channelPointsSounds.json');
+const { getChannelID } = require('./api');
 
 let sounds = [];
 let staticSounds = [botSettings.beatGameSound];
@@ -72,12 +73,14 @@ function pubsubMessageHandler(msg) {
     }
 }
 
-pubsubSocket.onopen = function(e) {
+pubsubSocket.onopen = async function(e) {
+    let channelId = await getChannelID(botSettings.channel);
     let connectMsg =  {
         type: "LISTEN",
         nonce: "44h1k13746815ab1r2",
         data:  {
-          topics: ["channel-points-channel-v1." + botSettings.channelID],
+        //   topics: ["channel-points-channel-v1." + botSettings.channelID],
+          topics: ["channel-points-channel-v1." + channelId],
           auth_token: botSettings.password
         }
     };
