@@ -87,7 +87,7 @@ async function beatGame(beatComments, beatChannel) {
 }
 
 async function runCommand(targetChannel, fromMod, context, inputCmd, args) {
-    cmd = inputCmd.substr(1);
+    let cmd = inputCmd.toLowerCase();
 
     if(cmd in simpleCommands) {
         if(simpleCommands[cmd].scope == 'mods' && !fromMod) {
@@ -99,7 +99,7 @@ async function runCommand(targetChannel, fromMod, context, inputCmd, args) {
             return;
         }
     }
-    else if(cmd == 'randomGame') { 
+    else if(cmd == 'randomgame') { 
         // check that the spreadsheet is not called template
         let searchPlatform = '';
         args.forEach(searchString => searchPlatform += searchString);
@@ -145,7 +145,6 @@ async function runCommand(targetChannel, fromMod, context, inputCmd, args) {
         }
     }
     else if(cmd == 'radio') {
-        // currentGame = 'Grand Theft Auto: Vice City Stories';
         let lookupChannel = targetChannel.substr(1);
         let channelID = await twitchAPI.getChannelID(lookupChannel);
         let currentGame = await twitchAPI.getCurrentGame(channelID);            
@@ -158,7 +157,6 @@ async function runCommand(targetChannel, fromMod, context, inputCmd, args) {
             return;   
         }
         else {
-            // client.say(targetChannel, 'This is not a GTA game.');
             client.say(targetChannel, `${currentGame} is not a GTA game.`);
             return;
         }
@@ -184,11 +182,10 @@ client.on('connected', (address, port) => {
 client.on('message', async (target, context, msg, self) => {
     if(self) { return; } // bot does not need to interact with itself
     // console.log(context['tmi-sent-ts']);
-    // let timestamp = new Date(context['tmi-sent-ts']);
     let msgTime = new Date();
     console.log(`[${msgTime.getHours()}:${msgTime.getMinutes()}]${context['display-name']}: ${msg}`);
     if(msg.startsWith('!')) { 
-        cmdArray = msg.split(' ');
+        cmdArray = msg.slice(1).split(' ');
         if(isMod(context)) {
             await runCommand(target, true, context, cmdArray[0], cmdArray.slice(1));
         }
