@@ -1,10 +1,20 @@
 const fetch = require('node-fetch');
 const botSettings = require('../botSettings.json');
 
+// change this to get/post
 async function twitchAPI(url) {
     let result = await fetch(url, {method: 'get', headers: {'Client-ID': botSettings.clientID, 'Authorization': `Bearer ${botSettings.password}`}});
     result = await result.json();
     return result;
+}
+
+async function createStreamMarker(channelId, description) { 
+    let url = 'https://api.twitch.tv/helix/streams/markers';
+    let result = await fetch(url, {method: 'post', headers: {'Client-ID': botSettings.clientID, 'Authorization': `Bearer ${botSettings.password}`, 'Content-Type': 'application/json'},
+    body: `{"user_id":"${channelId}", "description":"${description}"}`
+    // varixx 9502699
+    });
+    
 }
 
 async function getChannelID(channelName) {
@@ -61,4 +71,4 @@ async function getGameName(findGameID) {
 module.exports.getChannelID = getChannelID;
 module.exports.getCurrentGame = getCurrentGame;
 module.exports.getStreamTitle = getStreamTitle;
-
+module.exports.createStreamMarker = createStreamMarker;
