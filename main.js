@@ -7,13 +7,19 @@ const { getRandomOwnedGame } = require('./utils/ownedGames');
 const twitchAPI = require('./utils/api');
 const chalk = require('chalk');
 
+if(botSettings.password.length < 1) { 
+    console.log(chalk.red('Invalid auth token. Please authorize the bot using the link below and paste your token under password in bot settings.'));
+    console.log(`https://id.twitch.tv/oauth2/authorize?client_id=${botSettings.clientID}&redirect_uri=https://acceptdefaults.com/twitch-oauth-token-generator/&response_type=token&scope=chat:edit+chat:read+user:edit:broadcast`);
+    process.exit();
+}
+
 const options = {
     identity: {
         username: botSettings.username,
         password: botSettings.password
     },
     channels: [botSettings.channel]
-};
+}; 
 
 threedUniverseGames = ["Grand Theft Auto: Vice City Stories", "Grand Theft Auto: Vice City", "Grand Theft Auto: San Andreas", "Grand Theft Auto: Liberty City Stories", "Grand Theft Auto III"];
 threedUniverseTimeline = "Vice City Stories (1984) Vice City (1986) San Andreas (1992) Liberty City Stories (1998) Advance (2000) (Skipped) GTA III (2001)";
@@ -72,6 +78,9 @@ async function beatGame(beatComments, beatChannel) {
             .catch(error => {console.log(chalk.red(error));});
             client.say(beatChannel, `Added ${gameName} (${commentsString}) to list`);
             console.log(chalk.cyan(`Added ${gameName} (${commentsString}) to list`));
+            let channelId = await twitchAPI.getChannelID(targetChannel.substr(1));
+            await twitchAPI.createStreamMarker(channelId,'test with id from api');
+            console.log(chalk.cyan('Created stream marker'));            
             soundPlayer.play(`${botSettings.soundsDir}/${botSettings.beatGameSound}`); // if this dies check that mplayer.exe is in %appdata%\npm 
         }
         else {
@@ -80,6 +89,9 @@ async function beatGame(beatComments, beatChannel) {
             .catch(error => {console.log(chalk.red(error));});
             client.say(beatChannel, `Added ${gameName} to list`);
             console.log(chalk.cyan(`Added ${gameName} to list`));
+            let channelId = await twitchAPI.getChannelID(targetChannel.substr(1));
+            await twitchAPI.createStreamMarker(channelId,'test with id from api');
+            console.log(chalk.cyan('Created stream marker'));
             soundPlayer.play(`${botSettings.soundsDir}/${botSettings.beatGameSound}`); // if this dies check that mplayer.exe is in %appdata%\npm 
         }
     }
@@ -114,12 +126,6 @@ async function runCommand(targetChannel, fromMod, context, inputCmd, args) {
         let randomGame = await getRandomOwnedGame(botSettings.googleSheetsClientEmail, botSettings.googleSheetsPrivateKey, botSettings.ownedGamesSpreadSheetID,searchPlatform);
         randomGame ? client.say(targetChannel, `${randomGame}`) : console.log(chalk.red('could not find game'));
     }
-    // else if(cmd == 'getgame') {
-    //     let lookupChannel = targetChannel.substr(1);
-    //     let channelID = await twitchAPI.getChannelID(lookupChannel);
-    //     let gameName = await twitchAPI.getCurrentGame(channelID);
-    //     console.log(gameName);
-    // }
     else if(cmd == 'multi') { 
         let channelId = await twitchAPI.getChannelID(targetChannel.substr(1));
         let channelTitle = await twitchAPI.getStreamTitle(channelId);
