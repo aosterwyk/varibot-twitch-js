@@ -9,7 +9,7 @@ const chalk = require('chalk');
 
 if(botSettings.password.length < 1) { 
     console.log(chalk.red('Invalid auth token. Please authorize the bot using the link below and paste your token under password in bot settings.'));
-    console.log(`https://id.twitch.tv/oauth2/authorize?client_id=${botSettings.clientID}&redirect_uri=https://acceptdefaults.com/twitch-oauth-token-generator/&response_type=token&scope=chat:edit+chat:read+user:edit:broadcast`);
+    console.log(`https://id.twitch.tv/oauth2/authorize?client_id=${botSettings.clientID}&redirect_uri=https://acceptdefaults.com/twitch-oauth-token-generator/&response_type=token&scope=bits:read+channel:read:redemptions+channel:moderate+chat:edit+chat:read+user:edit:broadcast`);
     process.exit();
 }
 
