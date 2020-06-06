@@ -14,13 +14,14 @@ This project was started to learn node. It may eventually be public. If you're r
 ## Installation
 
 - Download or clone the repo.
+- Install nodejs v13.12.0 or newer
 - Run ```npm install``` to install dependencies 
 
 ## Usage
 
-- Copy botSettings.js.example to botSettings.js in root directory. Update required settings. 
+- Copy botSettings.js.example to botSettings.js in root directory. Update required settings. **NOTE**: "password" is your oauth token, not your actual twitch password.
+- Leave "password" blank if this is your first time running this bot. The bot will error out with a URL to generate a token when you start it for the first time.
 - Copy channelPointsSounds.example.json to channelPointsSounds.json in root directory. Add any sounds for channel rewards. (Note: Command names are case sensitive) 
-- TO DO - Steps for twitch Client ID and token
 - TO DO - Steps for google spreadsheet API access
 - Start with ```npm start```
 
