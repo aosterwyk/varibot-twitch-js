@@ -127,9 +127,11 @@ async function runCommand(targetChannel, fromMod, context, inputCmd, args) {
         if(channelTitle.includes('!multi') && channelTitle.includes('@')) { 
             let mentionLocation = channelTitle.search('@');
             if(mentionLocation != -1) {
-                let secondChannel = channelTitle.slice(mentionLocation);
-                secondChannel = secondChannel.trim().split(' ');
-                multiLink += `${(secondChannel[0].slice(1)).trim()}/layout4`;
+                let multiChannels = channelTitle.slice(mentionLocation);
+                multiChannels = multiChannels.trim().split(' ');
+                multiChannels.forEach((chan, c) => {
+                    multiLink += `${(chan.slice(1)).trim()}/`;
+                });
                 client.say(targetChannel, multiLink);
             }
         }
