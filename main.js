@@ -139,7 +139,8 @@ async function runCommand(targetChannel, fromMod, context, inputCmd, args) {
                   if(chan.includes('@') && chan.length > 4) {
                     multiLink += `${(chan.slice(1)).trim()}/`;
                   }
-            });
+                });
+            }
         }
         else { 
             console.log(chalk.red('Topic does not have !multi and @ in title'));
