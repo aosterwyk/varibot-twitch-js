@@ -2,7 +2,8 @@
 *.m4a
 *.wav
 *.lnk
-botSettings.json
-channelPointsSounds.json
-node_modules/
 .vscode/
+node_modules/
+botSettings.json
+enabledCommands.json
+channelPointsSounds.json
