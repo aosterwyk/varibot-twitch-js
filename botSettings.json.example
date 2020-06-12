@@ -1,9 +1,9 @@
 {
     "username" : "",
     "password" : "",
-    "clientID" : "",
+    "clientID" : "rq2a841j8f63fndu5lnbwzwmbzamoy",
     "channel": "",
-    "soundsDir" : "",
+    "soundsDir" : "sounds\\",
     "googleSheetsClientEmail" : "",
     "googleSheetsPrivateKey" : "",
     "beatSheetID" : "",
