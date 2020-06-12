@@ -7,6 +7,7 @@ const { GoogleSpreadsheet } = require('google-spreadsheet');
 const { getRandomOwnedGame } = require('./utils/ownedGames');
 const twitchAPI = require('./utils/api');
 const chalk = require('chalk');
+const d = new Date();
 
 if(botSettings.password.length < 1) { 
     console.log(chalk.red('Invalid auth token. Please authorize the bot using the link below and paste your token under password in bot settings.'));
@@ -21,6 +22,8 @@ const options = {
     },
     channels: [botSettings.channel]
 }; 
+
+let lastRunTimestamp = d.getTime(); // hacky cooldown 
 
 threedUniverseGames = ["Grand Theft Auto: Vice City Stories", "Grand Theft Auto: Vice City", "Grand Theft Auto: San Andreas", "Grand Theft Auto: Liberty City Stories", "Grand Theft Auto III"];
 threedUniverseTimeline = "Vice City Stories (1984) Vice City (1986) San Andreas (1992) Liberty City Stories (1998) Advance (2000) (Skipped) GTA III (2001)";
@@ -101,7 +104,7 @@ async function beatGame(beatComments, beatChannel) {
     }
 }
 
-async function runCommand(targetChannel, fromMod, context, inputCmd, args) {
+async function runCommand(targetChannel, fromMod, context, inputCmd, args) {   
     let cmd = inputCmd.toLowerCase();
     if(cmd in simpleCommands) {
         if(!simpleCommands[cmd].enabled) { 
@@ -144,9 +147,9 @@ async function runCommand(targetChannel, fromMod, context, inputCmd, args) {
                 let multiChannels = channelTitle.slice(mentionLocation);
                 multiChannels = multiChannels.trim().split(' ');
                 multiChannels.forEach((chan, c) => {
-                  if(chan.includes('@') && chan.length > 4) {
+                if(chan.includes('@') && chan.length > 4) {
                     multiLink += `${(chan.slice(1)).trim()}/`;
-                  }
+                }
                 });
                 client.say(targetChannel,`${multiLink}`);
             }
@@ -163,6 +166,17 @@ async function runCommand(targetChannel, fromMod, context, inputCmd, args) {
         else{
             client.say(targetChannel, `${context['display-name']} does not have permission to run this command`);
         }
+    }
+    else if(cmd == 'cool') {
+        let checked = await checkCooldown(lastRunTimestamp);
+        if(checked) {  
+            lastRunTimestamp = new Date();
+            console.log(`command will run`);
+        }
+        else { 
+            console.log(`command on cooldown`);
+        }
+        // TO DO: move this to run before commands
     }
     else if(cmd == 'radio') {
         let lookupChannel = targetChannel.substr(1);
@@ -185,6 +199,21 @@ async function runCommand(targetChannel, fromMod, context, inputCmd, args) {
         console.log(chalk.grey(`Read command ${cmd} (args: ${args}) from ${context['display-name']}, command not found.`));
         return;
     }
+}
+
+async function checkCooldown(lastRun) { 
+    let now = new Date();
+    let lastRunDate = new Date(lastRun);
+    let nextRunDate = new Date();
+    nextRunDate.setSeconds(lastRunDate.getSeconds() + botSettings.cooldown);
+    // console.log(now);
+    // console.log(lastRunDate);
+    // console.log(nextRunDate);
+
+    if(now > nextRunDate) { 
+        return true;
+    }
+    return false;
 }
 
 function isMod(checkMsg) {
