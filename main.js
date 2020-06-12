@@ -2,6 +2,7 @@ const soundPlayer = require('play-sound')(opts = {player: 'mplayer.exe'});
 const tmi = require('tmi.js');
 const pubsubBot = require('./utils/pubsub');
 const botSettings = require('./botSettings.json');
+const enabledCommands = require('./enabledCommands.json');
 const { GoogleSpreadsheet } = require('google-spreadsheet');
 const { getRandomOwnedGame } = require('./utils/ownedGames');
 const twitchAPI = require('./utils/api');
@@ -53,8 +54,8 @@ function randomRadio(game) {
 }
 
 const simpleCommands =  {
-    purpose: {scope: 'mods', cooldown: 'TODO', result: 'I pass butter'},
-    list: {scope: 'all', cooldown: 'TODO', result: 'https://docs.google.com/spreadsheets/d/1sAjqGOPH3fosstrF-mBFqMA8Bv5WCpz-wFFDnV_5k6U/edit#gid=1081070171'}
+    purpose: {scope: 'mods', cooldown: 'TODO', enabled: false, result: 'I pass butter'},
+    list: {scope: 'all', cooldown: 'TODO', enabled: true, result: `https://docs.google.com/spreadsheets/d/${botSettings.beatSpreadSheetID}`}
 };
 
 async function beatGame(beatComments, beatChannel) {        
@@ -102,8 +103,11 @@ async function beatGame(beatComments, beatChannel) {
 
 async function runCommand(targetChannel, fromMod, context, inputCmd, args) {
     let cmd = inputCmd.toLowerCase();
-
     if(cmd in simpleCommands) {
+        if(!simpleCommands[cmd].enabled) { 
+            console.log(`Found command ${cmd} but it is disabled. Skipping.`);            
+            return;
+        }
         if(simpleCommands[cmd].scope == 'mods' && !fromMod) {
             console.log(`User ${context['display-name']} tried to use the mod only command ${cmd}`);
             return;
@@ -113,7 +117,11 @@ async function runCommand(targetChannel, fromMod, context, inputCmd, args) {
             return;
         }
     }
-    else if(cmd == 'randomgame') { 
+    if(!enabledCommands[cmd]) {
+        console.log(`Found command ${cmd} but it is disabled. Skipping.`);
+        return;
+    }
+    if(cmd == 'randomgame') { 
         // check that the spreadsheet is not called template
         let searchPlatform = '';
         args.forEach(searchString => searchPlatform += searchString);
@@ -140,6 +148,7 @@ async function runCommand(targetChannel, fromMod, context, inputCmd, args) {
                     multiLink += `${(chan.slice(1)).trim()}/`;
                   }
                 });
+                client.say(targetChannel,`${multiLink}`);
             }
         }
         else { 
