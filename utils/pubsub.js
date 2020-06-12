@@ -25,9 +25,9 @@ fs.readdir(soundsDir, (error, files) => {
                 console.log(chalk.grey(`Found static sound ${file}, skipping.`));
             }
             else {
-                if(file.includes('.mp3')){
+                if(file.includes('.mp3') || (file.includes('.m4a'))) {
                     sounds.push(file);
-                    // console.log(`Loaded sound ${file}.`);
+                    console.log(`Loaded sound ${file}.`);
                 }
             }
         });
