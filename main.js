@@ -7,7 +7,6 @@ const { GoogleSpreadsheet } = require('google-spreadsheet');
 const { getRandomOwnedGame } = require('./utils/ownedGames');
 const twitchAPI = require('./utils/api');
 const chalk = require('chalk');
-const d = new Date();
 
 if(botSettings.password.length < 1) { 
     console.log(chalk.red('Invalid auth token. Please authorize the bot using the link below and paste your token under password in bot settings.'));
@@ -23,7 +22,7 @@ const options = {
     channels: [botSettings.channel]
 }; 
 
-let lastRunTimestamp = d.getTime(); // hacky cooldown 
+let lastRunTimestamp = new Date(); // hacky cooldown 
 
 threedUniverseGames = ["Grand Theft Auto: Vice City Stories", "Grand Theft Auto: Vice City", "Grand Theft Auto: San Andreas", "Grand Theft Auto: Liberty City Stories", "Grand Theft Auto III"];
 threedUniverseTimeline = "Vice City Stories (1984) Vice City (1986) San Andreas (1992) Liberty City Stories (1998) Advance (2000) (Skipped) GTA III (2001)";
@@ -204,8 +203,7 @@ async function runCommand(targetChannel, fromMod, context, inputCmd, args) {
 async function checkCooldown(lastRun) { 
     let now = new Date();
     let lastRunDate = new Date(lastRun);
-    let nextRunDate = new Date();
-    nextRunDate.setSeconds(lastRunDate.getSeconds() + botSettings.cooldown);
+    let nextRunDate = new Date(lastRunDate.getTime() + (botSettings.cooldown * 1000));
     // console.log(now);
     // console.log(lastRunDate);
     // console.log(nextRunDate);
