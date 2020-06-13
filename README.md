@@ -19,7 +19,7 @@ This project was started to learn node. It may eventually be public. If you're r
 
 ## Usage
 
-- Copy botSettings.js.example to botSettings.js in root directory. Update required settings. **NOTE**: "password" is your oauth token, not your actual twitch password.
+- Copy botSettings.js.example to botSettings.js in root directory. Update required settings. **NOTE**: "password" is your oauth token, not your actual twitch password. "cooldown" is in seconds.
 - Leave "password" blank if this is your first time running this bot. The bot will error out with a URL to generate a token when you start it for the first time.
 - Copy enabledCommands.json.example to enabledCommands.json. Change any commands you want to disable to false in this file.
 - Copy channelPointsSounds.json.example to channelPointsSounds.json in root directory. Add any sounds for channel rewards. (Note: Command names are case sensitive) 

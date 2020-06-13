@@ -105,98 +105,94 @@ async function beatGame(beatComments, beatChannel) {
 
 async function runCommand(targetChannel, fromMod, context, inputCmd, args) {   
     let cmd = inputCmd.toLowerCase();
-    if(cmd in simpleCommands) {
-        if(!simpleCommands[cmd].enabled) { 
-            console.log(`Found command ${cmd} but it is disabled. Skipping.`);            
+    let checked = await checkCooldown(lastRunTimestamp);
+    if(checked) {  
+        lastRunTimestamp = new Date();
+        if(cmd in simpleCommands) {
+            if(!simpleCommands[cmd].enabled) { 
+                console.log(`Found command ${cmd} but it is disabled. Skipping.`);            
+                return;
+            }
+            if(simpleCommands[cmd].scope == 'mods' && !fromMod) {
+                console.log(`User ${context['display-name']} tried to use the mod only command ${cmd}`);
+                return;
+            }
+            else {
+                client.say(targetChannel, simpleCommands[cmd].result);
+                return;
+            }
+        }
+        if(!enabledCommands[cmd]) {
+            console.log(`Found command ${cmd} but it is disabled. Skipping.`);
             return;
         }
-        if(simpleCommands[cmd].scope == 'mods' && !fromMod) {
-            console.log(`User ${context['display-name']} tried to use the mod only command ${cmd}`);
-            return;
+        if(cmd == 'randomgame') { 
+            // check that the spreadsheet is not called template
+            let searchPlatform = '';
+            args.forEach(searchString => searchPlatform += searchString);
+            if(searchPlatform.length > 0) {
+                searchPlatform = searchPlatform.trim();
+            }
+            else {
+                searchPlatform = 'genesis';
+            }
+            let randomGame = await getRandomOwnedGame(botSettings.googleSheetsClientEmail, botSettings.googleSheetsPrivateKey, botSettings.ownedGamesSpreadSheetID,searchPlatform);
+            randomGame ? client.say(targetChannel, `${randomGame}`) : console.log(chalk.red('could not find game'));
         }
-        else {
-            client.say(targetChannel, simpleCommands[cmd].result);
-            return;
-        }
-    }
-    if(!enabledCommands[cmd]) {
-        console.log(`Found command ${cmd} but it is disabled. Skipping.`);
-        return;
-    }
-    if(cmd == 'randomgame') { 
-        // check that the spreadsheet is not called template
-        let searchPlatform = '';
-        args.forEach(searchString => searchPlatform += searchString);
-        if(searchPlatform.length > 0) {
-            searchPlatform = searchPlatform.trim();
-        }
-        else {
-            searchPlatform = 'genesis';
-        }
-        let randomGame = await getRandomOwnedGame(botSettings.googleSheetsClientEmail, botSettings.googleSheetsPrivateKey, botSettings.ownedGamesSpreadSheetID,searchPlatform);
-        randomGame ? client.say(targetChannel, `${randomGame}`) : console.log(chalk.red('could not find game'));
-    }
-    else if(cmd == 'multi') { 
-        let channelId = await twitchAPI.getChannelID(targetChannel.substr(1));
-        let channelTitle = await twitchAPI.getStreamTitle(channelId);
-        let multiLink = `https://multistre.am/${botSettings.channel}/`
-        if(channelTitle.includes('!multi') && channelTitle.includes('@')) { 
-            let mentionLocation = channelTitle.search('@');
-            if(mentionLocation != -1) {
-                let multiChannels = channelTitle.slice(mentionLocation);
-                multiChannels = multiChannels.trim().split(' ');
-                multiChannels.forEach((chan, c) => {
-                if(chan.includes('@') && chan.length > 4) {
-                    multiLink += `${(chan.slice(1)).trim()}/`;
+        else if(cmd == 'multi') { 
+            let channelId = await twitchAPI.getChannelID(targetChannel.substr(1));
+            let channelTitle = await twitchAPI.getStreamTitle(channelId);
+            let multiLink = `https://multistre.am/${botSettings.channel}/`
+            if(channelTitle.includes('!multi') && channelTitle.includes('@')) { 
+                let mentionLocation = channelTitle.search('@');
+                if(mentionLocation != -1) {
+                    let multiChannels = channelTitle.slice(mentionLocation);
+                    multiChannels = multiChannels.trim().split(' ');
+                    multiChannels.forEach((chan, c) => {
+                    if(chan.includes('@') && chan.length > 4) {
+                        multiLink += `${(chan.slice(1)).trim()}/`;
+                    }
+                    });
+                    client.say(targetChannel,`${multiLink}`);
                 }
-                });
-                client.say(targetChannel,`${multiLink}`);
+            }
+            else { 
+                console.log(chalk.red('Topic does not have !multi and @ in title'));
             }
         }
-        else { 
-            console.log(chalk.red('Topic does not have !multi and @ in title'));
-        }
-    }
-    else if(cmd == 'beat') {
-        if(fromMod) {           
-            await beatGame(args, targetChannel)
-            .catch(error => {console.log(chalk.red(error));});
-        }
-        else{
-            client.say(targetChannel, `${context['display-name']} does not have permission to run this command`);
-        }
-    }
-    else if(cmd == 'cool') {
-        let checked = await checkCooldown(lastRunTimestamp);
-        if(checked) {  
-            lastRunTimestamp = new Date();
-            console.log(`command will run`);
-        }
-        else { 
-            console.log(`command on cooldown`);
-        }
-        // TO DO: move this to run before commands
-    }
-    else if(cmd == 'radio') {
-        let lookupChannel = targetChannel.substr(1);
-        let channelID = await twitchAPI.getChannelID(lookupChannel);
-        let currentGame = await twitchAPI.getCurrentGame(channelID);            
-        if(threedUniverseGames.includes(currentGame) || hdUniverseGames.includes(currentGame)) {
-            try {
-                radioResult = randomRadio(currentGame);
-                client.say(targetChannel, radioResult);
+        else if(cmd == 'beat') {
+            if(fromMod) {           
+                await beatGame(args, targetChannel)
+                .catch(error => {console.log(chalk.red(error));});
             }
-            catch(error){console.log(chalk.red(error));}         
-            return;   
+            else{
+                client.say(targetChannel, `${context['display-name']} does not have permission to run this command`);
+            }
+        }
+        else if(cmd == 'radio') {
+            let lookupChannel = targetChannel.substr(1);
+            let channelID = await twitchAPI.getChannelID(lookupChannel);
+            let currentGame = await twitchAPI.getCurrentGame(channelID);            
+            if(threedUniverseGames.includes(currentGame) || hdUniverseGames.includes(currentGame)) {
+                try {
+                    radioResult = randomRadio(currentGame);
+                    client.say(targetChannel, radioResult);
+                }
+                catch(error){console.log(chalk.red(error));}         
+                return;   
+            }
+            else {
+                client.say(targetChannel, `${currentGame} is not a GTA game.`);
+                return;
+            }
         }
         else {
-            client.say(targetChannel, `${currentGame} is not a GTA game.`);
+            console.log(chalk.grey(`Read command ${cmd} (args: ${args}) from ${context['display-name']}, command not found.`));
             return;
         }
     }
-    else {
-        console.log(chalk.grey(`Read command ${cmd} (args: ${args}) from ${context['display-name']}, command not found.`));
-        return;
+    else { 
+        console.log(chalk.grey(`commands still on cooldown`));
     }
 }
 

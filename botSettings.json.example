@@ -3,7 +3,7 @@
     "password" : "",
     "clientID" : "rq2a841j8f63fndu5lnbwzwmbzamoy",
     "channel": "",
-    "cooldown": 5,    
+    "cooldown": 30,    
     "soundsDir" : "sounds\\",
     "googleSheetsClientEmail" : "",
     "googleSheetsPrivateKey" : "",
