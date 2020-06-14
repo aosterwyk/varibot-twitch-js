@@ -126,7 +126,7 @@ async function runCommand(targetChannel, fromMod, context, inputCmd, args) {
             console.log(`Found command ${cmd} but it is disabled. Skipping.`);
             return;
         }
-        if(cmd == 'randomgame') { 
+        if(cmd == 'shuffle') { 
             // check that the spreadsheet is not called template
             let searchPlatform = '';
             args.forEach(searchString => searchPlatform += searchString);
