@@ -27,7 +27,7 @@ fs.readdir(soundsDir, (error, files) => {
             else {
                 if(file.includes('.mp3') || (file.includes('.m4a'))) {
                     sounds.push(file);
-                    console.log(`Loaded sound ${file}.`);
+                    console.log(chalk.grey(`Loaded sound ${file}.`));
                 }
             }
         });
