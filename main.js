@@ -200,9 +200,6 @@ async function checkCooldown(lastRun) {
     let now = new Date();
     let lastRunDate = new Date(lastRun);
     let nextRunDate = new Date(lastRunDate.getTime() + (botSettings.cooldown * 1000));
-    // console.log(now);
-    // console.log(lastRunDate);
-    // console.log(nextRunDate);
 
     if(now > nextRunDate) { 
         return true;
