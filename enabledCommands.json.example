@@ -1,5 +1,5 @@
 {
-    "randomgame" : false,
+    "shuffle" : false,
     "multi" : true,
     "beat" : false,
     "radio" : false
