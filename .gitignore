@@ -2,6 +2,7 @@
 *.m4a
 *.wav
 *.lnk
+*.sqlite
 .vscode/
 node_modules/
 botSettings.json
