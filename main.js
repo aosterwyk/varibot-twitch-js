@@ -1,6 +1,7 @@
 const soundPlayer = require('play-sound')(opts = {player: 'mplayer.exe'});
 const tmi = require('tmi.js');
-const Sequelize = require('sequelize');
+const { botSettingsDB } = require('./db/botSettingsDB');
+const { simpleCommandsDB } = require('./db/simpleCommands');
 const botSettingsFile = require('./botSettings.json');
 const chalk = require('chalk');
 // const pubsubBot = require('./utils/pubsub');
@@ -11,69 +12,8 @@ const twitchAPI = require('./utils/api');
 
 let client = null;
 let botSettings = {};
+let simpleCommands = {};
 let lastRunTimestamp = new Date(); // hacky cooldown 
-
-// start DB setup
-
-const sequelize = new Sequelize({
-    dialect: 'sqlite',
-    storage: 'varibot.sqlite'
-  });
-
-const botSettingsDB = sequelize.define('botSettings', {
-    username: {
-        type: Sequelize.STRING,
-        allowNull: false
-    },
-    token: {
-        type: Sequelize.STRING,
-        allowNull: false
-    },
-    clientId: {
-        type: Sequelize.STRING,
-        allowNull: false
-    },
-    channel: {
-        type: Sequelize.STRING,
-        allowNull: false
-    },
-    cooldown: {
-        type: Sequelize.FLOAT,
-        allowNull: false
-    },
-    soundsDir: {
-        type: Sequelize.STRING,
-        allowNull: true
-    },
-    googleSheetsClientEmail: { 
-        type: Sequelize.STRING,
-        allowNull: true
-    },
-    googleSheetsPrivateKey: { 
-        type: Sequelize.STRING,
-        allowNull: true
-    },
-    beatSheetID: { 
-        type: Sequelize.STRING,
-        allowNull: true
-    },
-    beatSpreadSheetID: { 
-        type: Sequelize.STRING,
-        allowNull: true
-    },
-    beatGameSound: { 
-        type: Sequelize.STRING,
-        allowNull: true
-    },
-    ownedGamesSpreadSheetID: { 
-        type: Sequelize.STRING,
-        allowNull: true
-    }
-}, {
-    // sequelize options
-});
-
-// end DB setup
 
 // threedUniverseGames = ["Grand Theft Auto: Vice City Stories", "Grand Theft Auto: Vice City", "Grand Theft Auto: San Andreas", "Grand Theft Auto: Liberty City Stories", "Grand Theft Auto III"];
 // threedUniverseTimeline = "Vice City Stories (1984) Vice City (1986) San Andreas (1992) Liberty City Stories (1998) Advance (2000) (Skipped) GTA III (2001)";
@@ -104,10 +44,10 @@ const botSettingsDB = sequelize.define('botSettings', {
 //   return returnStation;
 // }
 
-const simpleCommands =  {
-    purpose: {scope: 'mods', cooldown: 'TODO', enabled: false, result: 'I pass butter'},
-    list: {scope: 'all', cooldown: 'TODO', enabled: true, result: `https://docs.google.com/spreadsheets/d/${botSettings.beatSpreadSheetID}`}
-};
+// const simpleCommands =  {
+//     purpose: {scope: 'mods', cooldown: 'TODO', enabled: false, result: 'I pass butter'},
+//     list: {scope: 'all', cooldown: 'TODO', enabled: true, result: `https://docs.google.com/spreadsheets/d/${botSettings.beatSpreadSheetID}`}
+// };
 
 // async function beatGame(beatComments, beatChannel) {        
 //     const doc = new GoogleSpreadsheet(botSettings.beatSpreadSheetID);
@@ -154,6 +94,7 @@ const simpleCommands =  {
 
 async function runCommand(targetChannel, fromMod, context, inputCmd, args) {   
     let cmd = inputCmd.toLowerCase();
+    // check if command is enabled when checking cooldown 
     let checked = await checkCooldown(lastRunTimestamp);
     if(checked) {  
         lastRunTimestamp = new Date();
@@ -187,6 +128,9 @@ async function runCommand(targetChannel, fromMod, context, inputCmd, args) {
             }
             let randomGame = await getRandomOwnedGame(botSettings.googleSheetsClientEmail, botSettings.googleSheetsPrivateKey, botSettings.ownedGamesSpreadSheetID,searchPlatform);
             randomGame ? client.say(targetChannel, `${randomGame}`) : console.log(chalk.red('could not find game'));
+        }
+        else if(cmd == 'list') {
+            client.say(targetChannel, `https://docs.google.com/spreadsheets/d/${botSettings.beatSpreadSheetID}`);
         }
         else if(cmd == 'multi') { 
             let channelId = await twitchAPI.getChannelID(targetChannel.substr(1));
@@ -262,6 +206,22 @@ function isMod(checkMsg) {
     else{return false;}
 }
 
+async function loadSimpleCommands() {
+    await simpleCommandsDB.sync();
+    let dbResult = await simpleCommandsDB.findAll();
+    dbResult.forEach(x => {
+        console.log(x);
+        simpleCommands[x.name] = {
+            enabled: x.enabled,
+            scope: x.scope,
+            cooldown: x.cooldown,
+            enabled: x.enabled,
+            result: x.result
+        }
+    });
+    console.log(JSON.stringify(simpleCommands));
+}   
+
 async function updateBotSettings(option, newValue) { 
     await botSettingsDB.sync();
     await botSettingsDB.update({
@@ -270,48 +230,50 @@ async function updateBotSettings(option, newValue) {
         where: {
             id: 1
         }
-    });
+    });  
 }
 
 async function startBot() { 
     await botSettingsDB.sync();
-    let botset = await botSettingsDB.findAll();
+    let botset = await botSettingsDB.findAll(); 
     botSettings = botset[0];
 
-    if(botSettings.token.length < 1) { 
-        console.log(chalk.red('Invalid auth token. Please authorize the bot using the link below and paste your token under password in bot settings.'));
-        console.log(`https://id.twitch.tv/oauth2/authorize?client_id=${botSettings.clientID}&redirect_uri=https://acceptdefaults.com/twitch-oauth-token-generator/&response_type=token&scope=bits:read+channel:read:redemptions+channel:moderate+chat:edit+chat:read+user:edit:broadcast`);
-        process.exit();
-    }
+    await loadSimpleCommands();
 
-    const options = {
-        identity: {
-            username: botSettings.username,
-            password: botSettings.token
-        },
-        channels: [botSettings.channel]
-    }; 
-    client = new tmi.client(options);    
-    client.connect();
-    client.on('connected', (address, port) => {
-        console.log(chalk.green(`Chatbot (${chalk.greenBright(options.identity.username)}) connected to ${address}:${port}`));
-    });
+    // if(botSettings.token.length < 1) { 
+    //     console.log(chalk.red('Invalid auth token. Please use the link below to authorize the bot and get a token.'));
+    //     console.log(`https://id.twitch.tv/oauth2/authorize?client_id=${botSettings.clientID}&redirect_uri=https://acceptdefaults.com/twitch-oauth-token-generator/&response_type=token&scope=bits:read+channel:read:redemptions+channel:moderate+chat:edit+chat:read+user:edit:broadcast`);
+    //     process.exit();
+    // }
 
-    client.on('message', async (target, context, msg, self) => {
-        if(self) { return; } // bot does not need to interact with itself
-        // console.log(context['tmi-sent-ts']);
-        let msgTime = new Date();
-        console.log(`[${msgTime.getHours()}:${msgTime.getMinutes()}]${context['display-name']}: ${msg}`);
-        if(msg.startsWith('!')) { 
-            cmdArray = msg.slice(1).split(' ');
-            if(isMod(context)) {
-                await runCommand(target, true, context, cmdArray[0], cmdArray.slice(1));
-            }
-            else {
-                await runCommand(target, false, context, cmdArray[0], cmdArray.slice(1));
-            }
-        }
-    });    
+    // const options = {
+    //     identity: {
+    //         username: botSettings.username,
+    //         password: botSettings.token
+    //     },
+    //     channels: [botSettings.channel]
+    // }; 
+    // client = new tmi.client(options);    
+    // client.connect();
+    // client.on('connected', (address, port) => {
+    //     console.log(chalk.green(`Chatbot (${chalk.greenBright(options.identity.username)}) connected to ${address}:${port}`));
+    // });
+
+    // client.on('message', async (target, context, msg, self) => {
+    //     if(self) { return; } // bot does not need to interact with itself
+    //     // console.log(context['tmi-sent-ts']);
+    //     let msgTime = new Date();
+    //     console.log(`[${msgTime.getHours()}:${msgTime.getMinutes()}]${context['display-name']}: ${msg}`);
+    //     if(msg.startsWith('!')) { 
+    //         cmdArray = msg.slice(1).split(' ');
+    //         if(isMod(context)) {
+    //             await runCommand(target, true, context, cmdArray[0], cmdArray.slice(1));
+    //         }
+    //         else {
+    //             await runCommand(target, false, context, cmdArray[0], cmdArray.slice(1));
+    //         }
+    //     }
+    // });    
 }
 
 startBot();

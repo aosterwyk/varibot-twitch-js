@@ -1,0 +1,9 @@
+const Sequelize = require('sequelize');
+
+const sequelize = new Sequelize({
+    dialect: 'sqlite',
+    storage: 'varibot.sqlite'
+  });
+
+module.exports.db = sequelize;
+module.exports.Sequelize = Sequelize;
