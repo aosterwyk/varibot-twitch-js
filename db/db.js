@@ -6,4 +6,3 @@ const sequelize = new Sequelize({
   });
 
 module.exports.db = sequelize;
-module.exports.Sequelize = Sequelize;
