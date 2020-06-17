@@ -4,7 +4,8 @@ const { botSettingsDB } = require('./db/botSettingsDB');
 const { simpleCommandsDB } = require('./db/simpleCommands');
 const botSettingsFile = require('./botSettings.json');
 const chalk = require('chalk');
-const pubsubBot = require('./utils/pubsub');
+const { loadSounds } = require('./utils/loadSounds');
+// const pubsubBot = require('./utils/pubsub');
 const enabledCommands = require('./enabledCommands.json');
 const { GoogleSpreadsheet } = require('google-spreadsheet');
 const { getRandomOwnedGame } = require('./utils/ownedGames');
@@ -257,34 +258,43 @@ async function startBot() {
         process.exit();
     }
 
-    const options = {
-        identity: {
-            username: botSettings.username,
-            password: botSettings.token
-        },
-        channels: [botSettings.channel]
-    }; 
-    client = new tmi.client(options);    
-    client.connect();
-    client.on('connected', (address, port) => {
-        console.log(chalk.green(`Chatbot (${chalk.greenBright(options.identity.username)}) connected to ${address}:${port}`));
-    });
+    if(botSettings.soundsDir.length > 1) {
+        let sounds = await loadSounds(botSettings.soundsDir);
+        console.log(sounds);
+    }
+    else {
+        console.log(`No sounds directory found in settings. Skipping loading sounds.`);
+    }
 
-    client.on('message', async (target, context, msg, self) => {
-        if(self) { return; } // bot does not need to interact with itself
-        // console.log(context['tmi-sent-ts']);
-        let msgTime = new Date();
-        console.log(`[${msgTime.getHours()}:${msgTime.getMinutes()}]${context['display-name']}: ${msg}`);
-        if(msg.startsWith('!')) { 
-            cmdArray = msg.slice(1).split(' ');
-            if(isMod(context)) {
-                await runCommand(target, true, context, cmdArray[0], cmdArray.slice(1));
-            }
-            else {
-                await runCommand(target, false, context, cmdArray[0], cmdArray.slice(1));
-            }
-        }
-    });    
+
+    // const options = {
+    //     identity: {
+    //         username: botSettings.username,
+    //         password: botSettings.token
+    //     },
+    //     channels: [botSettings.channel]
+    // }; 
+    // client = new tmi.client(options);    
+    // client.connect();
+    // client.on('connected', (address, port) => {
+    //     console.log(chalk.green(`Chatbot (${chalk.greenBright(options.identity.username)}) connected to ${address}:${port}`));
+    // });
+
+    // client.on('message', async (target, context, msg, self) => {
+    //     if(self) { return; } // bot does not need to interact with itself
+    //     // console.log(context['tmi-sent-ts']);
+    //     let msgTime = new Date();
+    //     console.log(`[${msgTime.getHours()}:${msgTime.getMinutes()}]${context['display-name']}: ${msg}`);
+    //     if(msg.startsWith('!')) { 
+    //         cmdArray = msg.slice(1).split(' ');
+    //         if(isMod(context)) {
+    //             await runCommand(target, true, context, cmdArray[0], cmdArray.slice(1));
+    //         }
+    //         else {
+    //             await runCommand(target, false, context, cmdArray[0], cmdArray.slice(1));
+    //         }
+    //     }
+    // });    
 }
 
 startBot();
