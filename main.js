@@ -4,93 +4,88 @@ const { botSettingsDB } = require('./db/botSettingsDB');
 const { simpleCommandsDB } = require('./db/simpleCommands');
 const botSettingsFile = require('./botSettings.json');
 const chalk = require('chalk');
-// const pubsubBot = require('./utils/pubsub');
+const pubsubBot = require('./utils/pubsub');
 const enabledCommands = require('./enabledCommands.json');
-// const { GoogleSpreadsheet } = require('google-spreadsheet');
-// const { getRandomOwnedGame } = require('./utils/ownedGames');
+const { GoogleSpreadsheet } = require('google-spreadsheet');
+const { getRandomOwnedGame } = require('./utils/ownedGames');
 const twitchAPI = require('./utils/api');
 
 let client = null;
 let botSettings = {};
-let simpleCommands = {};
+let commands = {};
 let lastRunTimestamp = new Date(); // hacky cooldown 
 
-// threedUniverseGames = ["Grand Theft Auto: Vice City Stories", "Grand Theft Auto: Vice City", "Grand Theft Auto: San Andreas", "Grand Theft Auto: Liberty City Stories", "Grand Theft Auto III"];
-// threedUniverseTimeline = "Vice City Stories (1984) Vice City (1986) San Andreas (1992) Liberty City Stories (1998) Advance (2000) (Skipped) GTA III (2001)";
-// hdUniverseGames = ["Grand Theft Auto IV", "Grand Theft Auto: Episodes from Liberty City", "Grand Theft Auto: Chinatown Wars", "Grand Theft Auto V"];
-// hdUniverseTimeline = "GTA IV (2008) The Lost and Damned (2008) The Ballad of Gay Tony (2008) Chinatown Wars (2009) GTA Online (2013-present) (Skipped)  GTA V (2013)";
-// gtaRadios = {
-// "Grand Theft Auto III" : ["Chatterbox FM", "Double Clef FM", "Flashback 95.6", "Game FM", "Head Radio", "K-Jah", "Lips 106", "MSX FM", "Rise FM"], 
-// "Grand Theft Auto: Vice City" : ["Emotion 98.3", "Fever 105", "Flash FM", "KCHAT", "Radio Espantoso", "V-Rock", "VCPR", "Wave 103", "Wildstyle"], 
-// "Grand Theft Auto: San Andreas" : ["Bounce FM", "CSR 103.9", "K Rose", "K-DST", "K-Jah West", "Master Sounds 98.3", "Playback FM", "Radio Los Santos", "Radio X", "SF-UR", "WCTR"],
-// "Grand Theft Auto: Liberty City Stories" : ["Double Clef FM", "Flashback FM", "Head Radio", "K-Jah", "LCFR", "Lips 106", "MSX 98", "Radio Del Mundo", "Rise FM", "The Liberty Jam"],
-// "Grand Theft Auto: Vice City Stories" : ["Emotion 98.3", "Flash FM", "Fresh 105 FM", "Paradise FM", "Radio Espantoso", "The Wave 103", "V-Rock", "VCFL", "VCPR"],
-// "Grand Theft Auto IV" : ["Electro-Choc", "Fusion FM", "Integrity 2.0", "International Funk", "Jazz Nation Radio 108.5", "K109 The Studio", "Liberty City Hardcore", "Liberty Rock Radio 97.8", "Massive B Soundsystem 96.9", "PLR", "Radio Broker", "San Juan Sounds", "The Beat 102.7", "The Classics 104.1", "The Journey", "The Vibe 98.8", "Tuff Gong Radio", "WKTT Radio", "Vladivostok FM"],
-// "Grand Theft Auto: Episodes from Liberty City" : ["Electro-Choc", "Integrity 2.0", "Liberty City Hardcore", "Liberty Rock Radio 97.8", "K109 The Studio", "Radio Broker", "RamJam FM", "San Juan Sounds", "Self-Actualization FM", "The Beat 102.7", "Vice City FM", "Vladivostok FM", "WKTT Radio"],
-// "Grand Theft Auto: Chinatown Wars" : ["Alchemist", "Deadmau5", "Prairie Cartel", "Ticklah", "Truth & Soul", "Anvil", "DFA", "DJ Khalil", "Sinowav FM", "Tortoise", "Turntables on the Hudson"],
-// "Grand Theft Auto V" : ["Blaine County Talk Radio", "Channel X", "East Los FM", "FlyLo FM", "Los Santos Rock Radio", "Non Stop Pop FM", "Radio Los Santos", "Radio Mirror Park", "Rebel Radio", "Soulwax FM", "Space 103.2", "The Blue Ark", "The Lab", "The Low Down 91.1", "Vinewood Boulevard Radio", "WCTR 95.6", "West Coast Classics", "Worldwide FM"]
-// };
-// gtaPassedSounds = ["GTA 3 - Mission Complete.mp3", "GTA IV - Mission Complete 2.mp3", "GTA IV - Mission Complete.mp3", "Liberity City Stories - Mission Complete.mp3", "San Andreas - Mission Complete.mp3", "Vice City - Mission Complete.mp3", "Vice City Stories - Mission Complete.mp3", "wolf3d-yeah.mp3"];
+threedUniverseGames = ["Grand Theft Auto: Vice City Stories", "Grand Theft Auto: Vice City", "Grand Theft Auto: San Andreas", "Grand Theft Auto: Liberty City Stories", "Grand Theft Auto III"];
+threedUniverseTimeline = "Vice City Stories (1984) Vice City (1986) San Andreas (1992) Liberty City Stories (1998) Advance (2000) (Skipped) GTA III (2001)";
+hdUniverseGames = ["Grand Theft Auto IV", "Grand Theft Auto: Episodes from Liberty City", "Grand Theft Auto: Chinatown Wars", "Grand Theft Auto V"];
+hdUniverseTimeline = "GTA IV (2008) The Lost and Damned (2008) The Ballad of Gay Tony (2008) Chinatown Wars (2009) GTA Online (2013-present) (Skipped)  GTA V (2013)";
+gtaRadios = {
+"Grand Theft Auto III" : ["Chatterbox FM", "Double Clef FM", "Flashback 95.6", "Game FM", "Head Radio", "K-Jah", "Lips 106", "MSX FM", "Rise FM"], 
+"Grand Theft Auto: Vice City" : ["Emotion 98.3", "Fever 105", "Flash FM", "KCHAT", "Radio Espantoso", "V-Rock", "VCPR", "Wave 103", "Wildstyle"], 
+"Grand Theft Auto: San Andreas" : ["Bounce FM", "CSR 103.9", "K Rose", "K-DST", "K-Jah West", "Master Sounds 98.3", "Playback FM", "Radio Los Santos", "Radio X", "SF-UR", "WCTR"],
+"Grand Theft Auto: Liberty City Stories" : ["Double Clef FM", "Flashback FM", "Head Radio", "K-Jah", "LCFR", "Lips 106", "MSX 98", "Radio Del Mundo", "Rise FM", "The Liberty Jam"],
+"Grand Theft Auto: Vice City Stories" : ["Emotion 98.3", "Flash FM", "Fresh 105 FM", "Paradise FM", "Radio Espantoso", "The Wave 103", "V-Rock", "VCFL", "VCPR"],
+"Grand Theft Auto IV" : ["Electro-Choc", "Fusion FM", "Integrity 2.0", "International Funk", "Jazz Nation Radio 108.5", "K109 The Studio", "Liberty City Hardcore", "Liberty Rock Radio 97.8", "Massive B Soundsystem 96.9", "PLR", "Radio Broker", "San Juan Sounds", "The Beat 102.7", "The Classics 104.1", "The Journey", "The Vibe 98.8", "Tuff Gong Radio", "WKTT Radio", "Vladivostok FM"],
+"Grand Theft Auto: Episodes from Liberty City" : ["Electro-Choc", "Integrity 2.0", "Liberty City Hardcore", "Liberty Rock Radio 97.8", "K109 The Studio", "Radio Broker", "RamJam FM", "San Juan Sounds", "Self-Actualization FM", "The Beat 102.7", "Vice City FM", "Vladivostok FM", "WKTT Radio"],
+"Grand Theft Auto: Chinatown Wars" : ["Alchemist", "Deadmau5", "Prairie Cartel", "Ticklah", "Truth & Soul", "Anvil", "DFA", "DJ Khalil", "Sinowav FM", "Tortoise", "Turntables on the Hudson"],
+"Grand Theft Auto V" : ["Blaine County Talk Radio", "Channel X", "East Los FM", "FlyLo FM", "Los Santos Rock Radio", "Non Stop Pop FM", "Radio Los Santos", "Radio Mirror Park", "Rebel Radio", "Soulwax FM", "Space 103.2", "The Blue Ark", "The Lab", "The Low Down 91.1", "Vinewood Boulevard Radio", "WCTR 95.6", "West Coast Classics", "Worldwide FM"]
+};
+gtaPassedSounds = ["GTA 3 - Mission Complete.mp3", "GTA IV - Mission Complete 2.mp3", "GTA IV - Mission Complete.mp3", "Liberity City Stories - Mission Complete.mp3", "San Andreas - Mission Complete.mp3", "Vice City - Mission Complete.mp3", "Vice City Stories - Mission Complete.mp3", "wolf3d-yeah.mp3"];
 
-// console.log(`${chalk.blueBright('V')}${chalk.cyanBright('a')}${chalk.blueBright('r')}${chalk.cyanBright('i')}${chalk.blueBright('B')}${chalk.cyanBright('o')}${chalk.blueBright('t')}`); 
+console.log(`${chalk.blueBright('V')}${chalk.cyanBright('a')}${chalk.blueBright('r')}${chalk.cyanBright('i')}${chalk.blueBright('B')}${chalk.cyanBright('o')}${chalk.blueBright('t')}`); 
 
-// function randomNumber(min, max) {
-//     return Math.floor(Math.random() * (max - min + 1) + min);
-// }
+function randomNumber(min, max) {
+    return Math.floor(Math.random() * (max - min + 1) + min);
+}
 
-// function randomRadio(game) {
-//   radios = gtaRadios[game];
-//   returnStation = radios[randomNumber(0,radios.length)];
-//   return returnStation;
-// }
+function randomRadio(game) {
+  radios = gtaRadios[game];
+  returnStation = radios[randomNumber(0,radios.length)];
+  return returnStation;
+}
 
-// const simpleCommands =  {
-//     purpose: {scope: 'mods', cooldown: 'TODO', enabled: false, result: 'I pass butter'},
-//     list: {scope: 'all', cooldown: 'TODO', enabled: true, result: `https://docs.google.com/spreadsheets/d/${botSettings.beatSpreadSheetID}`}
-// };
+async function beatGame(beatComments, beatChannel) {        
+    const doc = new GoogleSpreadsheet(botSettings.beatSpreadSheetID);
+    await doc.useServiceAccountAuth({client_email: botSettings.googleSheetsClientEmail, private_key: botSettings.googleSheetsPrivateKey});
+    await doc.loadInfo();
 
-// async function beatGame(beatComments, beatChannel) {        
-//     const doc = new GoogleSpreadsheet(botSettings.beatSpreadSheetID);
-//     await doc.useServiceAccountAuth({client_email: botSettings.googleSheetsClientEmail, private_key: botSettings.googleSheetsPrivateKey});
-//     await doc.loadInfo();
+    let now = new Date();
+    let beatTimestamp = `${now.toLocaleDateString()} ${now.toLocaleTimeString()}`;
+    let beatSheet = await doc.sheetsById[botSettings.beatSheetID];
 
-//     let now = new Date();
-//     let beatTimestamp = `${now.toLocaleDateString()} ${now.toLocaleTimeString()}`;
-//     let beatSheet = await doc.sheetsById[botSettings.beatSheetID];
-
-//     let lookupChannel = beatChannel.substr(1);
-//     let channelID = await twitchAPI.getChannelID(lookupChannel);
-//     let gameName = await twitchAPI.getCurrentGame(channelID);            
-//     if(gameName) {
-//         if(beatComments.length > 0) {
-//             let commentsString = '';
-//             beatComments.forEach(comment => { commentsString += `${comment} `;});
-//             let beatGameArray = [gameName, beatTimestamp, commentsString];
-//             await beatSheet.addRow(beatGameArray)
-//             .catch(error => {console.log(chalk.red(error));});
-//             client.say(beatChannel, `Added ${gameName} (${commentsString}) to list`);
-//             console.log(chalk.cyan(`Added ${gameName} (${commentsString}) to list`));
-//             let channelId = await twitchAPI.getChannelID(targetChannel.substr(1));
-//             await twitchAPI.createStreamMarker(channelId,'test with id from api');
-//             console.log(chalk.cyan('Created stream marker'));            
-//             soundPlayer.play(`${botSettings.soundsDir}/${botSettings.beatGameSound}`); // if this dies check that mplayer.exe is in %appdata%\npm 
-//         }
-//         else {
-//             let beatGameArray = [gameName, beatTimestamp];
-//             await beatSheet.addRow(beatGameArray)
-//             .catch(error => {console.log(chalk.red(error));});
-//             client.say(beatChannel, `Added ${gameName} to list`);
-//             console.log(chalk.cyan(`Added ${gameName} to list`));
-//             let channelId = await twitchAPI.getChannelID(targetChannel.substr(1));
-//             await twitchAPI.createStreamMarker(channelId,'test with id from api');
-//             console.log(chalk.cyan('Created stream marker'));
-//             soundPlayer.play(`${botSettings.soundsDir}/${botSettings.beatGameSound}`); // if this dies check that mplayer.exe is in %appdata%\npm 
-//         }
-//     }
-//     else {
-//         console.log(chalk.red('gameName is empty or does not exist'));
-//     }
-// }
+    let lookupChannel = beatChannel.substr(1);
+    let channelID = await twitchAPI.getChannelID(lookupChannel);
+    let gameName = await twitchAPI.getCurrentGame(channelID);            
+    if(gameName) {
+        if(beatComments.length > 0) {
+            let commentsString = '';
+            beatComments.forEach(comment => { commentsString += `${comment} `;});
+            let beatGameArray = [gameName, beatTimestamp, commentsString];
+            await beatSheet.addRow(beatGameArray)
+            .catch(error => {console.log(chalk.red(error));});
+            client.say(beatChannel, `Added ${gameName} (${commentsString}) to list`);
+            console.log(chalk.cyan(`Added ${gameName} (${commentsString}) to list`));
+            let channelId = await twitchAPI.getChannelID(targetChannel.substr(1));
+            await twitchAPI.createStreamMarker(channelId,'test with id from api');
+            console.log(chalk.cyan('Created stream marker'));            
+            soundPlayer.play(`${botSettings.soundsDir}/${botSettings.beatGameSound}`); // if this dies check that mplayer.exe is in %appdata%\npm 
+        }
+        else {
+            let beatGameArray = [gameName, beatTimestamp];
+            await beatSheet.addRow(beatGameArray)
+            .catch(error => {console.log(chalk.red(error));});
+            client.say(beatChannel, `Added ${gameName} to list`);
+            console.log(chalk.cyan(`Added ${gameName} to list`));
+            let channelId = await twitchAPI.getChannelID(targetChannel.substr(1));
+            await twitchAPI.createStreamMarker(channelId,'test with id from api');
+            console.log(chalk.cyan('Created stream marker'));
+            soundPlayer.play(`${botSettings.soundsDir}/${botSettings.beatGameSound}`); // if this dies check that mplayer.exe is in %appdata%\npm 
+        }
+    }
+    else {
+        console.log(chalk.red('gameName is empty or does not exist'));
+    }
+}
 
 async function runCommand(targetChannel, fromMod, context, inputCmd, args) {   
     let cmd = inputCmd.toLowerCase();
@@ -98,24 +93,26 @@ async function runCommand(targetChannel, fromMod, context, inputCmd, args) {
     let checked = await checkCooldown(lastRunTimestamp);
     if(checked) {  
         lastRunTimestamp = new Date();
-        if(cmd in simpleCommands) {
-            if(!simpleCommands[cmd].enabled) { 
+        if(cmd in commands) {
+            if(!commands[cmd].enabled) { 
                 console.log(`Found command ${cmd} but it is disabled. Skipping.`);            
                 return;
             }
-            if(simpleCommands[cmd].scope == 'mods' && !fromMod) {
+            if(commands[cmd].scope == 'mods' && !fromMod) {
                 console.log(`User ${context['display-name']} tried to use the mod only command ${cmd}`);
                 return;
             }
             else {
-                client.say(targetChannel, simpleCommands[cmd].result);
-                return;
+                if(commands[cmd].cmdType == 'simple') {
+                    client.say(targetChannel, commands[cmd].result);
+                    return; 
+                }
             }
         }
-        if(!enabledCommands[cmd]) {
-            console.log(`Found command ${cmd} but it is disabled. Skipping.`);
-            return;
-        }
+        // if(!enabledCommands[cmd]) {
+        //     console.log(`Found command ${cmd} but it is disabled. Skipping.`);
+        //     return;
+        // }
         if(cmd == 'shuffle') { 
             // check that the spreadsheet is not called template
             let searchPlatform = '';
@@ -210,16 +207,15 @@ async function loadSimpleCommands() {
     await simpleCommandsDB.sync();
     let dbResult = await simpleCommandsDB.findAll();
     dbResult.forEach(x => {
-        console.log(x);
-        simpleCommands[x.name] = {
+        commands[x.name] = {
             enabled: x.enabled,
             scope: x.scope,
             cooldown: x.cooldown,
             enabled: x.enabled,
-            result: x.result
+            result: x.result,
+            cmdType: 'simple'
         }
     });
-    console.log(JSON.stringify(simpleCommands));
 }   
 
 async function updateBotSettings(option, newValue) { 
@@ -240,40 +236,55 @@ async function startBot() {
 
     await loadSimpleCommands();
 
-    // if(botSettings.token.length < 1) { 
-    //     console.log(chalk.red('Invalid auth token. Please use the link below to authorize the bot and get a token.'));
-    //     console.log(`https://id.twitch.tv/oauth2/authorize?client_id=${botSettings.clientID}&redirect_uri=https://acceptdefaults.com/twitch-oauth-token-generator/&response_type=token&scope=bits:read+channel:read:redemptions+channel:moderate+chat:edit+chat:read+user:edit:broadcast`);
-    //     process.exit();
-    // }
+    if(botSettings === undefined) { 
+        console.log('Bot settings are empty. Please run setup.');
+        process.exit();
+    }
 
-    // const options = {
-    //     identity: {
-    //         username: botSettings.username,
-    //         password: botSettings.token
-    //     },
-    //     channels: [botSettings.channel]
-    // }; 
-    // client = new tmi.client(options);    
-    // client.connect();
-    // client.on('connected', (address, port) => {
-    //     console.log(chalk.green(`Chatbot (${chalk.greenBright(options.identity.username)}) connected to ${address}:${port}`));
-    // });
+    if(botSettings.clientId === undefined || botSettings.clientId.length < 1) { 
+        console.log('Invalid client ID in bot settings. Please run setup.');
+        process.exit();
+    }
 
-    // client.on('message', async (target, context, msg, self) => {
-    //     if(self) { return; } // bot does not need to interact with itself
-    //     // console.log(context['tmi-sent-ts']);
-    //     let msgTime = new Date();
-    //     console.log(`[${msgTime.getHours()}:${msgTime.getMinutes()}]${context['display-name']}: ${msg}`);
-    //     if(msg.startsWith('!')) { 
-    //         cmdArray = msg.slice(1).split(' ');
-    //         if(isMod(context)) {
-    //             await runCommand(target, true, context, cmdArray[0], cmdArray.slice(1));
-    //         }
-    //         else {
-    //             await runCommand(target, false, context, cmdArray[0], cmdArray.slice(1));
-    //         }
-    //     }
-    // });    
+    if(botSettings.token.length < 1) { 
+        console.log(chalk.red('Invalid auth token. Please use the link below to authorize the bot and get a token.'));
+        console.log(`https://id.twitch.tv/oauth2/authorize?client_id=${botSettings.clientId}&redirect_uri=https://acceptdefaults.com/twitch-oauth-token-generator/&response_type=token&scope=bits:read+channel:read:redemptions+channel:moderate+chat:edit+chat:read+user:edit:broadcast`);
+        process.exit();
+    } 
+
+    if(botSettings.channel === undefined || botSettings.channel.length < 1) { 
+        console.log('Invalid channel in bot settings. Please run setup.');
+        process.exit();
+    }
+
+    const options = {
+        identity: {
+            username: botSettings.username,
+            password: botSettings.token
+        },
+        channels: [botSettings.channel]
+    }; 
+    client = new tmi.client(options);    
+    client.connect();
+    client.on('connected', (address, port) => {
+        console.log(chalk.green(`Chatbot (${chalk.greenBright(options.identity.username)}) connected to ${address}:${port}`));
+    });
+
+    client.on('message', async (target, context, msg, self) => {
+        if(self) { return; } // bot does not need to interact with itself
+        // console.log(context['tmi-sent-ts']);
+        let msgTime = new Date();
+        console.log(`[${msgTime.getHours()}:${msgTime.getMinutes()}]${context['display-name']}: ${msg}`);
+        if(msg.startsWith('!')) { 
+            cmdArray = msg.slice(1).split(' ');
+            if(isMod(context)) {
+                await runCommand(target, true, context, cmdArray[0], cmdArray.slice(1));
+            }
+            else {
+                await runCommand(target, false, context, cmdArray[0], cmdArray.slice(1));
+            }
+        }
+    });    
 }
 
 startBot();
