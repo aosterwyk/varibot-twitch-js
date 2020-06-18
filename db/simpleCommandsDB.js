@@ -1,7 +1,7 @@
 const Sequelize = require('sequelize');
 const { db } = require("./db");
 
-const simpleCommands = db.define('simpleCommands', {
+const simpleCommandsDB = db.define('simpleCommands', {
     name: {
         type: Sequelize.STRING,
         allowNull: false
@@ -26,4 +26,4 @@ const simpleCommands = db.define('simpleCommands', {
     // sequelize options
 });
 
-module.exports.simpleCommandsDB = simpleCommands; 
+module.exports.simpleCommandsDB = simpleCommandsDB; 
