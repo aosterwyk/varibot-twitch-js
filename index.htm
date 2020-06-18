@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title></title>
+        <!-- <meta name="description" content=""> -->
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="bootstrap.min.css">
+        <!-- Slate by Bootswatch https://bootswatch.com/slate/ -->
+    </head>
+    <body>
+        <!--[if lt IE 7]>
+            <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="#">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+        <script src="render.js" async defer></script>
+
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <a class="navbar-brand" href="#"><img src="img\varibot.png" height="24px" width="24px">VariBot</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor02" aria-controls="navbarColor02" aria-expanded="false" aria-label="Toggle navigation">
+              <span class="navbar-toggler-icon"></span>
+            </button>
+          
+            <div class="collapse navbar-collapse" id="navbarColor02">
+              <ul class="navbar-nav mr-auto">
+                <li class="nav-item active">
+                  <a class="nav-link" href="#" onclick="showPage('home')">Dashboard<span class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="#" onclick="showPage('settings')">Settings</a>
+                </li>
+              </ul>
+              <!-- <form class="form-inline my-2 my-lg-0">
+                <input class="form-control mr-sm-2" type="text" placeholder="Search">
+                <button class="btn btn-secondary my-2 my-sm-0" type="submit">Search</button>
+              </form> -->
+            </div>
+          </nav>
+          <div class="container-fluid" id="home" style="visibility: show">
+            <h3>Status</h3>
+            <textarea class="form-control" id="status" rows="3"></textarea>                          
+            <span id="soundsList"><button onclick="reloadSounds()">Reload sounds</button></span>            
+          </div>
+          <div class="container-fluid" id="settings">
+            <a href="https://id.twitch.tv/oauth2/authorize?client_id=rq2a841j8f63fndu5lnbwzwmbzamoy&redirect_uri=https://acceptdefaults.com/twitch-oauth-token-generator/&response_type=token&scope=bits:read+channel:read:redemptions+channel:moderate+chat:edit+chat:read+user:edit:broadcast">Click here to generate a bot token</a> if you're using the default client ID. Check the docs if you are using a custom client ID.
+          
+            <h3>Settings</h3>
+            <form id="settingsForm">
+              <div class="form-group">
+                <label for="botUsername">Username</label>
+                <input type="text" class="form-control" id="botUsername" placeholder="Enter username">
+                <small id="botUsernameHelp" class="form-text text-muted">Username used by the bot</small>
+              </div>
+              <div class="form-group">
+                <label for="botToken">Token</label>
+                <input type="text" class="form-control" id="botToken" placeholder="Enter token">
+                <small id="botTokenHelp" class="form-text text-muted">Token (not password) used for the bot</small>
+              </div>
+              <div class="form-group">
+                <label for="clientId">Client ID</label>
+                <input type="text" class="form-control" id="clientId" placeholder="Enter username" value="rq2a841j8f63fndu5lnbwzwmbzamoy">
+                <small id="clientIdHelp" class="form-text text-muted">Client ID for the bot. If you don't know what this is you can leave it as default. (Default: rq2a841j8f63fndu5lnbwzwmbzamoy)</small>
+              </div>              
+              <div class="form-group">
+                <label for="channel">Channel</label>
+                <input type="text" class="form-control" id="channel" placeholder="Enter channel">
+                <small id="channelHelp" class="form-text text-muted">Channel for the bot to join. Do not include #. (ex: varixx)</small>
+              </div>              
+              <div class="form-group">
+                <label for="soundsDir">Sound directory</label>
+                <input type="text" class="form-control" id="soundsDir" placeholder="Enter sounds directory" value="sounds/">
+                <small id="soundsDirHelp" class="form-text text-muted">Directory for sounds (Default: sounds/)</small>
+              </div>
+              <div class="form-group">
+                <label for="googleSheetsClientEmail">Google Sheets Client Email</label>
+                <input type="text" class="form-control" id="googleSheetsClientEmail" placeholder="Enter client email address">
+                <!-- <small id="googleSheetsClientEmailHelp" class="form-text text-muted">Google Sheets client email address</small> -->
+              </div>              
+              <div class="form-group">
+                <label for="googleSheetsPrivateKey">Google Sheets private key</label>
+                <input type="text" class="form-control" id="googleSheetsPrivateKey" placeholder="Enter private key">
+                <!-- <small id="googleSheetsPrivateKeyHelp" class="form-text text-muted">Google Sheets private key</small> -->
+              </div>              
+              <div class="form-group">
+                <label for="beatSpreadSheetID">Completed games spreadsheet ID</label>
+                <input type="text" class="form-control" id="beatSpreadSheetID" placeholder="Enter ID">
+                <!-- <small id="beatSpreadSheetIDHelp" class="form-text text-muted">Completed games spredsheet ID</small> -->
+              </div>              
+              <div class="form-group">
+                <label for="beatSheetID">Completed games spreadsheet worksheet ID</label>
+                <input type="text" class="form-control" id="beatSheetID" placeholder="Enter ID">
+                <!-- <small id="beatSheetIDHelp" class="form-text text-muted">Completed games spreadsheet worksheet ID</small> -->
+              </div>              
+              <div class="form-group">
+                <label for="beatGameSound">Beat game sound</label>
+                <input type="text" class="form-control" id="beatGameSound" placeholder="Enter filename">
+                <small id="beatGameSoundHelp" class="form-text text-muted">Sound played after adding game to completed games spreadsheet. This must be in the sounds directory listed above. Filename (including .mp3) only.</small>
+              </div>              
+            </form>            
+            <button type="submit" class="btn btn-primary" onclick="saveSettingsFromForm()">Submit</button>            
+          </div>
+          <div class="container-fluid" id="sounds" style="visibility: hidden;">
+            <h3>Sounds Settings</h3>
+          </div>
+          <div class="container-fluid" id="points" style="visibility: hidden;">
+            <h3>Channel Points Settings</h3>
+          </div>                    
+        </div>
+    </body>
+</html>

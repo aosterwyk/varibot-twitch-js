@@ -16,7 +16,8 @@ let client = null;
 let botSettings = {};
 let commands = {};
 let channelPointsSounds = {};
-let channelPointsFilenames = [];
+let channelPointsFilenames = []; // add beat game sound to this
+let randomSounds = [];
 let lastRunTimestamp = new Date(); // hacky cooldown 
 
 threedUniverseGames = ["Grand Theft Auto: Vice City Stories", "Grand Theft Auto: Vice City", "Grand Theft Auto: San Andreas", "Grand Theft Auto: Liberty City Stories", "Grand Theft Auto III"];
@@ -246,6 +247,8 @@ async function updateBotSettings(option, newValue) {
             id: 1
         }
     });  
+    // console.log(option);
+    // console.log(newValue);
 }
 
 async function startBot() { 
@@ -278,41 +281,141 @@ async function startBot() {
 
     await loadChannelPointsSounds();
     if(botSettings.soundsDir.length > 1) {
-        let randomSounds = await loadSounds(botSettings.soundsDir, channelPointsFilenames);
+        randomSounds = await loadSounds(botSettings.soundsDir, channelPointsFilenames);
     }
     else {
         console.log(`No sounds directory found in settings. Skipping loading random sounds.`);
     }
 
 
-    // const options = {
-    //     identity: {
-    //         username: botSettings.username,
-    //         password: botSettings.token
-    //     },
-    //     channels: [botSettings.channel]
-    // }; 
-    // client = new tmi.client(options);    
-    // client.connect();
-    // client.on('connected', (address, port) => {
-    //     console.log(chalk.green(`Chatbot (${chalk.greenBright(options.identity.username)}) connected to ${address}:${port}`));
-    // });
+    const options = {
+        identity: {
+            username: botSettings.username,
+            password: botSettings.token
+        },
+        channels: [botSettings.channel]
+    }; 
+    client = new tmi.client(options);    
+    client.connect();
+    client.on('connected', (address, port) => {
+        console.log(chalk.green(`Chatbot (${chalk.greenBright(options.identity.username)}) connected to ${address}:${port}`));
+    });
 
-    // client.on('message', async (target, context, msg, self) => {
-    //     if(self) { return; } // bot does not need to interact with itself
-    //     // console.log(context['tmi-sent-ts']);
-    //     let msgTime = new Date();
-    //     console.log(`[${msgTime.getHours()}:${msgTime.getMinutes()}]${context['display-name']}: ${msg}`);
-    //     if(msg.startsWith('!')) { 
-    //         cmdArray = msg.slice(1).split(' ');
-    //         if(isMod(context)) {
-    //             await runCommand(target, true, context, cmdArray[0], cmdArray.slice(1));
-    //         }
-    //         else {
-    //             await runCommand(target, false, context, cmdArray[0], cmdArray.slice(1));
-    //         }
-    //     }
-    // });    
+    client.on('message', async (target, context, msg, self) => {
+        if(self) { return; } // bot does not need to interact with itself
+        // console.log(context['tmi-sent-ts']);
+        let msgTime = new Date();
+        // console.log(`[${msgTime.getHours()}:${msgTime.getMinutes()}]${context['display-name']}: ${msg}`);
+        let chatMsg = `[${msgTime.getHours()}:${msgTime.getMinutes()}]${context['display-name']}: ${msg}`;
+        console.log(chatMsg);
+        statusMsg(chatMsg);
+        if(msg.startsWith('!')) { 
+            cmdArray = msg.slice(1).split(' ');
+            if(isMod(context)) {
+                await runCommand(target, true, context, cmdArray[0], cmdArray.slice(1));
+            }
+            else {
+                await runCommand(target, false, context, cmdArray[0], cmdArray.slice(1));
+            }
+        }
+    });    
 }
 
+// electron start
+
+const { ipcMain, app, BrowserWindow } = require('electron');
+const ipc = ipcMain;
+
+let logoURL = 'https://acceptdefaults.com/varibot-twitch-js/varibot.png';
+var win = null;
+
+function createWindow() {
+    win = new BrowserWindow({
+        width: 1000,
+        height: 1000,
+        webPreferences: {
+            nodeIntegration: true
+        }
+    });
+
+    win.loadFile('index.htm');
+
+    win.webContents.openDevTools()
+    win.webContents.executeJavaScript(`updateSoundsList()`);
+}
+
+app.whenReady().then(createWindow);
+
+app.on('window-all-closed', () => {
+    if (process.platform !== 'darwin') {
+      app.quit();
+    }
+  });
+  
+app.on('activate', () => {
+if (BrowserWindow.getAllWindows().length === 0) {
+    createWindow();
+}
+});
+
+ipc.on('firstLoad', (event, args) => {
+    let firstLoad = `<img src='${logoURL}' />`;
+    event.returnValue = firstLoad;
+});
+
+ipc.handle('botSettingsFromForm', async (event, args) => {
+    // console.log(event);
+    // console.log(args);
+    // TO DO - change names to match and run this through a loop - skip any blank values
+    if(args.botUsername.length > 1) {
+        await updateBotSettings('username', args.botUsername);
+    }
+    if(args.botToken.length > 1) {
+        await updateBotSettings('token', args.botToken);
+    }
+    if(args.clientId.length > 1) {        
+        await updateBotSettings('clientId', args.clientId);
+    }
+    if(args.channel.length > 1) {        
+        await updateBotSettings('channel', args.channel);
+    }
+    if(args.soundsDir.length > 1) {        
+        await updateBotSettings('soundsDir', args.soundsDir);
+    }
+    if(args.googleSheetsClientEmail.length > 1) {    
+        await updateBotSettings('googleSheetsClientEmail', args.googleSheetsClientEmail);
+    }
+    if(args.googleSheetsPrivateKey.length > 1) {    
+        await updateBotSettings('googleSheetsPrivateKey', args.googleSheetsPrivateKey);
+    }
+    if(args.beatSheetID.length > 1) {    
+        await updateBotSettings('beatSheetID', args.beatSheetID);
+    }
+    if(args.beatSpreadSheetID.length > 1) {
+        await updateBotSettings('beatSpreadSheetID', args.beatSpreadSheetID);
+    }
+    if(args.beatSheetID.length > 1) {
+        await updateBotSettings('beatSheetID', args.beatSheetID);
+    }
+    if(args.beatGameSound.length > 1) {
+        await updateBotSettings('beatGameSound', args.beatGameSound);
+    }
+    // await updateBotSettings(ownedGamesSpreadSheetID, args.ownedGamesSpreadSheetID);
+    statusMsg(`Settings updated. You will need to restart if your token was updated.`);
+    win.webContents.executeJavaScript(`showPage('home')`);
+    return true;
+});
+
+ipc.handle('loadSounds', async (event, args) => {
+    return randomSounds;
+});
+
+function statusMsg(msg) { 
+    win.webContents.send('status', msg);
+    console.log(msg);
+}
+
+// electron end
+
 startBot();
+
