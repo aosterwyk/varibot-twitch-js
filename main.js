@@ -331,8 +331,8 @@ var win = null;
 
 function createWindow() {
     win = new BrowserWindow({
-        width: 1000,
-        height: 1000,
+        width: 1200,
+        height: 1200,
         webPreferences: {
             nodeIntegration: true
         }
@@ -408,6 +408,26 @@ ipc.handle('botSettingsFromForm', async (event, args) => {
 
 ipc.handle('loadSounds', async (event, args) => {
     return randomSounds;
+});
+
+ipc.handle('getCurrentSettings', async (event, args) => {
+    await botSettingsDB.sync();
+    let dbSettings = await botSettingsDB.findAll(); 
+    let result = {
+        username: dbSettings[0].username,
+        token: dbSettings[0].token,
+        clientId: dbSettings[0].clientId,
+        channel: dbSettings[0].channel,
+        cooldown: dbSettings[0].cooldown,
+        soundsDir: dbSettings[0].soundsDir,
+        googleSheetsClientEmail: dbSettings[0].googleSheetsClientEmail,
+        googleSheetsPrivateKey: dbSettings[0].googleSheetsPrivateKey,
+        beatSheetID: dbSettings[0].beatSheetID,
+        beatSpreadSheetID: dbSettings[0].beatSpreadSheetID,
+        beatGameSound: dbSettings[0].beatGameSound,
+        ownedGamesSpreadSheetID: dbSettings[0].ownedGamesSpreadSheetID
+    }
+    return result;
 });
 
 function statusMsg(msg) { 

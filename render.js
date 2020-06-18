@@ -42,7 +42,33 @@ function checkWin() {
     ipc.send('checkWin');
 }
 
-function showPage(page) {
+async function populateSettings(settingsPage) {
+    if(settingsPage.toLowerCase() == 'home') { 
+        // no settings
+    }
+    if(settingsPage.toLowerCase() == 'settings') {
+        let result = await ipc.invoke('getCurrentSettings');
+        document.getElementById('botUsername').value = result.username;
+        document.getElementById('botToken').value = result.token;
+        document.getElementById('clientId').value = result.clientId;
+        document.getElementById('channel').value = result.channel;
+        document.getElementById('soundsDir').value = result.soundsDir;
+        document.getElementById('googleSheetsClientEmail').value = result.googleSheetsClientEmail;
+        document.getElementById('googleSheetsPrivateKey').value = result.googleSheetsPrivateKey;
+        document.getElementById('beatSpreadSheetID').value = result.beatSpreadSheetID;
+        document.getElementById('beatSheetID').value = result.beatSheetID;
+        document.getElementById('beatGameSound').value = result.beatGameSound;
+
+    }
+    if(settingsPage.toLowerCase() == 'sounds') {
+
+    }
+    if(settingsPage.toLowerCase() == 'points') {
+
+    }
+}
+
+async function showPage(page) {
     let pages = ['home','settings','sounds','points'];
     let showPage;
     for(let p = 0; p < pages.length; p++) { 
@@ -53,6 +79,7 @@ function showPage(page) {
         document.getElementById(pages[p]).style.display = 'none';
     }
     // document.getElementById(showPage).style.visibility = 'visible';
+    await populateSettings(showPage);
     document.getElementById(showPage).style.display = 'block';
     // TO DO - change active tab in nav 
 }
@@ -74,26 +101,18 @@ function saveSettingsFromForm() {
         beatGameSound: beatGameSound.value
     }
     let result = ipc.invoke('botSettingsFromForm', botSettingsFromForm);
-    // console.log(settingsForm.botUsername.value);
-    // console.log(settingsForm.exampleInputEmail1.value);
-    // console.log(settingsForm.clientId.value);
-    // console.log(settingsForm.exampleInputEmail1.value);
-    // console.log(settingsForm.soundsDir.value);
-    // console.log(settingsForm.googleSheetsClientEmail.value);
-    // console.log(settingsForm.googleSheetsPrivateKey.value);
-    // console.log(settingsForm.beatSpreadSheetID.value);
-    // console.log(settingsForm.beatSheetID.value);
-    // console.log(settingsForm.beatGameSound.value);
-    // <input type="text" class="form-control" id="botUsername" placeholder="Enter username">
-    // <input type="text" class="form-control" id="exampleInputEmail1" placeholder="Enter token">
-    // <input type="text" class="form-control" id="clientId" placeholder="Enter username" value="rq2a841j8f63fndu5lnbwzwmbzamoy">
-    // <input type="text" class="form-control" id="exampleInputEmail1" placeholder="Enter channel">
-    // <input type="text" class="form-control" id="soundsDir" placeholder="Enter sounds directory" value="sounds/">
-    // <input type="text" class="form-control" id="googleSheetsClientEmail" placeholder="Enter client email address">
-    // <input type="text" class="form-control" id="googleSheetsPrivateKey" placeholder="Enter private key">
-    // <input type="text" class="form-control" id="beatSpreadSheetID" placeholder="Enter ID">
-    // <input type="text" class="form-control" id="beatSheetID" placeholder="Enter ID">
-    // <input type="text" class="form-control" id="beatGameSound" placeholder="Enter filename">
+    /*
+    botUsername
+    botToken
+    clientId
+    channel
+    soundsDir
+    googleSheetsClientEmail
+    googleSheetsPrivateKey
+    beatSpreadSheetID
+    beatSheetID
+    beatGameSound
+    */
 }
 
 showPage('home');
