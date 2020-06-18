@@ -33,7 +33,7 @@ async function updateSoundsList() {
 }
 
 function playSound(sound) {
-   let audio = new Audio(`sounds\\${sound}`);
+   let audio = new Audio(sound);
    try { audio.play(); }
    catch(err) { console.log(err); }
 }

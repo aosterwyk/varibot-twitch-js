@@ -1,16 +1,17 @@
-const soundPlayer = require('play-sound')(opts = {player: 'mplayer.exe'});
 const tmi = require('tmi.js');
 const { botSettingsDB } = require('./db/botSettingsDB');
 const { simpleCommandsDB } = require('./db/simpleCommandsDB');
 const { channelPointsSoundsDB } = require('./db/channelPointSoundsDB');
-const botSettingsFile = require('./botSettings.json');
+// const botSettingsFile = require('./botSettings.json');
 const chalk = require('chalk');
 const { loadSounds } = require('./utils/loadSounds');
-// const pubsubBot = require('./utils/pubsub');
-const enabledCommands = require('./enabledCommands.json');
+// const enabledCommands = require('./enabledCommands.json');
 const { GoogleSpreadsheet } = require('google-spreadsheet');
 const { getRandomOwnedGame } = require('./utils/ownedGames');
 const twitchAPI = require('./utils/api');
+const WebSocket = require('ws');
+const pubsubSocket = new WebSocket('wss://pubsub-edge.twitch.tv');
+const { getChannelID } = require('./utils/api');
 
 let client = null;
 let botSettings = {};
@@ -62,6 +63,7 @@ async function beatGame(beatComments, beatChannel) {
     let channelID = await twitchAPI.getChannelID(lookupChannel);
     let gameName = await twitchAPI.getCurrentGame(channelID);            
     if(gameName) {
+        // TO DO - clean this up 
         if(beatComments.length > 0) {
             let commentsString = '';
             beatComments.forEach(comment => { commentsString += `${comment} `;});
@@ -73,7 +75,8 @@ async function beatGame(beatComments, beatChannel) {
             let channelId = await twitchAPI.getChannelID(targetChannel.substr(1));
             await twitchAPI.createStreamMarker(channelId,'test with id from api');
             console.log(chalk.cyan('Created stream marker'));            
-            soundPlayer.play(`${botSettings.soundsDir}/${botSettings.beatGameSound}`); // if this dies check that mplayer.exe is in %appdata%\npm 
+            // soundPlayer.play(`${botSettings.soundsDir}/${botSettings.beatGameSound}`); // if this dies check that mplayer.exe is in %appdata%\npm 
+            win.webContents.executeJavaScript(`playSound('${botSettings.soundsDir}\\${botSettings.beatGameSound}')`);
         }
         else {
             let beatGameArray = [gameName, beatTimestamp];
@@ -84,7 +87,8 @@ async function beatGame(beatComments, beatChannel) {
             let channelId = await twitchAPI.getChannelID(targetChannel.substr(1));
             await twitchAPI.createStreamMarker(channelId,'test with id from api');
             console.log(chalk.cyan('Created stream marker'));
-            soundPlayer.play(`${botSettings.soundsDir}/${botSettings.beatGameSound}`); // if this dies check that mplayer.exe is in %appdata%\npm 
+            // soundPlayer.play(`${botSettings.soundsDir}/${botSettings.beatGameSound}`); // if this dies check that mplayer.exe is in %appdata%\npm 
+            win.webContents.executeJavaScript(`playSound('${botSettings.soundsDir}\\${botSettings.beatGameSound}')`);
         }
     }
     else {
@@ -225,7 +229,6 @@ async function loadSimpleCommands() {
     await simpleCommandsDB.sync();
     let dbResult = await simpleCommandsDB.findAll();
     for(let x = 0; x < dbResult.length; x++) {
-    // dbResult.forEach(x => {
         commands[dbResult[x].name] = {
             enabled: dbResult[x].enabled,
             scope: dbResult[x].scope,
@@ -247,8 +250,6 @@ async function updateBotSettings(option, newValue) {
             id: 1
         }
     });  
-    // console.log(option);
-    // console.log(newValue);
 }
 
 async function startBot() { 
@@ -302,13 +303,9 @@ async function startBot() {
     });
 
     client.on('message', async (target, context, msg, self) => {
-        if(self) { return; } // bot does not need to interact with itself
-        // console.log(context['tmi-sent-ts']);
+        if(self) { return; }
         let msgTime = new Date();
-        // console.log(`[${msgTime.getHours()}:${msgTime.getMinutes()}]${context['display-name']}: ${msg}`);
-        let chatMsg = `[${msgTime.getHours()}:${msgTime.getMinutes()}]${context['display-name']}: ${msg}`;
-        console.log(chatMsg);
-        statusMsg(chatMsg);
+        statusMsg(`[${msgTime.getHours()}:${msgTime.getMinutes()}]${context['display-name']}: ${msg}`);
         if(msg.startsWith('!')) { 
             cmdArray = msg.slice(1).split(' ');
             if(isMod(context)) {
@@ -364,8 +361,6 @@ ipc.on('firstLoad', (event, args) => {
 });
 
 ipc.handle('botSettingsFromForm', async (event, args) => {
-    // console.log(event);
-    // console.log(args);
     // TO DO - change names to match and run this through a loop - skip any blank values
     if(args.botUsername.length > 1) {
         await updateBotSettings('username', args.botUsername);
@@ -436,6 +431,64 @@ function statusMsg(msg) {
 }
 
 // electron end
+
+// pubsub start
+
+function proecssReward(reward) {
+    statusMsg('Reward ' + reward.data.redemption.reward.title + ' was redeemed by ' + reward.data.redemption.user.display_name + ' for ' + reward.data.redemption.reward.cost + ' points');
+    if(reward.data.redemption.reward.title.toLowerCase() == 'random sound') {
+        // add a while loop to re-roll random if it picks the same sound twice or the beat game sound
+        let randomIndex = Math.floor(Math.random() * Math.floor(randomSounds.length));
+        win.webContents.executeJavaScript(`playSound('${botSettings.soundsDir}\\${randomSounds[randomIndex]}')`);
+        statusMsg(`Playing sound ${randomSounds[randomIndex]}`);
+    }
+    else {
+        for(let s in channelPointsSounds) {
+            if(channelPointsSounds[s].name.toLowerCase() == reward.data.redemption.reward.title.toLowerCase()) {
+                win.webContents.executeJavaScript(`playSound('${botSettings.soundsDir}\\${channelPointsSounds[s].filename}')`);
+                statusMsg(`Playing sound ${channelPointsSounds[s].name} (${channelPointsSounds[s].filename})`);
+                break;
+            }   
+        }
+    }
+}
+
+function pubsubHandle(msg) {
+    if(msg.type == 'MESSAGE') {
+        pubsubMessage = JSON.parse(msg.data.message);
+        if(pubsubMessage.type == 'reward-redeemed') {
+            proecssReward(pubsubMessage);
+        }
+    }
+}
+
+function pubsubPings() {
+    pubsubSocket.send(JSON.stringify({type:"PING"}));
+    setTimeout(pubsubPings,120000); // 2 minutes
+}
+
+pubsubSocket.onopen = async function(e) {
+    let channelId = await getChannelID(botSettings.channel);
+    let connectMsg =  {
+        type: "LISTEN",
+        nonce: "44h1k13746815ab1r2",
+        data:  {
+          topics: ["channel-points-channel-v1." + channelId],
+          auth_token: botSettings.token
+        }
+    };
+    pubsubSocket.send(JSON.stringify(connectMsg));
+    console.log(chalk.green(`Pubsub connected. Listed topics: ${connectMsg.data.topics}`));
+    pubsubPings();
+};
+
+pubsubSocket.onmessage = function(event)  {
+    pubsubResonse = JSON.parse(event.data);
+    pubsubHandle(pubsubResonse);
+};
+
+// pubsub end
+
 
 startBot();
 
