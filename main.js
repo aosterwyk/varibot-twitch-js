@@ -1,7 +1,8 @@
 const soundPlayer = require('play-sound')(opts = {player: 'mplayer.exe'});
 const tmi = require('tmi.js');
 const { botSettingsDB } = require('./db/botSettingsDB');
-const { simpleCommandsDB } = require('./db/simpleCommands');
+const { simpleCommandsDB } = require('./db/simpleCommandsDB');
+const { channelPointsSoundsDB } = require('./db/channelPointSoundsDB');
 const botSettingsFile = require('./botSettings.json');
 const chalk = require('chalk');
 const { loadSounds } = require('./utils/loadSounds');
@@ -14,6 +15,8 @@ const twitchAPI = require('./utils/api');
 let client = null;
 let botSettings = {};
 let commands = {};
+let channelPointsSounds = {};
+let channelPointsFilenames = [];
 let lastRunTimestamp = new Date(); // hacky cooldown 
 
 threedUniverseGames = ["Grand Theft Auto: Vice City Stories", "Grand Theft Auto: Vice City", "Grand Theft Auto: San Andreas", "Grand Theft Auto: Liberty City Stories", "Grand Theft Auto III"];
@@ -204,19 +207,34 @@ function isMod(checkMsg) {
     else{return false;}
 }
 
+async function loadChannelPointsSounds() { 
+    await channelPointsSoundsDB.sync();
+    let dbResult = await channelPointsSoundsDB.findAll();
+    for(let x = 0; x < dbResult.length; x++) {
+        channelPointsSounds[dbResult[x].name] = {
+            name: dbResult[x].name,
+            filename: dbResult[x].filename
+        }
+        channelPointsFilenames.push(dbResult[x].filename);        
+    }
+    console.log(`Loaded ${dbResult.length} channel points sounds`);
+}
+
 async function loadSimpleCommands() {
     await simpleCommandsDB.sync();
     let dbResult = await simpleCommandsDB.findAll();
-    dbResult.forEach(x => {
-        commands[x.name] = {
-            enabled: x.enabled,
-            scope: x.scope,
-            cooldown: x.cooldown,
-            enabled: x.enabled,
-            result: x.result,
+    for(let x = 0; x < dbResult.length; x++) {
+    // dbResult.forEach(x => {
+        commands[dbResult[x].name] = {
+            enabled: dbResult[x].enabled,
+            scope: dbResult[x].scope,
+            cooldown: dbResult[x].cooldown,
+            enabled: dbResult[x].enabled,
+            result: dbResult[x].result,
             cmdType: 'simple'
         }
-    });
+    }
+    console.log(`Loaded ${dbResult.length} commands`);
 }   
 
 async function updateBotSettings(option, newValue) { 
@@ -258,12 +276,12 @@ async function startBot() {
         process.exit();
     }
 
+    await loadChannelPointsSounds();
     if(botSettings.soundsDir.length > 1) {
-        let sounds = await loadSounds(botSettings.soundsDir);
-        console.log(sounds);
+        let randomSounds = await loadSounds(botSettings.soundsDir, channelPointsFilenames);
     }
     else {
-        console.log(`No sounds directory found in settings. Skipping loading sounds.`);
+        console.log(`No sounds directory found in settings. Skipping loading random sounds.`);
     }
 
 
