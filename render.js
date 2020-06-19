@@ -24,16 +24,27 @@ async function loadSettings() {
 async function updateSoundsList() { 
     let sounds = await ipc.invoke('loadSounds');
     // let soundsHTML = `<h3>Sounds <span onclick="reloadSounds()">(reload)</span></h3><ulc lass="list-group">`; // this doesn't work because sounds only load once right now but it's the right idea
-    let soundsHTML = `<h3>Sounds</h3><ulc lass="list-group">`;
-    sounds.forEach(sound => {
-        soundsHTML += `<li class="list-group-item" onclick="playSound('${sound}')">${sound}</li>`;
-    });    
-    soundsHTML += `</ul></div>`;
+    let soundsHTML = `<h3>Sounds</h3>`;
+    if(sounds.length > 0){
+        let buttonRowCount = 0;
+        let buttonRows = 1;
+        soundsHTML += `<div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups"><div class="btn-group mr-2" role="group" aria-label="sounds-group-${buttonRows}">`;        
+        for(let s = 0; s < sounds.length; s++) {
+            if(buttonRowCount == 4) {
+                buttonRows++;
+                buttonRowCount = 0;
+                soundsHTML += `</div><div class="btn-group mr-2" role="group" aria-label="sounds-group-${buttonRows}">`;
+            }
+            soundsHTML += `<button type="button" class="btn btn-secondary" onclick="playSound('${sounds[s]}')">${sounds[s]}</button>`;
+            buttonRowCount++;
+        }
+    }
+    soundsHTML += `</div></div>`;
     document.getElementById('soundsList').innerHTML = soundsHTML;
 }
 
 function playSound(sound) {
-   let audio = new Audio(sound);
+   let audio = new Audio(`sounds\\${sound}`); // TO DO - get soundsDir from botsettings 
    try { audio.play(); }
    catch(err) { console.log(err); }
 }

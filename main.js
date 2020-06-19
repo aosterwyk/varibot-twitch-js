@@ -76,7 +76,7 @@ async function beatGame(beatComments, beatChannel) {
             await twitchAPI.createStreamMarker(channelId,'test with id from api');
             console.log(chalk.cyan('Created stream marker'));            
             // soundPlayer.play(`${botSettings.soundsDir}/${botSettings.beatGameSound}`); // if this dies check that mplayer.exe is in %appdata%\npm 
-            win.webContents.executeJavaScript(`playSound('${botSettings.soundsDir}\\${botSettings.beatGameSound}')`);
+            win.webContents.executeJavaScript(`playSound('${botSettings.beatGameSound}')`);
         }
         else {
             let beatGameArray = [gameName, beatTimestamp];
@@ -88,7 +88,7 @@ async function beatGame(beatComments, beatChannel) {
             await twitchAPI.createStreamMarker(channelId,'test with id from api');
             console.log(chalk.cyan('Created stream marker'));
             // soundPlayer.play(`${botSettings.soundsDir}/${botSettings.beatGameSound}`); // if this dies check that mplayer.exe is in %appdata%\npm 
-            win.webContents.executeJavaScript(`playSound('${botSettings.soundsDir}\\${botSettings.beatGameSound}')`);
+            win.webContents.executeJavaScript(`playSound('${botSettings.beatGameSound}')`);
         }
     }
     else {
@@ -402,7 +402,8 @@ ipc.handle('botSettingsFromForm', async (event, args) => {
 });
 
 ipc.handle('loadSounds', async (event, args) => {
-    return randomSounds;
+    let returnSounds = [...randomSounds, ...channelPointsFilenames];
+    return returnSounds;
 });
 
 ipc.handle('getCurrentSettings', async (event, args) => {
@@ -439,13 +440,13 @@ function proecssReward(reward) {
     if(reward.data.redemption.reward.title.toLowerCase() == 'random sound') {
         // add a while loop to re-roll random if it picks the same sound twice or the beat game sound
         let randomIndex = Math.floor(Math.random() * Math.floor(randomSounds.length));
-        win.webContents.executeJavaScript(`playSound('${botSettings.soundsDir}\\${randomSounds[randomIndex]}')`);
+        win.webContents.executeJavaScript(`playSound('${randomSounds[randomIndex]}')`);
         statusMsg(`Playing sound ${randomSounds[randomIndex]}`);
     }
     else {
         for(let s in channelPointsSounds) {
             if(channelPointsSounds[s].name.toLowerCase() == reward.data.redemption.reward.title.toLowerCase()) {
-                win.webContents.executeJavaScript(`playSound('${botSettings.soundsDir}\\${channelPointsSounds[s].filename}')`);
+                win.webContents.executeJavaScript(`playSound('${channelPointsSounds[s].filename}')`);
                 statusMsg(`Playing sound ${channelPointsSounds[s].name} (${channelPointsSounds[s].filename})`);
                 break;
             }   
