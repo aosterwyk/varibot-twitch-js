@@ -214,6 +214,8 @@ function isMod(checkMsg) {
 
 async function loadChannelPointsSounds() { 
     await channelPointsSoundsDB.sync();
+    channelPointsSounds = {};
+    channelPointsFilenames = [];
     let dbResult = await channelPointsSoundsDB.findAll();
     for(let x = 0; x < dbResult.length; x++) {
         channelPointsSounds[dbResult[x].name] = {
@@ -424,6 +426,20 @@ ipc.handle('getCurrentSettings', async (event, args) => {
         ownedGamesSpreadSheetID: dbSettings[0].ownedGamesSpreadSheetID
     }
     return result;
+});
+
+ipc.handle('getSoundsSettings', async (event, args) => {
+
+    await loadChannelPointsSounds();
+    let randSounds = [];
+    if(botSettings.soundsDir.length > 1) {
+         randSounds = await loadSounds(botSettings.soundsDir, channelPointsFilenames);
+    }
+    let returnSounds = {
+        rewards: channelPointsSounds,
+        random: randomSounds
+    }
+    return returnSounds; 
 });
 
 function statusMsg(msg) { 

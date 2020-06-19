@@ -28,12 +28,12 @@ async function updateSoundsList() {
     if(sounds.length > 0){
         let buttonRowCount = 0;
         let buttonRows = 1;
-        soundsHTML += `<div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups"><div class="btn-group mr-2" role="group" aria-label="sounds-group-${buttonRows}">`;        
+        soundsHTML += `<div class="btn-toolbar mt-4"><div class="btn-group mr-2" role="group" aria-label="sounds-group-${buttonRows}">`;        
         for(let s = 0; s < sounds.length; s++) {
             if(buttonRowCount == 4) {
                 buttonRows++;
                 buttonRowCount = 0;
-                soundsHTML += `</div><div class="btn-group mr-2" role="group" aria-label="sounds-group-${buttonRows}">`;
+                soundsHTML += `</div></div><div class="btn-toolbar mt-4"><div class="btn-group mr-2" role="group" aria-label="sounds-group-${buttonRows}">`;
             }
             soundsHTML += `<button type="button" class="btn btn-secondary" onclick="playSound('${sounds[s]}')">${sounds[s]}</button>`;
             buttonRowCount++;
@@ -72,11 +72,52 @@ async function populateSettings(settingsPage) {
 
     }
     if(settingsPage.toLowerCase() == 'sounds') {
-
+        let result = await ipc.invoke('getSoundsSettings');
+        let soundsPageHTML = `<h3>Sounds</h3>`;
+        if(result !== undefined) {
+            soundsPageHTML += `<form id="soundsForm"><table class="table table-striped table-hover"><thead><tr><th scope="col">Filename</th><th scope="col">Reward Name (leave unchecked for random)</th></tr></thead><tbody>`;
+            let randomSounds = result.random;
+            if(randomSounds.length > 0) {
+                for(let s = 0; s < randomSounds.length; s++) {
+                    soundsPageHTML += `<tr id="${randomSounds[s]}"><td id="filename">${randomSounds[s]}</td><td><div class="input-group mb-3">
+                    <div class="input-group-prepend"><div class="input-group-text"><input type="checkbox">
+                    </div></div>
+                    <input type="text" class="form-control"></div></td></tr>`;
+                }
+            }
+            if(Object.keys(result.rewards).length > 0) {
+                for(let sound in result.rewards) {
+                    soundsPageHTML += `<tr id="${result.rewards[sound].filename}"><td id="filename">${result.rewards[sound].filename}</td><td><div class="input-group mb-3">
+                    <div class="input-group-prepend"><div class="input-group-text"><input type="checkbox" checked>
+                    </div></div>
+                    <input type="text" class="form-control" value="${result.rewards[sound].name}"></div></td></tr>`;                    
+                }
+            }   
+            soundsPageHTML += `</tbody></table></form><button type="submit" class="btn btn-primary" onclick="saveSoundsForm()">Save</button>`;
+        }
+        document.getElementById('sounds').innerHTML = soundsPageHTML;
     }
     if(settingsPage.toLowerCase() == 'points') {
 
     }
+}
+
+function saveSoundsForm() {
+    let soundsForm = document.getElementById('soundsForm');
+    let soundsTRs = soundsForm.getElementsByTagName('tr');
+    // console.log(soundsTRs);
+    // console.log(soundsForm);
+    for(let x = 1; x < soundsTRs.length; x++) { // skip 0, it's the header
+        // console.log(soundsTRs[x].id);
+        let filename = soundsTRs[x].childNodes[0].innerText;
+        let rewardName = soundsTRs[x].childNodes[1].childNodes[0].childNodes[3].value;
+        let rewardEnabled = soundsTRs[x].childNodes[1].childNodes[0].childNodes[1].childNodes[0].childNodes[0].checked;
+        
+        console.log(`Filename ${filename} Reward Name: ${rewardName} Enabled: ${rewardEnabled}`);
+        // trim these before sending to DB         
+        // add these to an object, find which sounds have rewards set/enabled, put the others in random sounds array, update DB then reload sounds 
+    }
+
 }
 
 async function showPage(page) {
@@ -94,8 +135,6 @@ async function showPage(page) {
     document.getElementById(showPage).style.display = 'block';
     // TO DO - change active tab in nav 
 }
-
-// TO DO - load settings and populate form with existing settings
 
 function saveSettingsFromForm() {
     let settingsForm = document.getElementById('settingsForm');
