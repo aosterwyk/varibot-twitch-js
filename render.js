@@ -147,6 +147,7 @@ async function saveCmdForm() {
         }
     }
     await ipc.invoke('updateCmdSettings', cmdChanges);
+    alertMsg(true, 'success', 'Commands updated');
     showPage('cmds');
 }
 
@@ -207,6 +208,7 @@ async function saveSoundsForm() {
     }
     let newSoundsSettings = [newChannelPointsSounds, newRandomSounds];
     await ipc.invoke('newSoundsSettings', newSoundsSettings);
+    alertMsg(true, 'success', 'Sounds updated');
     showPage('sounds');
 }
 
