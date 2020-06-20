@@ -71,10 +71,11 @@ async function populateSettings(settingsPage) {
 
     }
     if(settingsPage.toLowerCase() == 'sounds') {
+        await ipc.invoke('loadSounds');        
         let result = await ipc.invoke('getSoundsSettings');
         let soundsPageHTML = `<h3>Sounds</h3>`;
         if(result !== undefined) {
-            soundsPageHTML += `<form id="soundsForm"><table class="table table-striped table-hover"><thead><tr><th scope="col">Filename</th><th scope="col">Reward Name (leave unchecked for random)</th></tr></thead><tbody>`;
+            soundsPageHTML += `<button type="submit" class="btn btn-primary" onclick="saveSoundsForm()">Save</button><form id="soundsForm"><table class="table table-striped table-hover"><thead><tr><th scope="col">Filename</th><th scope="col">Reward Name (leave unchecked for random)</th></tr></thead><tbody>`;
             let randomSounds = result.random;
             if(Object.keys(result.rewards).length > 0) {
                 for(let sound in result.rewards) {
@@ -101,26 +102,39 @@ async function populateSettings(settingsPage) {
     }
 }
 
-function saveSoundsForm() {
+async function saveSoundsForm() {
     let soundsForm = document.getElementById('soundsForm');
     let soundsTRs = soundsForm.getElementsByTagName('tr');
     // console.log(soundsTRs);
     // console.log(soundsForm);
+    let newChannelPointsSounds = {};
+    let newRandomSounds = [];
     for(let x = 1; x < soundsTRs.length; x++) { // skip 0, it's the header
         // console.log(soundsTRs[x].id);
-        let filename = soundsTRs[x].childNodes[0].innerText;
-        let rewardName = soundsTRs[x].childNodes[1].childNodes[0].childNodes[3].value;
+        let filename = (soundsTRs[x].childNodes[0].innerText).trim();
+        let rewardName = (soundsTRs[x].childNodes[1].childNodes[0].childNodes[3].value).trim();
         let rewardEnabled = soundsTRs[x].childNodes[1].childNodes[0].childNodes[1].childNodes[0].childNodes[0].checked;
-        
-        console.log(`Filename ${filename} Reward Name: ${rewardName} Enabled: ${rewardEnabled}`);
-        // trim these before sending to DB         
-        // add these to an object, find which sounds have rewards set/enabled, put the others in random sounds array, update DB then reload sounds 
+        // console.log(`Filename: [${filename}] Reward Name: [${rewardName}] Enabled: [${rewardEnabled}]`);
+        if(rewardEnabled) {
+            newChannelPointsSounds[rewardName] = {
+                name: rewardName,
+                filename: filename
+            }
+        }
+        else {
+            newRandomSounds.push(filename);
+        }    
     }
-
+    console.log(`New channel rewards ${newChannelPointsSounds}`);
+    console.log(`New random sounds ${newRandomSounds}`);
+    let newSoundsSettings = [newChannelPointsSounds, newRandomSounds];
+    await ipc.invoke('newSoundsSettings', newSoundsSettings);
+    showPage('sounds');
+    // add these to an object, find which sounds have rewards set/enabled, put the others in random sounds array, update DB then reload sounds 
 }
 
 async function showPage(page) {
-    let pages = ['home','settings','sounds','points'];
+    let pages = ['home','settings','sounds','cmds'];
     let showPage;
     for(let p = 0; p < pages.length; p++) { 
         if(pages[p] == page.toLowerCase()) {

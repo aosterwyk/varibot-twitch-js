@@ -363,6 +363,30 @@ ipc.on('firstLoad', (event, args) => {
     event.returnValue = firstLoad;
 });
 
+ipc.handle('newSoundsSettings', async (event, args) => {
+    await channelPointsSoundsDB.sync(); // sync channel points sounds   
+    await channelPointsSoundsDB.findAll().then(result => {
+        for(x = 0; x < result.length; x++) {
+            result[x].destroy(); // clear channel points sounds table
+        }
+    });
+    await channelPointsSoundsDB.sync();    
+    for(let key in args[0]) {
+        await channelPointsSoundsDB.create({
+            name: args[0][key].name,
+            filename: args[0][key].filename
+        });
+    }
+    await channelPointsSoundsDB.sync(); // update channel points sounds with new values
+    // console.log(`Random sounds before ${randomSounds}`);
+    await loadChannelPointsSounds(); // load channel points sounds     
+    if(botSettings.soundsDir.length > 1) {
+        randomSounds = []; // clear random sounds array
+        randomSounds = await loadSounds(botSettings.soundsDir, channelPointsFilenames); // rebuild random sounds array
+    }
+    // console.log(`Random sounds after ${randomSounds}`);
+});
+
 ipc.handle('botSettingsFromForm', async (event, args) => {
     // TO DO - change names to match and run this through a loop - skip any blank values
     if(args.botUsername.length > 1) {
