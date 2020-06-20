@@ -31,7 +31,4 @@ async function getRandomOwnedGame(googleSheetsClientEmail, googleSheetsPrivateKe
     return gameResult;
 }
 
-// const botSettings = require('../botSettings.json');
-
-
 module.exports = { getRandomOwnedGame };

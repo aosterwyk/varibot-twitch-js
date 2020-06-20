@@ -1,25 +1,23 @@
 const fetch = require('node-fetch');
-const botSettings = require('../botSettings.json');
 
 // change this to get/post
-async function twitchAPI(url) {
-    let result = await fetch(url, {method: 'get', headers: {'Client-ID': botSettings.clientID, 'Authorization': `Bearer ${botSettings.password}`}});
+async function twitchAPI(url, clientId, token) {
+    let result = await fetch(url, {method: 'get', headers: {'Client-ID': clientId, 'Authorization': `Bearer ${token}`}});
     result = await result.json();
     return result;
 }
 
-async function createStreamMarker(channelId, description) { 
+async function createStreamMarker(channelId, description, clientId, token) { 
     let url = 'https://api.twitch.tv/helix/streams/markers';
-    let result = await fetch(url, {method: 'post', headers: {'Client-ID': botSettings.clientID, 'Authorization': `Bearer ${botSettings.password}`, 'Content-Type': 'application/json'},
+    let result = await fetch(url, {method: 'post', headers: {'Client-ID': clientId, 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json'},
     body: `{"user_id":"${channelId}", "description":"${description}"}`
     // varixx 9502699
-    });
-    
+    });   
 }
 
-async function getChannelID(channelName) {
+async function getChannelID(channelName, clientId, token) {
     let url = `https://api.twitch.tv/helix/users?login=${channelName}`;
-    result = await twitchAPI(url)
+    result = await twitchAPI(url, clientId, token)
     .catch(error => {console.log(`Twitch API erorr: ${error}`);});
     if(result.data.length > 0 && 'id' in result.data[0]) {
         return result.data[0].id;
@@ -29,10 +27,10 @@ async function getChannelID(channelName) {
     }
 }
 
-async function getCurrentGame(channelID) {
+async function getCurrentGame(channelID, clientId, token) {
     // this uses API v5 because helix does not show game when stream is offline
     let url = `https://api.twitch.tv/kraken/channels/${channelID}`;
-    let result = await fetch(url, {method: 'get', headers: {'Accept': 'application/vnd.twitchtv.v5+json', 'Client-ID': botSettings.clientID, 'Authorization': `OAuth ${botSettings.password}`}});
+    let result = await fetch(url, {method: 'get', headers: {'Accept': 'application/vnd.twitchtv.v5+json', 'Client-ID': clientId, 'Authorization': `OAuth ${token}`}});
     result = await result.json();
     if('game' in result) {
         return result.game;
@@ -42,10 +40,10 @@ async function getCurrentGame(channelID) {
     }
 }
 
-async function getStreamTitle(channelID) {
+async function getStreamTitle(channelID, clientId, token) {
     // this uses API v5 because helix does not show game when stream is offline
     let url = `https://api.twitch.tv/kraken/channels/${channelID}`;
-    let result = await fetch(url, {method: 'get', headers: {'Accept': 'application/vnd.twitchtv.v5+json', 'Client-ID': botSettings.clientID, 'Authorization': `OAuth ${botSettings.password}`}});
+    let result = await fetch(url, {method: 'get', headers: {'Accept': 'application/vnd.twitchtv.v5+json', 'Client-ID': clientId, 'Authorization': `OAuth ${token}`}});
     result = await result.json();
     if('status' in result) {
         return result.status;

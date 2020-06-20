@@ -8,7 +8,6 @@ const { getRandomOwnedGame } = require('./utils/ownedGames');
 const twitchAPI = require('./utils/api');
 const WebSocket = require('ws');
 const pubsubSocket = new WebSocket('wss://pubsub-edge.twitch.tv');
-const { getChannelID } = require('./utils/api');
 
 let client = null;
 let botSettings = {};
@@ -58,8 +57,8 @@ async function beatGame(beatComments, beatChannel) {
     let beatSheet = await doc.sheetsById[botSettings.beatSheetID];
 
     let lookupChannel = beatChannel.substr(1);
-    let channelID = await twitchAPI.getChannelID(lookupChannel);
-    let gameName = await twitchAPI.getCurrentGame(channelID);            
+    let channelID = await twitchAPI.getChannelID(lookupChannel, botSettings.clientId, botSettings.token);
+    let gameName = await twitchAPI.getCurrentGame(channelID, botSettings.clientId, botSettings.token);            
     if(gameName) {
         // TO DO - clean this up 
         if(beatComments.length > 0) {
@@ -70,8 +69,8 @@ async function beatGame(beatComments, beatChannel) {
             .catch(error => {console.log(error);});
             client.say(beatChannel, `Added ${gameName} (${commentsString}) to list`);
             console.log(`Added ${gameName} (${commentsString}) to list`);
-            let channelId = await twitchAPI.getChannelID(targetChannel.substr(1));
-            await twitchAPI.createStreamMarker(channelId,'test with id from api');
+            let channelId = await twitchAPI.getChannelID(targetChannel.substr(1), botSettings.clientId, botSettings.token);
+            await twitchAPI.createStreamMarker(channelId,'test with id from api', botSettings.clientId, botSettings.token);
             console.log('Created stream marker'); // broken
             // soundPlayer.play(`${botSettings.soundsDir}/${botSettings.beatGameSound}`); // if this dies check that mplayer.exe is in %appdata%\npm 
             win.webContents.executeJavaScript(`playSound('${botSettings.beatGameSound}')`);
@@ -82,8 +81,8 @@ async function beatGame(beatComments, beatChannel) {
             .catch(error => {console.log(error);});
             client.say(beatChannel, `Added ${gameName} to list`);
             console.log(`Added ${gameName} to list`);
-            let channelId = await twitchAPI.getChannelID(targetChannel.substr(1));
-            await twitchAPI.createStreamMarker(channelId,'test with id from api');
+            let channelId = await twitchAPI.getChannelID(targetChannel.substr(1), botSettings.clientId, botSettings.token);
+            await twitchAPI.createStreamMarker(channelId,'test with id from api', botSettings.clientId, botSettings.token);
             console.log('Created stream marker');
             // soundPlayer.play(`${botSettings.soundsDir}/${botSettings.beatGameSound}`); // if this dies check that mplayer.exe is in %appdata%\npm 
             win.webContents.executeJavaScript(`playSound('${botSettings.beatGameSound}')`);
@@ -138,8 +137,8 @@ async function runCommand(targetChannel, fromMod, context, inputCmd, args) {
             client.say(targetChannel, `https://docs.google.com/spreadsheets/d/${botSettings.beatSpreadSheetID}`);
         }
         else if(cmd == 'multi') { 
-            let channelId = await twitchAPI.getChannelID(targetChannel.substr(1));
-            let channelTitle = await twitchAPI.getStreamTitle(channelId);
+            let channelId = await twitchAPI.getChannelID(targetChannel.substr(1), botSettings.clientId, botSettings.token);
+            let channelTitle = await twitchAPI.getStreamTitle(channelId, botSettings.clientId, botSettings.token);
             let multiLink = `https://multistre.am/${botSettings.channel}/`
             if(channelTitle.includes('!multi') && channelTitle.includes('@')) { 
                 let mentionLocation = channelTitle.search('@');
@@ -169,8 +168,8 @@ async function runCommand(targetChannel, fromMod, context, inputCmd, args) {
         }
         else if(cmd == 'radio') {
             let lookupChannel = targetChannel.substr(1);
-            let channelID = await twitchAPI.getChannelID(lookupChannel);
-            let currentGame = await twitchAPI.getCurrentGame(channelID);            
+            let channelID = await twitchAPI.getChannelID(lookupChannel, botSettings.clientId, botSettings.token);
+            let currentGame = await twitchAPI.getCurrentGame(channelID, botSettings.clientId, botSettings.token);            
             if(threedUniverseGames.includes(currentGame) || hdUniverseGames.includes(currentGame)) {
                 try {
                     radioResult = randomRadio(currentGame);
@@ -533,7 +532,6 @@ ipc.handle('getCurrentCommands', async (event, args) => {
 
 ipc.handle('updateCmdSettings', async (event, args) => {
     let newCmdSettings = args;
-    console.log(newCmdSettings);
     for(key in newCmdSettings) {
         await updateCommand(newCmdSettings[key].name, 'enabled', newCmdSettings[key].enabled); 
     }
@@ -616,7 +614,11 @@ function pubsubPings() {
 }
 
 pubsubSocket.onopen = async function(e) {
-    let channelId = await getChannelID(botSettings.channel);
+    await botSettingsDB.sync();
+    let botset = await botSettingsDB.findAll(); 
+    botSettings = botset[0];
+    // TO DO - move bot settings to a command or load it all before starting these 
+    let channelId = await twitchAPI.getChannelID(botSettings.channel, botSettings.clientId, botSettings.token);
     let connectMsg =  {
         type: "LISTEN",
         nonce: "44h1k13746815ab1r2",
