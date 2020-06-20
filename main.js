@@ -309,7 +309,7 @@ async function updateCommand(command, option, newValue) {
         where: {
             name: command
         }
-    });
+    });    
 }
 
 async function updateBotSettings(option, newValue) { 
@@ -504,6 +504,19 @@ ipc.handle('loadSounds', async (event, args) => {
     }    
     let returnSounds = [...randomSounds, ...channelPointsFilenames];
     return returnSounds;
+});
+
+ipc.handle('getCurrentCommands', async (event, args) => {
+    await loadCommands();
+    return commands;
+});
+
+ipc.handle('updateCmdSettings', async (event, args) => {
+    let newCmdSettings = args;
+    console.log(newCmdSettings);
+    for(key in newCmdSettings) {
+        await updateCommand(newCmdSettings[key].name, 'enabled', newCmdSettings[key].enabled); 
+    }
 });
 
 ipc.handle('getCurrentSettings', async (event, args) => {

@@ -91,9 +91,45 @@ async function populateSettings(settingsPage) {
         }
         document.getElementById('sounds').innerHTML = soundsPageHTML;
     }
-    if(settingsPage.toLowerCase() == 'points') {
-
+    if(settingsPage.toLowerCase() == 'cmds') {
+        let result = await ipc.invoke('getCurrentCommands');
+        let cmdPageHTML = `<h3>Commands</h3>`;
+        if(result !== undefined) {
+            if(Object.keys(result)) {                
+                cmdPageHTML += `<button type="submit" class="btn btn-primary" onclick="saveCmdForm()">Save</button><form id="cmdForm"><table class="table table-striped table-hover table-sm" style="table-layout:auto;"><thead><th>Enabled</th><th>Command</th></thead><tbody>`;
+                for(let cmd in result) { 
+                    cmdPageHTML += `<tr id="${result[cmd].name}"><td style="width: 5px; text-align: center;">`;
+                    console.log(result[cmd].enabled);
+                    if(result[cmd].enabled) {
+                        cmdPageHTML += `<input type="checkbox" checked>`;
+                    }
+                    else {
+                        cmdPageHTML += `<input type="checkbox">`;
+                    }
+                    cmdPageHTML += `</td><td>${result[cmd].name}</td></tr>`;
+                }
+                cmdPageHTML += `</tbody></table></form><button type="submit" class="btn btn-primary" onclick="saveCmdForm()">Save</button>`;
+                document.getElementById('cmds').innerHTML = cmdPageHTML;
+            }
+        }
     }
+}
+
+async function saveCmdForm() {
+    let cmdForm = document.getElementById('cmdForm');
+    let cmdTRs = cmdForm.getElementsByTagName('tr');
+    let cmdChanges = {};
+    for(let x = 1; x < cmdTRs.length; x++) { // skip 0, it's the header    
+        let cmdName = cmdTRs[x].childNodes[1].innerText;
+        let cmdStatus = cmdTRs[x].childNodes[0].childNodes[0].checked;
+        cmdChanges[cmdName] = {
+            name: cmdName,
+            enabled: cmdStatus
+        }
+    }
+    console.log(cmdChanges);
+    await ipc.invoke('updateCmdSettings', cmdChanges);
+    showPage('cmds');
 }
 
 async function saveSoundsForm() {
