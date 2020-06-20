@@ -4,7 +4,6 @@
 *.lnk
 *.sqlite
 .vscode/
-todo.txt
 node_modules/
 botSettings.json
 enabledCommands.json
