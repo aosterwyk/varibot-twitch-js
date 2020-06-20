@@ -47,6 +47,17 @@ function checkWin() {
     ipc.send('checkWin');
 }
 
+async function openTokenPage() { 
+    let result = await ipc.invoke('getCurrentSettings');
+    if(result.clientId.length > 1) {
+        shell.openExternal(`https://id.twitch.tv/oauth2/authorize?client_id=${result.clientId}&redirect_uri=https://acceptdefaults.com/twitch-oauth-token-generator/&response_type=token&scope=bits:read+channel:read:redemptions+channel:moderate+chat:edit+chat:read+user:edit:broadcast`);
+    }
+    else { 
+        let erorrMsg = `Please set a client ID before generating a token`;
+        alertMsg(true, 'error', erorrMsg);
+    }
+}
+
 async function openSoundsDir() {
     let result = await ipc.invoke('getCurrentSettings');
     if(result !== undefined) {

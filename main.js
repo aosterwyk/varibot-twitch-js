@@ -503,10 +503,10 @@ ipc.handle('botSettingsFromForm', async (event, args) => {
         await updateBotSettings('beatGameSound', args.beatGameSound);
     }
     // await updateBotSettings(ownedGamesSpreadSheetID, args.ownedGamesSpreadSheetID);
-    let updateMsg = `Settings updated. You will need to restart if your token was updated.`;
+    let updateMsg = `Settings updated. You will need to restart if your token was added or changed.`;
     statusMsg(updateMsg);
     win.webContents.executeJavaScript(`alertMsg('true','success', '${updateMsg}')`);
-    win.webContents.executeJavaScript(`showPage('home')`);
+    // win.webContents.executeJavaScript(`showPage('home')`);
     return true;
 });
 

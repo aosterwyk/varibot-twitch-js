@@ -57,10 +57,9 @@
             <span id="soundsList"><button onclick="reloadSounds()">Reload sounds</button></span>            
           </div>
           <div class="container-fluid" id="settings">
-            <a href="https://id.twitch.tv/oauth2/authorize?client_id=rq2a841j8f63fndu5lnbwzwmbzamoy&redirect_uri=https://acceptdefaults.com/twitch-oauth-token-generator/&response_type=token&scope=bits:read+channel:read:redemptions+channel:moderate+chat:edit+chat:read+user:edit:broadcast">Click here to generate a bot token</a> if you're using the default client ID. Check the docs if you are using a custom client ID.
-          
+            <button class="btn btn btn-danger" onclick="openTokenPage()">Get Token</button>
             <h3>Settings</h3>
-            <button type="submit" class="btn btn-primary" onclick="saveSettingsFromForm()">Save</button>            
+            <button type="submit" class="btn btn-primary" onclick="saveSettingsFromForm()">Save</button>
             <form id="settingsForm">
               <div class="form-group">
                 <label for="botUsername">Username</label>
