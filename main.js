@@ -224,7 +224,7 @@ async function loadChannelPointsSounds() {
         }
         channelPointsFilenames.push(dbResult[x].filename);        
     }
-    console.log(`Loaded ${dbResult.length} channel points sounds`);
+    console.log(`Loaded ${dbResult.length} channel reward sounds`);
 }
 
 async function loadSimpleCommands() {
@@ -341,6 +341,7 @@ function createWindow() {
 
     win.webContents.openDevTools()
     win.webContents.executeJavaScript(`updateSoundsList()`);
+    win.webContents.executeJavaScript(`showPage('home')`);
 }
 
 app.whenReady().then(createWindow);
@@ -404,6 +405,10 @@ ipc.handle('botSettingsFromForm', async (event, args) => {
 });
 
 ipc.handle('loadSounds', async (event, args) => {
+    await loadChannelPointsSounds();
+    if(botSettings.soundsDir.length > 1) {
+        randomSounds = await loadSounds(botSettings.soundsDir, channelPointsFilenames);
+    }    
     let returnSounds = [...randomSounds, ...channelPointsFilenames];
     return returnSounds;
 });

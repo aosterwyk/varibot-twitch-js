@@ -23,23 +23,22 @@ async function loadSettings() {
 
 async function updateSoundsList() { 
     let sounds = await ipc.invoke('loadSounds');
-    // let soundsHTML = `<h3>Sounds <span onclick="reloadSounds()">(reload)</span></h3><ulc lass="list-group">`; // this doesn't work because sounds only load once right now but it's the right idea
-    let soundsHTML = `<h3>Sounds</h3>`;
+    let soundsHTML = `<h3>Sounds</h3><button onclick="updateSoundsList()">(reload)</button>`;
     if(sounds.length > 0){
         let buttonRowCount = 0;
         let buttonRows = 1;
-        soundsHTML += `<div class="btn-toolbar mt-4"><div class="btn-group mr-2" role="group" aria-label="sounds-group-${buttonRows}">`;        
+        soundsHTML += `<table>`;
         for(let s = 0; s < sounds.length; s++) {
-            if(buttonRowCount == 4) {
+            if(buttonRowCount == 3) {
                 buttonRows++;
                 buttonRowCount = 0;
-                soundsHTML += `</div></div><div class="btn-toolbar mt-4"><div class="btn-group mr-2" role="group" aria-label="sounds-group-${buttonRows}">`;
+                soundsHTML += `</tr><tr>`;
             }
-            soundsHTML += `<button type="button" class="btn btn-secondary" onclick="playSound('${sounds[s]}')">${sounds[s]}</button>`;
+            soundsHTML += `<td><button type="button" class="btn btn-secondary" style="height: 100%; width:100%;" onclick="playSound('${sounds[s]}')">${sounds[s]}</button></td>`;
             buttonRowCount++;
         }
     }
-    soundsHTML += `</div></div>`;
+    soundsHTML += `</tr></table>`;
     document.getElementById('soundsList').innerHTML = soundsHTML;
 }
 
@@ -77,6 +76,14 @@ async function populateSettings(settingsPage) {
         if(result !== undefined) {
             soundsPageHTML += `<form id="soundsForm"><table class="table table-striped table-hover"><thead><tr><th scope="col">Filename</th><th scope="col">Reward Name (leave unchecked for random)</th></tr></thead><tbody>`;
             let randomSounds = result.random;
+            if(Object.keys(result.rewards).length > 0) {
+                for(let sound in result.rewards) {
+                    soundsPageHTML += `<tr id="${result.rewards[sound].filename}"><td id="filename">${result.rewards[sound].filename}</td><td><div class="input-group mb-3">
+                    <div class="input-group-prepend"><div class="input-group-text"><input type="checkbox" checked>
+                    </div></div>
+                    <input type="text" class="form-control" value="${result.rewards[sound].name}"></div></td></tr>`;                    
+                }
+            }               
             if(randomSounds.length > 0) {
                 for(let s = 0; s < randomSounds.length; s++) {
                     soundsPageHTML += `<tr id="${randomSounds[s]}"><td id="filename">${randomSounds[s]}</td><td><div class="input-group mb-3">
@@ -85,14 +92,6 @@ async function populateSettings(settingsPage) {
                     <input type="text" class="form-control"></div></td></tr>`;
                 }
             }
-            if(Object.keys(result.rewards).length > 0) {
-                for(let sound in result.rewards) {
-                    soundsPageHTML += `<tr id="${result.rewards[sound].filename}"><td id="filename">${result.rewards[sound].filename}</td><td><div class="input-group mb-3">
-                    <div class="input-group-prepend"><div class="input-group-text"><input type="checkbox" checked>
-                    </div></div>
-                    <input type="text" class="form-control" value="${result.rewards[sound].name}"></div></td></tr>`;                    
-                }
-            }   
             soundsPageHTML += `</tbody></table></form><button type="submit" class="btn btn-primary" onclick="saveSoundsForm()">Save</button>`;
         }
         document.getElementById('sounds').innerHTML = soundsPageHTML;
@@ -164,6 +163,4 @@ function saveSettingsFromForm() {
     beatGameSound
     */
 }
-
-showPage('home');
 
