@@ -1,5 +1,5 @@
 {
-  "name": "varibot-twitch-js",
+  "name": "VariBot",
   "version": "1.0.0",
   "description": "twitch chat bot",
   "main": "main.js",
@@ -28,6 +28,7 @@
     "ws": "^7.3.0"
   },
   "devDependencies": {
-    "electron-builder": "^22.7.0"
+    "electron-builder": "^22.7.0",
+    "electron-packager": "^14.2.1"
   }
 }
