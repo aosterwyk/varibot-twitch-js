@@ -1,16 +1,10 @@
-const { visible, hidden } = require('chalk');
-
 const ipc = require('electron').ipcRenderer;
 
 ipc.on('status', (event, msg) => {
-    // console.log(`status`);
-    // console.log(event);
-    // console.log(msg);
     updateStatus(msg);
 });
 
 function updateStatus(msg) {
-    // console.log(`status ${msg}`);
     let statusBox = document.getElementById('status')
     statusBox.innerHTML += `&#13;&#10;${msg}`
     statusBox.scrollTop = statusBox.scrollWidth;
@@ -105,16 +99,12 @@ async function populateSettings(settingsPage) {
 async function saveSoundsForm() {
     let soundsForm = document.getElementById('soundsForm');
     let soundsTRs = soundsForm.getElementsByTagName('tr');
-    // console.log(soundsTRs);
-    // console.log(soundsForm);
     let newChannelPointsSounds = {};
     let newRandomSounds = [];
     for(let x = 1; x < soundsTRs.length; x++) { // skip 0, it's the header
-        // console.log(soundsTRs[x].id);
         let filename = (soundsTRs[x].childNodes[0].innerText).trim();
         let rewardName = (soundsTRs[x].childNodes[1].childNodes[0].childNodes[3].value).trim();
         let rewardEnabled = soundsTRs[x].childNodes[1].childNodes[0].childNodes[1].childNodes[0].childNodes[0].checked;
-        // console.log(`Filename: [${filename}] Reward Name: [${rewardName}] Enabled: [${rewardEnabled}]`);
         if(rewardEnabled) {
             newChannelPointsSounds[rewardName] = {
                 name: rewardName,
@@ -125,12 +115,9 @@ async function saveSoundsForm() {
             newRandomSounds.push(filename);
         }    
     }
-    console.log(`New channel rewards ${newChannelPointsSounds}`);
-    console.log(`New random sounds ${newRandomSounds}`);
     let newSoundsSettings = [newChannelPointsSounds, newRandomSounds];
     await ipc.invoke('newSoundsSettings', newSoundsSettings);
     showPage('sounds');
-    // add these to an object, find which sounds have rewards set/enabled, put the others in random sounds array, update DB then reload sounds 
 }
 
 async function showPage(page) {
@@ -140,10 +127,8 @@ async function showPage(page) {
         if(pages[p] == page.toLowerCase()) {
             showPage = pages[p];
         }
-        // document.getElementById(pages[p]).style.visibility = 'hidden';
         document.getElementById(pages[p]).style.display = 'none';
     }
-    // document.getElementById(showPage).style.visibility = 'visible';
     await populateSettings(showPage);
     document.getElementById(showPage).style.display = 'block';
     // TO DO - change active tab in nav 

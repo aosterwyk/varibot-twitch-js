@@ -2,10 +2,7 @@ const tmi = require('tmi.js');
 const { botSettingsDB } = require('./db/botSettingsDB');
 const { simpleCommandsDB } = require('./db/simpleCommandsDB');
 const { channelPointsSoundsDB } = require('./db/channelPointSoundsDB');
-// const botSettingsFile = require('./botSettings.json');
-const chalk = require('chalk');
 const { loadSounds } = require('./utils/loadSounds');
-// const enabledCommands = require('./enabledCommands.json');
 const { GoogleSpreadsheet } = require('google-spreadsheet');
 const { getRandomOwnedGame } = require('./utils/ownedGames');
 const twitchAPI = require('./utils/api');
@@ -38,7 +35,7 @@ gtaRadios = {
 };
 gtaPassedSounds = ["GTA 3 - Mission Complete.mp3", "GTA IV - Mission Complete 2.mp3", "GTA IV - Mission Complete.mp3", "Liberity City Stories - Mission Complete.mp3", "San Andreas - Mission Complete.mp3", "Vice City - Mission Complete.mp3", "Vice City Stories - Mission Complete.mp3", "wolf3d-yeah.mp3"];
 
-console.log(`${chalk.blueBright('V')}${chalk.cyanBright('a')}${chalk.blueBright('r')}${chalk.cyanBright('i')}${chalk.blueBright('B')}${chalk.cyanBright('o')}${chalk.blueBright('t')}`); 
+console.log(`VariBot`);
 
 function randomNumber(min, max) {
     return Math.floor(Math.random() * (max - min + 1) + min);
@@ -69,30 +66,30 @@ async function beatGame(beatComments, beatChannel) {
             beatComments.forEach(comment => { commentsString += `${comment} `;});
             let beatGameArray = [gameName, beatTimestamp, commentsString];
             await beatSheet.addRow(beatGameArray)
-            .catch(error => {console.log(chalk.red(error));});
+            .catch(error => {console.log(error);});
             client.say(beatChannel, `Added ${gameName} (${commentsString}) to list`);
-            console.log(chalk.cyan(`Added ${gameName} (${commentsString}) to list`));
+            console.log(`Added ${gameName} (${commentsString}) to list`);
             let channelId = await twitchAPI.getChannelID(targetChannel.substr(1));
             await twitchAPI.createStreamMarker(channelId,'test with id from api');
-            console.log(chalk.cyan('Created stream marker'));            
+            console.log('Created stream marker'); // broken
             // soundPlayer.play(`${botSettings.soundsDir}/${botSettings.beatGameSound}`); // if this dies check that mplayer.exe is in %appdata%\npm 
             win.webContents.executeJavaScript(`playSound('${botSettings.beatGameSound}')`);
         }
         else {
             let beatGameArray = [gameName, beatTimestamp];
             await beatSheet.addRow(beatGameArray)
-            .catch(error => {console.log(chalk.red(error));});
+            .catch(error => {console.log(error);});
             client.say(beatChannel, `Added ${gameName} to list`);
-            console.log(chalk.cyan(`Added ${gameName} to list`));
+            console.log(`Added ${gameName} to list`);
             let channelId = await twitchAPI.getChannelID(targetChannel.substr(1));
             await twitchAPI.createStreamMarker(channelId,'test with id from api');
-            console.log(chalk.cyan('Created stream marker'));
+            console.log('Created stream marker');
             // soundPlayer.play(`${botSettings.soundsDir}/${botSettings.beatGameSound}`); // if this dies check that mplayer.exe is in %appdata%\npm 
             win.webContents.executeJavaScript(`playSound('${botSettings.beatGameSound}')`);
         }
     }
     else {
-        console.log(chalk.red('gameName is empty or does not exist'));
+        console.log('gameName is empty or does not exist');
     }
 }
 
@@ -133,7 +130,7 @@ async function runCommand(targetChannel, fromMod, context, inputCmd, args) {
                 searchPlatform = 'genesis';
             }
             let randomGame = await getRandomOwnedGame(botSettings.googleSheetsClientEmail, botSettings.googleSheetsPrivateKey, botSettings.ownedGamesSpreadSheetID,searchPlatform);
-            randomGame ? client.say(targetChannel, `${randomGame}`) : console.log(chalk.red('could not find game'));
+            randomGame ? client.say(targetChannel, `${randomGame}`) : console.log('could not find game');
         }
         else if(cmd == 'list') {
             client.say(targetChannel, `https://docs.google.com/spreadsheets/d/${botSettings.beatSpreadSheetID}`);
@@ -156,13 +153,13 @@ async function runCommand(targetChannel, fromMod, context, inputCmd, args) {
                 }
             }
             else { 
-                console.log(chalk.red('Topic does not have !multi and @ in title'));
+                console.log('Topic does not have !multi and @ in title');
             }
         }
         else if(cmd == 'beat') {
             if(fromMod) {           
                 await beatGame(args, targetChannel)
-                .catch(error => {console.log(chalk.red(error));});
+                .catch(error => {console.log(error);});
             }
             else{
                 client.say(targetChannel, `${context['display-name']} does not have permission to run this command`);
@@ -177,7 +174,7 @@ async function runCommand(targetChannel, fromMod, context, inputCmd, args) {
                     radioResult = randomRadio(currentGame);
                     client.say(targetChannel, radioResult);
                 }
-                catch(error){console.log(chalk.red(error));}         
+                catch(error){console.log(error);}         
                 return;   
             }
             else {
@@ -186,12 +183,12 @@ async function runCommand(targetChannel, fromMod, context, inputCmd, args) {
             }
         }
         else {
-            console.log(chalk.grey(`Read command ${cmd} (args: ${args}) from ${context['display-name']}, command not found.`));
+            console.log(`Read command ${cmd} (args: ${args}) from ${context['display-name']}, command not found.`);
             return;
         }
     }
     else { 
-        console.log(chalk.grey(`commands still on cooldown`));
+        console.log(`commands still on cooldown`);
     }
 }
 
@@ -272,7 +269,7 @@ async function startBot() {
     }
 
     if(botSettings.token.length < 1) { 
-        console.log(chalk.red('Invalid auth token. Please use the link below to authorize the bot and get a token.'));
+        console.log('Invalid auth token. Please use the link below to authorize the bot and get a token.');
         console.log(`https://id.twitch.tv/oauth2/authorize?client_id=${botSettings.clientId}&redirect_uri=https://acceptdefaults.com/twitch-oauth-token-generator/&response_type=token&scope=bits:read+channel:read:redemptions+channel:moderate+chat:edit+chat:read+user:edit:broadcast`);
         process.exit();
     } 
@@ -301,7 +298,7 @@ async function startBot() {
     client = new tmi.client(options);    
     client.connect();
     client.on('connected', (address, port) => {
-        console.log(chalk.green(`Chatbot (${chalk.greenBright(options.identity.username)}) connected to ${address}:${port}`));
+        console.log(`Chatbot (${options.identity.username}) connected to ${address}:${port}`);
     });
 
     client.on('message', async (target, context, msg, self) => {
@@ -524,7 +521,7 @@ pubsubSocket.onopen = async function(e) {
         }
     };
     pubsubSocket.send(JSON.stringify(connectMsg));
-    console.log(chalk.green(`Pubsub connected. Listed topics: ${connectMsg.data.topics}`));
+    console.log(`Pubsub connected. Listed topics: ${connectMsg.data.topics}`);
     pubsubPings();
 };
 

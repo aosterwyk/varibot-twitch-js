@@ -19,7 +19,6 @@
   },
   "homepage": "https://github.com/VariXx/varibot-twitch-js#readme",
   "dependencies": {
-    "chalk": "^4.1.0",
     "electron": "^9.0.4",
     "google-spreadsheet": "^3.0.11",
     "node-fetch": "^2.6.0",
