@@ -1,6 +1,6 @@
 const tmi = require('tmi.js');
 const { botSettingsDB } = require('./db/botSettingsDB');
-const { simpleCommandsDB } = require('./db/simpleCommandsDB');
+const { commandsDB } = require('./db/commandsDB');
 const { channelPointsSoundsDB } = require('./db/channelPointSoundsDB');
 const { loadSounds } = require('./utils/loadSounds');
 const { GoogleSpreadsheet } = require('google-spreadsheet');
@@ -96,14 +96,19 @@ async function beatGame(beatComments, beatChannel) {
 async function runCommand(targetChannel, fromMod, context, inputCmd, args) {   
     let cmd = inputCmd.toLowerCase();
     // check if command is enabled when checking cooldown 
-    let checked = await checkCooldown(lastRunTimestamp);
-    if(checked) {  
+    // let checked = await checkCooldown(lastRunTimestamp);
+    // if(checked) {  
+    if(commands[cmd] !== undefined) {
+        if(!commands[cmd].enabled) { 
+            console.log(`Command ${cmd} is disabled`);
+            return;
+        }        
         lastRunTimestamp = new Date();
         if(cmd in commands) {
-            if(!commands[cmd].enabled) { 
-                console.log(`Found command ${cmd} but it is disabled. Skipping.`);            
-                return;
-            }
+            // if(!commands[cmd].enabled) { 
+            //     console.log(`Found command ${cmd} but it is disabled. Skipping.`);            
+            //     return;
+            // }
             if(commands[cmd].scope == 'mods' && !fromMod) {
                 console.log(`User ${context['display-name']} tried to use the mod only command ${cmd}`);
                 return;
@@ -115,10 +120,6 @@ async function runCommand(targetChannel, fromMod, context, inputCmd, args) {
                 }
             }
         }
-        // if(!enabledCommands[cmd]) {
-        //     console.log(`Found command ${cmd} but it is disabled. Skipping.`);
-        //     return;
-        // }
         if(cmd == 'shuffle') { 
             // check that the spreadsheet is not called template
             let searchPlatform = '';
@@ -188,7 +189,7 @@ async function runCommand(targetChannel, fromMod, context, inputCmd, args) {
         }
     }
     else { 
-        console.log(`commands still on cooldown`);
+        console.log(`Command ${cmd} not found`);
     }
 }
 
@@ -224,21 +225,92 @@ async function loadChannelPointsSounds() {
     console.log(`Loaded ${dbResult.length} channel reward sounds`);
 }
 
-async function loadSimpleCommands() {
-    await simpleCommandsDB.sync();
-    let dbResult = await simpleCommandsDB.findAll();
+async function loadCommands() {
+    await commandsDB.sync();
+    let dbResult = await commandsDB.findAll();
     for(let x = 0; x < dbResult.length; x++) {
         commands[dbResult[x].name] = {
-            enabled: dbResult[x].enabled,
+            name: dbResult[x].name,
             scope: dbResult[x].scope,
             cooldown: dbResult[x].cooldown,
             enabled: dbResult[x].enabled,
             result: dbResult[x].result,
-            cmdType: 'simple'
+            cmdType: dbResult[x].cmdType
         }
+    }
+    let missingCommands = false;
+    if(!('shuffle' in commands)) { 
+        console.log(`Built in command shuffle was not found in commands. Creating command in DB.`);
+        commandsDB.create({
+            name: 'shuffle',
+            scope: 'all',
+            cooldown: 'TODO',
+            enabled: false,
+            cmdType: 'builtin'
+        });
+        missingCommands = true;
+    }
+    if(!('list' in commands)) { 
+        console.log(`Built in command list was not found in commands. Creating command in DB.`);
+        commandsDB.create({
+            name: 'list',
+            scope: 'all',
+            cooldown: 'TODO',
+            enabled: false,
+            cmdType: 'builtin'
+        });
+        missingCommands = true;
+    }
+    if(!('multi' in commands)) { 
+        console.log(`Built in command multi was not found in commands. Creating command in DB.`);
+        commandsDB.create({
+            name: 'multi',
+            scope: 'all',
+            cooldown: 'TODO',
+            enabled: false,
+            cmdType: 'builtin'
+        });
+        missingCommands = true;
+    }
+    if(!('beat' in commands)) { 
+        console.log(`Built in command beat was not found in commands. Creating command in DB.`);
+        commandsDB.create({
+            name: 'beat',
+            scope: 'all',
+            cooldown: 'TODO',
+            enabled: false,
+            cmdType: 'builtin'
+        });
+        missingCommands = true;
+    }
+    if(!('radio' in commands)) { 
+        console.log(`Built in command radio was not found in commands. Creating command in DB.`);
+        commandsDB.create({
+            name: 'radio',
+            scope: 'all',
+            cooldown: 'TODO',
+            enabled: false,
+            cmdType: 'builtin'
+        });
+        missingCommands = true;
+    }
+    if(missingCommands) { 
+        await loadCommands();
+        return;
     }
     console.log(`Loaded ${dbResult.length} commands`);
 }   
+
+async function updateCommand(command, option, newValue) {
+    await commandsDB.sync();
+    await commandsDB.update({
+        [option]: newValue,
+    }, {
+        where: {
+            name: command
+        }
+    });
+}
 
 async function updateBotSettings(option, newValue) { 
     await botSettingsDB.sync();
@@ -256,7 +328,7 @@ async function startBot() {
     let botset = await botSettingsDB.findAll(); 
     botSettings = botset[0];
 
-    await loadSimpleCommands();
+    await loadCommands();
 
     if(botSettings === undefined) { 
         console.log('Bot settings are empty. Please run setup.');
