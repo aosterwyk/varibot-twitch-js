@@ -17,6 +17,7 @@ let channelPointsSounds = {};
 let channelPointsFilenames = []; // add beat game sound to this
 let randomSounds = [];
 let lastRunTimestamp = new Date(); // hacky cooldown 
+let readyToConnect = true;
 
 threedUniverseGames = ["Grand Theft Auto: Vice City Stories", "Grand Theft Auto: Vice City", "Grand Theft Auto: San Andreas", "Grand Theft Auto: Liberty City Stories", "Grand Theft Auto III"];
 threedUniverseTimeline = "Vice City Stories (1984) Vice City (1986) San Andreas (1992) Liberty City Stories (1998) Advance (2000) (Skipped) GTA III (2001)";
@@ -332,23 +333,28 @@ async function startBot() {
 
     if(botSettings === undefined) { 
         console.log('Bot settings are empty. Please run setup.');
-        process.exit();
+        // process.exit();
+        readyToConnect = false;
     }
 
     if(botSettings.clientId === undefined || botSettings.clientId.length < 1) { 
         console.log('Invalid client ID in bot settings. Please run setup.');
-        process.exit();
+        // process.exit();
+        readyToConnect = false;
     }
 
     if(botSettings.token.length < 1) { 
         console.log('Invalid auth token. Please use the link below to authorize the bot and get a token.');
         console.log(`https://id.twitch.tv/oauth2/authorize?client_id=${botSettings.clientId}&redirect_uri=https://acceptdefaults.com/twitch-oauth-token-generator/&response_type=token&scope=bits:read+channel:read:redemptions+channel:moderate+chat:edit+chat:read+user:edit:broadcast`);
-        process.exit();
+        // process.exit();
+        readyToConnect = false;
+        statusMsg(`Invalid bot settings. Please run setup.`);        
     } 
 
     if(botSettings.channel === undefined || botSettings.channel.length < 1) { 
         console.log('Invalid channel in bot settings. Please run setup.');
-        process.exit();
+        // process.exit();
+        readyToConnect = false;
     }
 
     await loadChannelPointsSounds();
@@ -359,34 +365,39 @@ async function startBot() {
         console.log(`No sounds directory found in settings. Skipping loading random sounds.`);
     }
 
+    if(readyToConnect) {
+        const options = {
+            identity: {
+                username: botSettings.username,
+                password: botSettings.token
+            },
+            channels: [botSettings.channel]
+        }; 
+        client = new tmi.client(options);    
+        client.connect();
+        client.on('connected', (address, port) => {
+            console.log(`Chatbot (${options.identity.username}) connected to ${address}:${port}`);
+        });
 
-    const options = {
-        identity: {
-            username: botSettings.username,
-            password: botSettings.token
-        },
-        channels: [botSettings.channel]
-    }; 
-    client = new tmi.client(options);    
-    client.connect();
-    client.on('connected', (address, port) => {
-        console.log(`Chatbot (${options.identity.username}) connected to ${address}:${port}`);
-    });
-
-    client.on('message', async (target, context, msg, self) => {
-        if(self) { return; }
-        let msgTime = new Date();
-        statusMsg(`[${msgTime.getHours()}:${msgTime.getMinutes()}]${context['display-name']}: ${msg}`);
-        if(msg.startsWith('!')) { 
-            cmdArray = msg.slice(1).split(' ');
-            if(isMod(context)) {
-                await runCommand(target, true, context, cmdArray[0], cmdArray.slice(1));
+        client.on('message', async (target, context, msg, self) => {
+            if(self) { return; }
+            let msgTime = new Date();
+            statusMsg(`[${msgTime.getHours()}:${msgTime.getMinutes()}]${context['display-name']}: ${msg}`);
+            if(msg.startsWith('!')) { 
+                cmdArray = msg.slice(1).split(' ');
+                if(isMod(context)) {
+                    await runCommand(target, true, context, cmdArray[0], cmdArray.slice(1));
+                }
+                else {
+                    await runCommand(target, false, context, cmdArray[0], cmdArray.slice(1));
+                }
             }
-            else {
-                await runCommand(target, false, context, cmdArray[0], cmdArray.slice(1));
-            }
-        }
-    });    
+        });    
+    }
+    else {
+        // alertBar(`Invalid bot settings. Please update settings and restart bot.`);
+        win.webContents.executeJavaScript(`showPage('settings')`);
+    }
 }
 
 // electron start
