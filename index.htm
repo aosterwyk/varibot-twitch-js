@@ -54,6 +54,7 @@
             <a href="https://id.twitch.tv/oauth2/authorize?client_id=rq2a841j8f63fndu5lnbwzwmbzamoy&redirect_uri=https://acceptdefaults.com/twitch-oauth-token-generator/&response_type=token&scope=bits:read+channel:read:redemptions+channel:moderate+chat:edit+chat:read+user:edit:broadcast">Click here to generate a bot token</a> if you're using the default client ID. Check the docs if you are using a custom client ID.
           
             <h3>Settings</h3>
+            <button type="submit" class="btn btn-primary" onclick="saveSettingsFromForm()">Save</button>            
             <form id="settingsForm">
               <div class="form-group">
                 <label for="botUsername">Username</label>
@@ -102,7 +103,7 @@
                 <small id="beatGameSoundHelp" class="form-text text-muted">Sound played after adding game to completed games spreadsheet. This must be in the sounds directory listed above. Filename (including .mp3) only.</small>
               </div>              
             </form>            
-            <button type="submit" class="btn btn-primary" onclick="saveSettingsFromForm()">Save</button>            
+            <button type="submit" class="btn btn-primary" onclick="saveSettingsFromForm()">Save</button>
           </div>
           <div class="container-fluid" id="sounds">
           </div>
