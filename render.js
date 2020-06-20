@@ -1,4 +1,5 @@
 const ipc = require('electron').ipcRenderer;
+const { shell } = require('electron');
 
 ipc.on('status', (event, msg) => {
     updateStatus(msg);
@@ -17,7 +18,7 @@ async function loadSettings() {
 
 async function updateSoundsList() { 
     let sounds = await ipc.invoke('loadSounds');
-    let soundsHTML = `<h3>Sounds <button class="btn btn-primary btn-sm active" onclick="updateSoundsList()">reload</button></h3>`;
+    let soundsHTML = `<h3>Sounds</h3><button class="btn btn-primary btn-sm active" onclick="updateSoundsList()">Reload sounds</button><button class="btn btn-primary btn-sm active" onclick="openSoundsDir()">Open sounds folder</button>`;
     if(sounds.length > 0){
         let buttonRowCount = 0;
         let buttonRows = 1;
@@ -46,6 +47,13 @@ function checkWin() {
     ipc.send('checkWin');
 }
 
+async function openSoundsDir() {
+    let result = await ipc.invoke('getCurrentSettings');
+    if(result !== undefined) {
+        shell.openPath(`${__dirname}\\${result.soundsDir}`);
+    }
+}
+
 async function populateSettings(settingsPage) {
     if(settingsPage.toLowerCase() == 'home') { 
         // no settings
@@ -69,7 +77,7 @@ async function populateSettings(settingsPage) {
         let result = await ipc.invoke('getSoundsSettings');
         let soundsPageHTML = `<h3>Sounds</h3>`;
         if(result !== undefined) {
-            soundsPageHTML += `<button type="submit" class="btn btn-primary" onclick="saveSoundsForm()">Save</button><form id="soundsForm"><table class="table table-striped table-hover"><thead><tr><th scope="col">Filename</th><th scope="col">Reward Name (leave unchecked for random)</th></tr></thead><tbody>`;
+            soundsPageHTML += `<button type="submit" class="btn btn-primary" onclick="saveSoundsForm()">Save</button><button class="btn btn-primary" onclick="openSoundsDir()">Open sounds folder</button><form id="soundsForm"><table class="table table-striped table-hover"><thead><tr><th scope="col">Filename</th><th scope="col">Reward Name (leave unchecked for random)</th></tr></thead><tbody>`;
             let randomSounds = result.random;
             if(Object.keys(result.rewards).length > 0) {
                 for(let sound in result.rewards) {
