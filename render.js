@@ -17,7 +17,7 @@ async function loadSettings() {
 
 async function updateSoundsList() { 
     let sounds = await ipc.invoke('loadSounds');
-    let soundsHTML = `<h3>Sounds</h3><button onclick="updateSoundsList()">(reload)</button>`;
+    let soundsHTML = `<h3>Sounds <button class="btn btn-primary btn-sm active" onclick="updateSoundsList()">reload</button></h3>`;
     if(sounds.length > 0){
         let buttonRowCount = 0;
         let buttonRows = 1;
