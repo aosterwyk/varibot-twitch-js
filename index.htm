@@ -16,16 +16,15 @@
         <!--[if lt IE 7]>
             <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="#">upgrade your browser</a> to improve your experience.</p>
         <![endif]-->
-        <script src="render.js" async defer></script>
-
+        <script src="render.js" async defer></script>     
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
             <a class="navbar-brand" href="#"><img src="img\varibot.png" height="24px" width="24px">VariBot</a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor02" aria-controls="navbarColor02" aria-expanded="false" aria-label="Toggle navigation">
               <span class="navbar-toggler-icon"></span>
             </button>
           
-            <div class="collapse navbar-collapse" id="navbarColor02">
-              <ul class="navbar-nav mr-auto">
+            <div class="collapse navbar-collapse">
+              <ul class="navbar-nav mr-auto" id="navBar-left">
                 <li class="nav-item active">
                   <a class="nav-link" href="#" onclick="showPage('home')">Dashboard<span class="sr-only">(current)</span></a>
                 </li>
@@ -37,6 +36,11 @@
                 </li>
                 <li class="nav-item">
                   <a class="nav-link" href="#" onclick="showPage('cmds')">Commands</a>
+                </li>
+              </ul>
+              <ul class="navbar-nav">
+                <li class="nav-item">
+                  <button type="button" class="btn btn-danger btn-sm" onclick="closeBot()">Close</button>                                    
                 </li>
               </ul>
               <!-- <form class="form-inline my-2 my-lg-0">
@@ -57,7 +61,7 @@
             <span id="soundsList"><button onclick="reloadSounds()">Reload sounds</button></span>            
           </div>
           <div class="container-fluid" id="settings">
-            <button class="btn btn btn-danger" onclick="openTokenPage()">Get Token</button>
+            <button class="btn btn-danger btn-sm" onclick="openTokenPage()">Get Token</button>
             <h3>Settings</h3>
             <button type="submit" class="btn btn-primary" onclick="saveSettingsFromForm()">Save</button>
             <form id="settingsForm">

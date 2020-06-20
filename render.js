@@ -1,4 +1,5 @@
 const ipc = require('electron').ipcRenderer;
+const remote = require('electron').remote;
 const { shell } = require('electron');
 
 ipc.on('status', (event, msg) => {
@@ -118,7 +119,6 @@ async function populateSettings(settingsPage) {
                 cmdPageHTML += `<button type="submit" class="btn btn-primary" onclick="saveCmdForm()">Save</button><form id="cmdForm"><table class="table table-striped table-hover table-sm" style="table-layout:auto;"><thead><th>Enabled</th><th>Command</th></thead><tbody>`;
                 for(let cmd in result) { 
                     cmdPageHTML += `<tr id="${result[cmd].name}"><td style="width: 5px; text-align: center;">`;
-                    console.log(result[cmd].enabled);
                     if(result[cmd].enabled) {
                         cmdPageHTML += `<input type="checkbox" checked>`;
                     }
@@ -146,7 +146,6 @@ async function saveCmdForm() {
             enabled: cmdStatus
         }
     }
-    console.log(cmdChanges);
     await ipc.invoke('updateCmdSettings', cmdChanges);
     showPage('cmds');
 }
@@ -254,3 +253,12 @@ function saveSettingsFromForm() {
     */
 }
 
+function closeBot() {
+    const botWindow = remote.getCurrentWindow();
+    botWindow.close();
+}
+
+// async function closeBot() {
+//     alertMsg(true, 'info', 'Shutting down...');
+//     await ipc.invoke('closeBot');
+// }

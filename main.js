@@ -438,10 +438,17 @@ if (BrowserWindow.getAllWindows().length === 0) {
 }
 });
 
-ipc.on('firstLoad', (event, args) => {
-    let firstLoad = `<img src='${logoURL}' />`;
-    event.returnValue = firstLoad;
-});
+// ipc.on('firstLoad', (event, args) => {
+//     let firstLoad = `<img src='${logoURL}' />`;
+//     event.returnValue = firstLoad;
+// });
+
+// ipc.handle('closeBot', async () => {
+//     await botSettingsDB.sync();
+//     await commandsDB.sync();
+//     await channelPointsSoundsDB.sync();
+//     process.exit();
+// });
 
 ipc.handle('newSoundsSettings', async (event, args) => {
     await channelPointsSoundsDB.sync(); // sync channel points sounds   
