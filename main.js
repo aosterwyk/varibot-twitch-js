@@ -395,8 +395,8 @@ async function startBot() {
         });    
     }
     else {
-        // alertBar(`Invalid bot settings. Please update settings and restart bot.`);
         win.webContents.executeJavaScript(`showPage('settings')`);
+        win.webContents.executeJavaScript(`alertMsg(true, 'error', 'Invalid bot settings. Please update settings and restart bot.')`);        
     }
 }
 
@@ -503,7 +503,9 @@ ipc.handle('botSettingsFromForm', async (event, args) => {
         await updateBotSettings('beatGameSound', args.beatGameSound);
     }
     // await updateBotSettings(ownedGamesSpreadSheetID, args.ownedGamesSpreadSheetID);
-    statusMsg(`Settings updated. You will need to restart if your token was updated.`);
+    let updateMsg = `Settings updated. You will need to restart if your token was updated.`;
+    statusMsg(updateMsg);
+    win.webContents.executeJavaScript(`alertMsg('true','success', '${updateMsg}')`);
     win.webContents.executeJavaScript(`showPage('home')`);
     return true;
 });

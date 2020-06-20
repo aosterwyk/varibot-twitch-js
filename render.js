@@ -140,6 +140,42 @@ async function saveCmdForm() {
     showPage('cmds');
 }
 
+function alertMsg(status, eventType, msg) {
+    let alertBox = document.getElementById('alertBox');
+    let alertBoxText = document.getElementById('alertBoxText');
+    let alertMessage = '';
+    alertBox.classList.remove('alert-primary');
+    alertBox.classList.remove('alert-success');
+    alertBox.classList.remove('alert-danger');
+    alertBox.classList.remove('alert-warning');
+    if(eventType == 'error') {
+        
+        alertBox.classList.add('alert-danger');
+        alertMessage = 'Error: ';
+    }
+    else if(eventType == 'warning') {
+        alertBox.classList.add('alert-warning');
+        alertMessage = 'Warning: ';
+    }
+    else if(eventType == 'success') {
+        alertBox.classList.add('alert-success');
+    }
+    else if(eventType == 'info') {
+        alertBox.classList.add('alert-primary');
+    }    
+    else {
+        alertBox.classList.add('alert-primary');
+    }
+    alertMessage += msg;    
+    alertBoxText.innerText = alertMessage;    
+    if(status) {
+        alertBox.style.display = 'block';
+    }
+    else {
+        alertBox.style.display = 'none';
+    }
+}
+
 async function saveSoundsForm() {
     let soundsForm = document.getElementById('soundsForm');
     let soundsTRs = soundsForm.getElementsByTagName('tr');
