@@ -421,7 +421,7 @@ function createWindow() {
 
     win.loadFile('index.htm');
 
-    win.webContents.openDevTools()
+    // win.webContents.openDevTools()
     // win.webContents.executeJavaScript(`updateSoundsList()`);
     // win.webContents.executeJavaScript(`showPage('home')`);
 }
