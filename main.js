@@ -407,7 +407,6 @@ async function startBot() {
 const { ipcMain, app, BrowserWindow } = require('electron');
 const ipc = ipcMain;
 
-let logoURL = 'https://acceptdefaults.com/varibot-twitch-js/varibot.png';
 var win = null;
 
 function createWindow() {
@@ -439,11 +438,6 @@ if (BrowserWindow.getAllWindows().length === 0) {
     createWindow();
 }
 });
-
-// ipc.on('firstLoad', (event, args) => {
-//     let firstLoad = `<img src='${logoURL}' />`;
-//     event.returnValue = firstLoad;
-// });
 
 // ipc.handle('closeBot', async () => {
 //     await botSettingsDB.sync();
