@@ -325,7 +325,8 @@ async function updateBotSettings(option, newValue) {
 
 async function startBot() { 
     await botSettingsDB.sync();
-    let botset = await botSettingsDB.findAll(); 
+    // let botset = await botSettingsDB.findAll(); 
+    let botset = await botSettingsDB.findOrCreate({where: {id: 1}}); 
     botSettings = botset[0];
 
     await loadCommands();
@@ -335,33 +336,33 @@ async function startBot() {
         // process.exit();
         readyToConnect = false;
     }
-
-    if(botSettings.clientId === undefined || botSettings.clientId.length < 1) { 
-        console.log('Invalid client ID in bot settings. Please run setup.');
-        // process.exit();
-        readyToConnect = false;
-    }
-
-    if(botSettings.token.length < 1) { 
-        console.log('Invalid auth token. Please use the link below to authorize the bot and get a token.');
-        console.log(`https://id.twitch.tv/oauth2/authorize?client_id=${botSettings.clientId}&redirect_uri=https://acceptdefaults.com/twitch-oauth-token-generator/&response_type=token&scope=bits:read+channel:read:redemptions+channel:moderate+chat:edit+chat:read+user:edit:broadcast`);
-        // process.exit();
-        readyToConnect = false;
-        statusMsg(`Invalid bot settings. Please run setup.`);        
-    } 
-
-    if(botSettings.channel === undefined || botSettings.channel.length < 1) { 
-        console.log('Invalid channel in bot settings. Please run setup.');
-        // process.exit();
-        readyToConnect = false;
-    }
-
-    await loadChannelPointsSounds();
-    if(botSettings.soundsDir.length > 1) {
-        randomSounds = await loadSounds(botSettings.soundsDir, channelPointsFilenames);
-    }
     else {
-        console.log(`No sounds directory found in settings. Skipping loading random sounds.`);
+        if(botSettings.clientId === undefined || botSettings.clientId.length < 1) { 
+            console.log('Invalid client ID in bot settings. Please run setup.');
+            // process.exit();
+            readyToConnect = false;
+        }
+
+        if(botSettings.token === undefined || botSettings.token.length < 1) { 
+            console.log('Invalid auth token. Please use the link below to authorize the bot and get a token.');
+            console.log(`https://id.twitch.tv/oauth2/authorize?client_id=${botSettings.clientId}&redirect_uri=https://acceptdefaults.com/twitch-oauth-token-generator/&response_type=token&scope=bits:read+channel:read:redemptions+channel:moderate+chat:edit+chat:read+user:edit:broadcast`);
+            // process.exit();
+            readyToConnect = false;
+            statusMsg(`Invalid bot settings. Please run setup.`);        
+        } 
+
+        if(botSettings.channel === undefined || botSettings.channel.length < 1) { 
+            console.log('Invalid channel in bot settings. Please run setup.');
+            // process.exit();
+            readyToConnect = false;
+        }
+        await loadChannelPointsSounds();
+        if(botSettings.soundsDir === undefined || botSettings.soundsDir.length > 1) {
+            randomSounds = await loadSounds(botSettings.soundsDir, channelPointsFilenames);
+        }
+        else {
+            console.log(`No sounds directory found in settings. Skipping loading random sounds.`);
+        }        
     }
 
     if(readyToConnect) {
@@ -392,6 +393,8 @@ async function startBot() {
                 }
             }
         });    
+        win.webContents.executeJavaScript(`updateSoundsList()`);
+        win.webContents.executeJavaScript(`showPage('home')`);        
     }
     else {
         win.webContents.executeJavaScript(`showPage('settings')`);
@@ -419,8 +422,8 @@ function createWindow() {
     win.loadFile('index.htm');
 
     win.webContents.openDevTools()
-    win.webContents.executeJavaScript(`updateSoundsList()`);
-    win.webContents.executeJavaScript(`showPage('home')`);
+    // win.webContents.executeJavaScript(`updateSoundsList()`);
+    // win.webContents.executeJavaScript(`showPage('home')`);
 }
 
 app.whenReady().then(createWindow);
@@ -508,6 +511,7 @@ ipc.handle('botSettingsFromForm', async (event, args) => {
     if(args.beatGameSound.length > 1) {
         await updateBotSettings('beatGameSound', args.beatGameSound);
     }
+    await botSettingsDB.sync();
     // await updateBotSettings(ownedGamesSpreadSheetID, args.ownedGamesSpreadSheetID);
     let updateMsg = `Settings updated. You will need to restart if your token was added or changed.`;
     statusMsg(updateMsg);
@@ -539,22 +543,25 @@ ipc.handle('updateCmdSettings', async (event, args) => {
 
 ipc.handle('getCurrentSettings', async (event, args) => {
     await botSettingsDB.sync();
-    let dbSettings = await botSettingsDB.findAll(); 
-    let result = {
-        username: dbSettings[0].username,
-        token: dbSettings[0].token,
-        clientId: dbSettings[0].clientId,
-        channel: dbSettings[0].channel,
-        cooldown: dbSettings[0].cooldown,
-        soundsDir: dbSettings[0].soundsDir,
-        googleSheetsClientEmail: dbSettings[0].googleSheetsClientEmail,
-        googleSheetsPrivateKey: dbSettings[0].googleSheetsPrivateKey,
-        beatSheetID: dbSettings[0].beatSheetID,
-        beatSpreadSheetID: dbSettings[0].beatSpreadSheetID,
-        beatGameSound: dbSettings[0].beatGameSound,
-        ownedGamesSpreadSheetID: dbSettings[0].ownedGamesSpreadSheetID
+    // let dbSettings = await botSettingsDB.findAll(); 
+    let dbSettings = await botSettingsDB.findOrCreate({where: {id: 1}}); 
+    if(dbSettings[0] !== undefined) {
+        let result = {
+            username: dbSettings[0].username,
+            token: dbSettings[0].token,
+            clientId: dbSettings[0].clientId,
+            channel: dbSettings[0].channel,
+            cooldown: dbSettings[0].cooldown,
+            soundsDir: dbSettings[0].soundsDir,
+            googleSheetsClientEmail: dbSettings[0].googleSheetsClientEmail,
+            googleSheetsPrivateKey: dbSettings[0].googleSheetsPrivateKey,
+            beatSheetID: dbSettings[0].beatSheetID,
+            beatSpreadSheetID: dbSettings[0].beatSpreadSheetID,
+            beatGameSound: dbSettings[0].beatGameSound,
+            ownedGamesSpreadSheetID: dbSettings[0].ownedGamesSpreadSheetID
+        }
+        return result;
     }
-    return result;
 });
 
 ipc.handle('getSoundsSettings', async (event, args) => {
@@ -615,21 +622,24 @@ function pubsubPings() {
 
 pubsubSocket.onopen = async function(e) {
     await botSettingsDB.sync();
-    let botset = await botSettingsDB.findAll(); 
+    // let botset = await botSettingsDB.findAll(); 
+    let botset = await botSettingsDB.findOrCreate({where: {id: 1}}); 
     botSettings = botset[0];
     // TO DO - move bot settings to a command or load it all before starting these 
-    let channelId = await twitchAPI.getChannelID(botSettings.channel, botSettings.clientId, botSettings.token);
-    let connectMsg =  {
-        type: "LISTEN",
-        nonce: "44h1k13746815ab1r2",
-        data:  {
-          topics: ["channel-points-channel-v1." + channelId],
-          auth_token: botSettings.token
-        }
-    };
-    pubsubSocket.send(JSON.stringify(connectMsg));
-    console.log(`Pubsub connected. Listed topics: ${connectMsg.data.topics}`);
-    pubsubPings();
+    if(botSettings !== undefined) {
+        let channelId = await twitchAPI.getChannelID(botSettings.channel, botSettings.clientId, botSettings.token);
+        let connectMsg =  {
+            type: "LISTEN",
+            nonce: "44h1k13746815ab1r2",
+            data:  {
+            topics: ["channel-points-channel-v1." + channelId],
+            auth_token: botSettings.token
+            }
+        };
+        pubsubSocket.send(JSON.stringify(connectMsg));
+        console.log(`Pubsub connected. Listed topics: ${connectMsg.data.topics}`);
+        pubsubPings();
+    }
 };
 
 pubsubSocket.onmessage = function(event)  {

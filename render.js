@@ -50,13 +50,7 @@ function checkWin() {
 
 async function openTokenPage() { 
     let result = await ipc.invoke('getCurrentSettings');
-    if(result.clientId.length > 1) {
-        shell.openExternal(`https://id.twitch.tv/oauth2/authorize?client_id=${result.clientId}&redirect_uri=https://acceptdefaults.com/twitch-oauth-token-generator/&response_type=token&scope=bits:read+channel:read:redemptions+channel:moderate+chat:edit+chat:read+user:edit:broadcast`);
-    }
-    else { 
-        let erorrMsg = `Please set a client ID before generating a token`;
-        alertMsg(true, 'error', erorrMsg);
-    }
+    shell.openExternal(`https://id.twitch.tv/oauth2/authorize?client_id=rq2a841j8f63fndu5lnbwzwmbzamoy&redirect_uri=https://acceptdefaults.com/twitch-oauth-token-generator/&response_type=token&scope=bits:read+channel:read:redemptions+channel:moderate+chat:edit+chat:read+user:edit:broadcast`);
 }
 
 async function openSoundsDir() {
@@ -72,17 +66,18 @@ async function populateSettings(settingsPage) {
     }
     if(settingsPage.toLowerCase() == 'settings') {
         let result = await ipc.invoke('getCurrentSettings');
-        document.getElementById('botUsername').value = result.username;
-        document.getElementById('botToken').value = result.token;
-        document.getElementById('clientId').value = result.clientId;
-        document.getElementById('channel').value = result.channel;
-        document.getElementById('soundsDir').value = result.soundsDir;
-        document.getElementById('googleSheetsClientEmail').value = result.googleSheetsClientEmail;
-        document.getElementById('googleSheetsPrivateKey').value = result.googleSheetsPrivateKey;
-        document.getElementById('beatSpreadSheetID').value = result.beatSpreadSheetID;
-        document.getElementById('beatSheetID').value = result.beatSheetID;
-        document.getElementById('beatGameSound').value = result.beatGameSound;
-
+        if(result !== undefined) {
+            document.getElementById('botUsername').value = result.username;
+            document.getElementById('botToken').value = result.token;
+            document.getElementById('clientId').value = result.clientId;
+            document.getElementById('channel').value = result.channel;
+            document.getElementById('soundsDir').value = result.soundsDir;
+            document.getElementById('googleSheetsClientEmail').value = result.googleSheetsClientEmail;
+            document.getElementById('googleSheetsPrivateKey').value = result.googleSheetsPrivateKey;
+            document.getElementById('beatSpreadSheetID').value = result.beatSpreadSheetID;
+            document.getElementById('beatSheetID').value = result.beatSheetID;
+            document.getElementById('beatGameSound').value = result.beatGameSound;
+        }
     }
     if(settingsPage.toLowerCase() == 'sounds') {
         await ipc.invoke('loadSounds');        

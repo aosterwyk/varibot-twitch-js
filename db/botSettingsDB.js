@@ -4,23 +4,23 @@ const { db } = require("./db");
 const botSettingsDB = db.define('botSettings', {
     username: {
         type: Sequelize.STRING,
-        allowNull: false
+        allowNull: true
     },
     token: {
         type: Sequelize.STRING,
-        allowNull: false
+        allowNull: true
     },
     clientId: {
         type: Sequelize.STRING,
-        allowNull: false
+        allowNull: true
     },
     channel: {
         type: Sequelize.STRING,
-        allowNull: false
+        allowNull: true
     },
     cooldown: {
         type: Sequelize.FLOAT,
-        allowNull: false
+        allowNull: true
     },
     soundsDir: {
         type: Sequelize.STRING,
