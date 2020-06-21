@@ -38,10 +38,13 @@ async function updateSoundsList() {
     document.getElementById('soundsList').innerHTML = soundsHTML;
 }
 
-function playSound(sound) {
-   let audio = new Audio(`sounds\\${sound}`); // TO DO - get soundsDir from botsettings 
-   try { audio.play(); }
-   catch(err) { console.log(err); }
+async function playSound(sound) {
+    let result = await ipc.invoke('getCurrentSettings');
+    if(result !== undefined) {
+        let audio = new Audio(`${result.soundsDir}\\${sound}`);
+        try { audio.play(); }
+        catch(err) { console.log(err); }
+    }    
 }
 
 function checkWin() {
@@ -56,7 +59,7 @@ async function openTokenPage() {
 async function openSoundsDir() {
     let result = await ipc.invoke('getCurrentSettings');
     if(result !== undefined) {
-        shell.openPath(`${__dirname}\\${result.soundsDir}`);
+        shell.openPath(`${result.soundsDir}`);
     }
 }
 
@@ -71,7 +74,7 @@ async function populateSettings(settingsPage) {
             document.getElementById('botToken').value = result.token;
             document.getElementById('clientId').value = result.clientId;
             document.getElementById('channel').value = result.channel;
-            document.getElementById('soundsDir').value = result.soundsDir;
+            // document.getElementById('soundsDir').value = result.soundsDir;
             document.getElementById('googleSheetsClientEmail').value = result.googleSheetsClientEmail;
             document.getElementById('googleSheetsPrivateKey').value = result.googleSheetsPrivateKey;
             document.getElementById('beatSpreadSheetID').value = result.beatSpreadSheetID;
@@ -228,7 +231,7 @@ function saveSettingsFromForm() {
         botToken: botToken.value,
         clientId: clientId.value,
         channel: channel.value,
-        soundsDir: soundsDir.value,
+        // soundsDir: soundsDir.value,
         googleSheetsClientEmail: googleSheetsClientEmail.value,
         googleSheetsPrivateKey: googleSheetsPrivateKey.value,
         beatSpreadSheetID: beatSpreadSheetID.value,

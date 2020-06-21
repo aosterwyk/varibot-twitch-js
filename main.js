@@ -11,6 +11,7 @@ const pubsubSocket = new WebSocket('wss://pubsub-edge.twitch.tv');
 
 let client = null;
 let botSettings = {};
+let soundsDir = `${__dirname}\\sounds\\`;
 let commands = {};
 let channelPointsSounds = {};
 let channelPointsFilenames = []; // add beat game sound to this
@@ -72,7 +73,6 @@ async function beatGame(beatComments, beatChannel) {
             let channelId = await twitchAPI.getChannelID(targetChannel.substr(1), botSettings.clientId, botSettings.token);
             await twitchAPI.createStreamMarker(channelId,'test with id from api', botSettings.clientId, botSettings.token);
             console.log('Created stream marker'); // broken
-            // soundPlayer.play(`${botSettings.soundsDir}/${botSettings.beatGameSound}`); // if this dies check that mplayer.exe is in %appdata%\npm 
             win.webContents.executeJavaScript(`playSound('${botSettings.beatGameSound}')`);
         }
         else {
@@ -84,7 +84,6 @@ async function beatGame(beatComments, beatChannel) {
             let channelId = await twitchAPI.getChannelID(targetChannel.substr(1), botSettings.clientId, botSettings.token);
             await twitchAPI.createStreamMarker(channelId,'test with id from api', botSettings.clientId, botSettings.token);
             console.log('Created stream marker');
-            // soundPlayer.play(`${botSettings.soundsDir}/${botSettings.beatGameSound}`); // if this dies check that mplayer.exe is in %appdata%\npm 
             win.webContents.executeJavaScript(`playSound('${botSettings.beatGameSound}')`);
         }
     }
@@ -328,6 +327,7 @@ async function startBot() {
     // let botset = await botSettingsDB.findAll(); 
     let botset = await botSettingsDB.findOrCreate({where: {id: 1}}); 
     botSettings = botset[0];
+    // botSettings.soundsDir = soundsDir;
 
     await loadCommands();
 
@@ -357,8 +357,8 @@ async function startBot() {
             readyToConnect = false;
         }
         await loadChannelPointsSounds();
-        if(botSettings.soundsDir === undefined || botSettings.soundsDir.length > 1) {
-            randomSounds = await loadSounds(botSettings.soundsDir, channelPointsFilenames);
+        if(soundsDir === undefined || soundsDir.length > 1) {
+            randomSounds = await loadSounds(soundsDir, channelPointsFilenames);
         }
         else {
             console.log(`No sounds directory found in settings. Skipping loading random sounds.`);
@@ -469,9 +469,9 @@ ipc.handle('newSoundsSettings', async (event, args) => {
     await channelPointsSoundsDB.sync(); // update channel points sounds with new values
     // console.log(`Random sounds before ${randomSounds}`);
     await loadChannelPointsSounds(); // load channel points sounds     
-    if(botSettings.soundsDir.length > 1) {
+    if(soundsDir.length > 1) {
         randomSounds = []; // clear random sounds array
-        randomSounds = await loadSounds(botSettings.soundsDir, channelPointsFilenames); // rebuild random sounds array
+        randomSounds = await loadSounds(soundsDir, channelPointsFilenames); // rebuild random sounds array
     }
     // console.log(`Random sounds after ${randomSounds}`);
 });
@@ -490,9 +490,9 @@ ipc.handle('botSettingsFromForm', async (event, args) => {
     if(args.channel.length > 1) {        
         await updateBotSettings('channel', args.channel);
     }
-    if(args.soundsDir.length > 1) {        
-        await updateBotSettings('soundsDir', args.soundsDir);
-    }
+    // if(args.soundsDir.length > 1) {        
+    //     await updateBotSettings('soundsDir', args.soundsDir);
+    // }
     if(args.googleSheetsClientEmail.length > 1) {    
         await updateBotSettings('googleSheetsClientEmail', args.googleSheetsClientEmail);
     }
@@ -522,8 +522,8 @@ ipc.handle('botSettingsFromForm', async (event, args) => {
 
 ipc.handle('loadSounds', async (event, args) => {
     await loadChannelPointsSounds();
-    if(botSettings.soundsDir.length > 1) {
-        randomSounds = await loadSounds(botSettings.soundsDir, channelPointsFilenames);
+    if(soundsDir.length > 1) {
+        randomSounds = await loadSounds(soundsDir, channelPointsFilenames);
     }    
     let returnSounds = [...randomSounds, ...channelPointsFilenames];
     return returnSounds;
@@ -552,7 +552,8 @@ ipc.handle('getCurrentSettings', async (event, args) => {
             clientId: dbSettings[0].clientId,
             channel: dbSettings[0].channel,
             cooldown: dbSettings[0].cooldown,
-            soundsDir: dbSettings[0].soundsDir,
+            // soundsDir: `__dirname\\${dbSettings[0].soundsDir}`,
+            soundsDir: soundsDir,
             googleSheetsClientEmail: dbSettings[0].googleSheetsClientEmail,
             googleSheetsPrivateKey: dbSettings[0].googleSheetsPrivateKey,
             beatSheetID: dbSettings[0].beatSheetID,
@@ -560,6 +561,7 @@ ipc.handle('getCurrentSettings', async (event, args) => {
             beatGameSound: dbSettings[0].beatGameSound,
             ownedGamesSpreadSheetID: dbSettings[0].ownedGamesSpreadSheetID
         }
+        console.log(result.soundsDir);
         return result;
     }
 });
@@ -568,8 +570,8 @@ ipc.handle('getSoundsSettings', async (event, args) => {
 
     await loadChannelPointsSounds();
     let randSounds = [];
-    if(botSettings.soundsDir.length > 1) {
-         randSounds = await loadSounds(botSettings.soundsDir, channelPointsFilenames);
+    if(soundsDir.length > 1) {
+         randSounds = await loadSounds(soundsDir, channelPointsFilenames);
     }
     let returnSounds = {
         rewards: channelPointsSounds,
@@ -625,6 +627,8 @@ pubsubSocket.onopen = async function(e) {
     // let botset = await botSettingsDB.findAll(); 
     let botset = await botSettingsDB.findOrCreate({where: {id: 1}}); 
     botSettings = botset[0];
+    // botSettings.soundsDir = soundsDir;
+    
     // TO DO - move bot settings to a command or load it all before starting these 
     if(botSettings !== undefined) {
         let channelId = await twitchAPI.getChannelID(botSettings.channel, botSettings.clientId, botSettings.token);

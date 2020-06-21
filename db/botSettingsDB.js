@@ -22,10 +22,10 @@ const botSettingsDB = db.define('botSettings', {
         type: Sequelize.FLOAT,
         allowNull: true
     },
-    soundsDir: {
-        type: Sequelize.STRING,
-        allowNull: true
-    },
+    // soundsDir: {
+    //     type: Sequelize.STRING,
+    //     allowNull: true
+    // },
     googleSheetsClientEmail: { 
         type: Sequelize.STRING,
         allowNull: true
