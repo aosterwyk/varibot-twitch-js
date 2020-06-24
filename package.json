@@ -1,11 +1,11 @@
 {
   "name": "varibot",
-  "version": "1.0.0-alpha.7",
+  "version": "1.0.0-alpha.8",
   "description": "twitch chat bot",
   "main": "main.js",
   "scripts": {
     "postinstall": "install-app-deps",
-    "publish": "build -p always",
+    "publish": "electron-builder -p always",
     "start": "electron ."
   },
   "repository": {
@@ -28,15 +28,13 @@
     "ws": "^7.3.0"
   },
   "devDependencies": {
-    "electron": "^9.0.4",    
+    "electron": "^9.0.4",
     "electron-builder": "^22.7.0"
   },
   "build": {
-    "asar": "false",
-    "win": {
-      "target": [
-        "zip"
-      ]
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
     }
   }
 }
