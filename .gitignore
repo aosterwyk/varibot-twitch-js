@@ -3,6 +3,7 @@
 *.wav
 *.lnk
 *.sqlite
+dist/
 .vscode/
 node_modules/
 botSettings.json
