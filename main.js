@@ -1,4 +1,5 @@
 const tmi = require('tmi.js');
+const fs = require('fs');
 const { autoUpdater} = require('electron-updater');
 const { botSettingsDB } = require('./db/botSettingsDB');
 const { commandsDB } = require('./db/commandsDB');
@@ -9,16 +10,23 @@ const { getRandomOwnedGame } = require('./utils/ownedGames');
 const twitchAPI = require('./utils/api');
 const WebSocket = require('ws');
 const pubsubSocket = new WebSocket('wss://pubsub-edge.twitch.tv');
+const { ipcMain, app, BrowserWindow } = require('electron');
+const ipc = ipcMain;
 
 let client = null;
 let botSettings = {};
-let soundsDir = `${__dirname}\\sounds\\`;
+// let soundsDir = `${__dirname}\\sounds\\`;
+const soundsDir = `${app.getPath('appData')}\\varibot\\sounds`;
 let commands = {};
 let channelPointsSounds = {};
 let channelPointsFilenames = []; // add beat game sound to this
 let randomSounds = [];
 let lastRunTimestamp = new Date(); // hacky cooldown 
 let readyToConnect = true;
+
+if (!fs.existsSync(soundsDir)){
+    fs.mkdirSync(soundsDir);
+}
 
 threedUniverseGames = ["Grand Theft Auto: Vice City Stories", "Grand Theft Auto: Vice City", "Grand Theft Auto: San Andreas", "Grand Theft Auto: Liberty City Stories", "Grand Theft Auto III"];
 threedUniverseTimeline = "Vice City Stories (1984) Vice City (1986) San Andreas (1992) Liberty City Stories (1998) Advance (2000) (Skipped) GTA III (2001)";
@@ -405,9 +413,6 @@ async function startBot() {
 
 // electron start
 
-const { ipcMain, app, BrowserWindow } = require('electron');
-const ipc = ipcMain;
-
 var win = null;
 
 function createWindow() {
@@ -556,7 +561,7 @@ ipc.handle('getCurrentSettings', async (event, args) => {
             beatGameSound: dbSettings[0].beatGameSound,
             ownedGamesSpreadSheetID: dbSettings[0].ownedGamesSpreadSheetID
         }
-        console.log(result.soundsDir);
+        // console.log(result.soundsDir);
         return result;
     }
 });
