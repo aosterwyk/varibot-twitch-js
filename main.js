@@ -1,4 +1,5 @@
 const tmi = require('tmi.js');
+const { autoUpdater} = require('electron-updater');
 const { botSettingsDB } = require('./db/botSettingsDB');
 const { commandsDB } = require('./db/commandsDB');
 const { channelPointsSoundsDB } = require('./db/channelPointSoundsDB');
@@ -647,6 +648,9 @@ pubsubSocket.onmessage = function(event)  {
 
 // pubsub end
 
+app.on('ready', () => {
+    autoUpdater.checkForUpdatesAndNotify();
+});
 
 startBot();
 
