@@ -18,36 +18,30 @@
         <![endif]-->
         <script src="render.js" async defer></script>     
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-            <a class="navbar-brand" href="#"><img src="varibot.png" height="24px" width="24px">VariBot</a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor02" aria-controls="navbarColor02" aria-expanded="false" aria-label="Toggle navigation">
-              <span class="navbar-toggler-icon"></span>
-            </button>
-          
-            <div class="collapse navbar-collapse">
-              <ul class="navbar-nav mr-auto" id="navBar-left">
-                <li class="nav-item active">
-                  <a class="nav-link" href="#" onclick="showPage('home')">Dashboard<span class="sr-only">(current)</span></a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="#" onclick="showPage('settings')">Settings</a>
-                </li>                
-                <li class="nav-item">
-                  <a class="nav-link" href="#" onclick="showPage('sounds')">Sounds</a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="#" onclick="showPage('cmds')">Commands</a>
-                </li>
-              </ul>
-              <ul class="navbar-nav">
-                <li class="nav-item">
-                  <button type="button" class="btn btn-danger btn-sm" onclick="closeBot()">Close</button>                                    
-                </li>
-              </ul>
-              <!-- <form class="form-inline my-2 my-lg-0">
-                <input class="form-control mr-sm-2" type="text" placeholder="Search">
-                <button class="btn btn-secondary my-2 my-sm-0" type="submit">Search</button>
-              </form> -->
-            </div>
+          <a class="navbar-brand" href="#"><img src="varibot.png" height="24px" width="24px">VariBot</a>
+            <ul class="navbar-nav mr-auto" id="navBar-left">
+              <li class="nav-item active">
+                <a class="nav-link" href="#" onclick="showPage('home')">Dashboard<span class="sr-only">(current)</span></a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#" onclick="showPage('settings')">Settings</a>
+              </li>                
+              <li class="nav-item">
+                <a class="nav-link" href="#" onclick="showPage('sounds')">Sounds</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#" onclick="showPage('cmds')">Commands</a>
+              </li>
+            </ul>
+            <ul class="navbar-nav">
+              <li class="nav-item">
+                <button type="button" class="btn btn-danger btn-sm" onclick="closeBot()">Close</button>                                    
+              </li>
+            </ul>
+            <!-- <form class="form-inline my-2 my-lg-0">
+              <input class="form-control mr-sm-2" type="text" placeholder="Search">
+              <button class="btn btn-secondary my-2 my-sm-0" type="submit">Search</button>
+            </form> -->
           </nav>
           <div class="alert alert-warning alert-dismissible fade show" role="alert" id="alertBox" style="display:none">
             <span id="alertBoxText">alert text</span>
