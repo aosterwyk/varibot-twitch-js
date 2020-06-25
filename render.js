@@ -76,6 +76,18 @@ async function openSoundsDir() {
     }
 }
 
+function changeActiveTab(activeTab) { 
+    let navbar = document.getElementById('navBar-left');
+    let navLis = navbar.getElementsByTagName('li');
+    for(let x = 0; x < navLis.length; x++) {
+        if(navLis[x].classList.contains('active')) {
+            navLis[x].classList.remove('active');
+        }
+    }
+    let newActive = document.getElementById(`${activeTab}Nav`);
+    newActive.classList.add('active');
+}
+
 async function populateSettings(settingsPage) {
     if(settingsPage.toLowerCase() == 'home') { 
         // no settings
@@ -237,6 +249,7 @@ async function showPage(page) {
         document.getElementById(pages[p]).style.display = 'none';
     }
     await populateSettings(showPage);
+    changeActiveTab(showPage);
     document.getElementById(showPage).style.display = 'block';
     // TO DO - change active tab in nav 
 }

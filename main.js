@@ -426,7 +426,7 @@ function createWindow() {
 
     win.loadFile('index.htm');
     win.setMenu(null);
-    // win.webContents.openDevTools()
+    // win.webContents.openDevTools(); // TO DO - comment out before commit 
     // win.webContents.executeJavaScript(`updateSoundsList()`);
     // win.webContents.executeJavaScript(`showPage('home')`);
 }
