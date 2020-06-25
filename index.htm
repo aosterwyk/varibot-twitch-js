@@ -33,9 +33,25 @@
                 <a class="nav-link" href="#" onclick="showPage('cmds')">Commands</a>
               </li>
             </ul>
+            <ul class="navbar-nav mr-5">
+              <li class="nav-item">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="externalLink('discord')">Discord</button>
+              </li>
+              <li class="nav-item">
+                <button type="button" class="btn btn-info btn-sm" onclick="externalLink('wiki')">Help</button>
+              </li>
+            </ul>
             <ul class="navbar-nav">
               <li class="nav-item">
-                <button type="button" class="btn btn-danger btn-sm" onclick="closeBot()">Close</button>                                    
+                <button type="button" class="btn btn-outline-warning btn-sm" onclick="minimizeWindow()"><svg class="bi bi-caret-down" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                  <path fill-rule="evenodd" d="M3.204 5L8 10.481 12.796 5H3.204zm-.753.659l4.796 5.48a1 1 0 0 0 1.506 0l4.796-5.48c.566-.647.106-1.659-.753-1.659H3.204a1 1 0 0 0-.753 1.659z"/>
+                </svg></button>
+              </li>
+              <li class="nav-item">
+                <button type="button" class="btn btn-danger btn-sm" onclick="closeBot()"><svg class="bi bi-x" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                  <path fill-rule="evenodd" d="M11.854 4.146a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708-.708l7-7a.5.5 0 0 1 .708 0z"/>
+                  <path fill-rule="evenodd" d="M4.146 4.146a.5.5 0 0 0 0 .708l7 7a.5.5 0 0 0 .708-.708l-7-7a.5.5 0 0 0-.708 0z"/>
+                </svg></button>                                    
               </li>
             </ul>
             <!-- <form class="form-inline my-2 my-lg-0">
@@ -55,7 +71,7 @@
             <span id="soundsList"><button onclick="reloadSounds()">Reload sounds</button></span>            
           </div>
           <div class="container-fluid" id="settings">
-            <button class="btn btn-danger btn-sm" onclick="openTokenPage()">Get Token</button>
+            <button class="btn btn-danger btn-sm" onclick="externalLink('token')">Get Token</button>
             <h3>Settings</h3>
             <button type="submit" class="btn btn-primary" onclick="saveSettingsFromForm()">Save</button>
             <form id="settingsForm">

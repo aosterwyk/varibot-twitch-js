@@ -12,6 +12,10 @@ function updateStatus(msg) {
     statusBox.scrollTop = statusBox.scrollWidth;
 }
 
+function minimizeWindow() {
+    remote.getCurrentWindow().minimize();
+}
+
 async function loadSettings() {
     let result = ipc.sendSync('getSettings');
     return result;
@@ -59,15 +63,31 @@ function checkWin() {
     ipc.send('checkWin');
 }
 
-async function openTokenPage() { 
-    let result = await ipc.invoke('getCurrentSettings');
-    shell.openExternal(`https://id.twitch.tv/oauth2/authorize?client_id=rq2a841j8f63fndu5lnbwzwmbzamoy&redirect_uri=https://acceptdefaults.com/twitch-oauth-token-generator/&response_type=token&scope=bits:read+channel:read:redemptions+channel:moderate+chat:edit+chat:read+user:edit:broadcast`);
+async function externalLink(destination) {
+    let result = await ipc.invoke('getCurrentSettings');   
+    if(destination == 'token') {
+        shell.openExternal(`https://id.twitch.tv/oauth2/authorize?client_id=rq2a841j8f63fndu5lnbwzwmbzamoy&redirect_uri=https://acceptdefaults.com/twitch-oauth-token-generator/&response_type=token&scope=bits:read+channel:read:redemptions+channel:moderate+chat:edit+chat:read+user:edit:broadcast`);
+    }
+    else if(destination == 'manageRewards') {
+        shell.openExternal(`https://dashboard.twitch.tv/u/${result.username}/community/channel-points/rewards`);
+    }
+    else if(destination == 'wiki') {
+        shell.openExternal(`https://github.com/VariXx/varibot-twitch-js/wiki`);
+    }
+    else if(destination == 'discord') {
+        shell.openExternal(`https://discord.gg/QNppY7T`);
+    }
 }
 
-async function openChannelRewardsPage() {
-    let result = await ipc.invoke('getCurrentSettings');
-    shell.openExternal(`https://dashboard.twitch.tv/u/${result.username}/community/channel-points/rewards`);
-}
+// async function openTokenPage() { 
+//     let result = await ipc.invoke('getCurrentSettings');
+//     shell.openExternal(`https://id.twitch.tv/oauth2/authorize?client_id=rq2a841j8f63fndu5lnbwzwmbzamoy&redirect_uri=https://acceptdefaults.com/twitch-oauth-token-generator/&response_type=token&scope=bits:read+channel:read:redemptions+channel:moderate+chat:edit+chat:read+user:edit:broadcast`);
+// }
+
+// async function openChannelRewardsPage() {
+//     let result = await ipc.invoke('getCurrentSettings');
+//     shell.openExternal(`https://dashboard.twitch.tv/u/${result.username}/community/channel-points/rewards`);
+// }
 
 async function openSoundsDir() {
     let result = await ipc.invoke('getCurrentSettings');
@@ -116,8 +136,8 @@ async function populateSettings(settingsPage) {
             <path d="M9.828 4a3 3 0 0 1-2.12-.879l-.83-.828A1 1 0 0 0 6.173 2H2.5a1 1 0 0 0-1 .981L1.546 4h-1L.5 3a2 2 0 0 1 2-2h3.672a2 2 0 0 1 1.414.586l.828.828A2 2 0 0 0 9.828 3v1z"/>
             <path fill-rule="evenodd" d="M13.81 4H2.19a1 1 0 0 0-.996 1.09l.637 7a1 1 0 0 0 .995.91h10.348a1 1 0 0 0 .995-.91l.637-7A1 1 0 0 0 13.81 4zM2.19 3A2 2 0 0 0 .198 5.181l.637 7A2 2 0 0 0 2.826 14h10.348a2 2 0 0 0 1.991-1.819l.637-7A2 2 0 0 0 13.81 3H2.19z"/>
             <path d="M8.616 10.24l3.182-1.969a.443.443 0 0 0 0-.742l-3.182-1.97c-.27-.166-.616.036-.616.372V6.7c-.857 0-3.429 0-4 4.8 1.429-2.7 4-2.4 4-2.4v.769c0 .336.346.538.616.371z"/>
-          </svg> Open sounds folder</button><button class="btn btn-primary" onclick="openChannelRewardsPage()"> Manage Channel Rewards</button><form id="soundsForm"><table class="table table-striped table-hover"><thead><tr><th scope="col">Filename</th><th scope="col">Reward Name (leave unchecked for random)</th></tr></thead><tbody>`;
-            let randomSounds = result.random;
+          </svg> Open sounds folder</button><button class="btn btn-primary" onclick="externalLink('manageRewards')"> Manage Channel Rewards</button><form id="soundsForm"><table class="table table-striped table-hover"><thead><tr><th scope="col">Filename</th><th scope="col">Reward Name (leave unchecked for random)</th></tr></thead><tbody>`;
+            let randomSounds = result.random; 
             if(Object.keys(result.rewards).length > 0) {
                 for(let sound in result.rewards) {
                     soundsPageHTML += `<tr id="${result.rewards[sound].filename}"><td id="filename">${result.rewards[sound].filename}</td><td><div class="input-group mb-3">
