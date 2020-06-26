@@ -15,11 +15,29 @@ This project was started to learn node. It may eventually be public. If you're r
 
 ## Installation
 
-TO DO - Update for UI changes
+Download and run the installer linked in the [latest release](https://github.com/VariXx/varibot-twitch-js/releases) or build/package using the instructions below.
+
+### Packaging  
+- Clone the repository 
+- Install electron-packager (global recommended)
+``npm install -g electron-packager``
+- Install dependencies 
+``npm install`` 
+- Run electron-packager from the project directory 
+``electron-packager``
 
 ## Usage
 
-TO DO - Update for UI changes
+See the [settings wiki page](https://github.com/VariXx/varibot-twitch-js/wiki/Settings) for settings details.
+
+### Basic setup
+The DB file will not exist on first launch. If the DB file does not exist the bot will start on the settings page.
+- Click the **Get Token** button on the top of the settings page. Log into twitch and authorize the bot if prompted. 
+- Copy the token on the next site. **Do not share this token with anyone**. This is a password used for the bot to login under your account. 
+- Username: Enter your username in the username field. 
+- Token: Paste your token from the step above in the token field. 
+- Client ID: Enter a client ID (Default: ``rq2a841j8f63fndu5lnbwzwmbzamoy``) for the bot to use. This is tied to the token above. 
+- Channel: Enter the channel for the bot to join. This is your username only (ex: varixx) you do not need to add # or enter your full twitch URL. 
 
 ## Support
 [Discord server](https://discord.gg/QNppY7T) or DM `VariXx#8317`
