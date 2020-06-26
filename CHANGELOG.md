@@ -12,5 +12,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.0.0] - 2020-06-25
 ### Initial Release
 
-[0.1.0]: https://github.com/VariXx/varibot-twitch-js/tree/v1.0.0
+[1.0.0]: https://github.com/VariXx/varibot-twitch-js/tree/v1.0.0
 [Unreleased]: https://github.com/VariXx/varibot-twitch-js/compare/v1.0.0...master
