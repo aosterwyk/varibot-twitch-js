@@ -65,12 +65,16 @@
               <span aria-hidden="true">&times;</span>
             </button>
           </div>          
-          <div class="container-fluid" id="home" style="visibility: show">
+          <div class="container-fluid mt-4" id="home" style="visibility: show">
             <h3>Status</h3>
-            <textarea class="form-control" id="status" rows="3"></textarea>                          
+            <!-- <textarea class="form-control" id="status" rows="3"></textarea>                           -->
+            <div class="card">
+              <div class="card-body" id="status" style="height:100px; width:100%; overflow-x:atuo; overflow-y:auto;">
+              </div>
+            </div>
             <span id="soundsList"><button onclick="reloadSounds()">Reload sounds</button></span>            
           </div>
-          <div class="container-fluid" id="settings">
+          <div class="container-fluid mt-4" id="settings">
             <button class="btn btn-danger btn-sm" onclick="externalLink('token')">Get Token</button>
             <h3>Settings</h3>
             <button type="submit" class="btn btn-primary" onclick="saveSettingsFromForm()">Save</button>
@@ -124,9 +128,9 @@
             </form>            
             <button type="submit" class="btn btn-primary" onclick="saveSettingsFromForm()">Save</button>
           </div>
-          <div class="container-fluid" id="sounds">
+          <div class="container-fluid mt-4" id="sounds">
           </div>
-          <div class="container-fluid" id="cmds">
+          <div class="container-fluid mt-4" id="cmds">
             <h3>Commands</h3>
           </div>
         </div>

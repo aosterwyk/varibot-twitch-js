@@ -3,13 +3,33 @@ const remote = require('electron').remote;
 const { shell } = require('electron');
 
 ipc.on('status', (event, msg) => {
-    updateStatus(msg);
+    updateStatus('info',msg);
 });
 
-function updateStatus(msg) {
+function updateStatus(msgType, msg) {
+    let msgColor = `text-white-75`;
+    if(msgType == 'error') {        
+        msgColor = `text-danger`;
+    }
+    else if(msgType == 'warning') {
+        msgColor = `text-warning`;
+    }
+    else if(msgType == 'success') {
+        msgColor = `text-success`;
+    }
+    else if(msgType == 'info') {
+        msgColor = `text-white-75`;
+    }    
+    else if(msgType == 'special') {
+        msgColor = `text-info`;
+    }
+    else {
+        msgColor = `text-white-75`;
+    }
+    
     let statusBox = document.getElementById('status')
-    statusBox.innerHTML += `&#13;&#10;${msg}`
-    statusBox.scrollTop = statusBox.scrollWidth;
+    statusBox.innerHTML += `<span class="${msgColor}">${msg}</span><br>`;
+    statusBox.scrollTop = statusBox.scrollHeight;
 }
 
 function minimizeWindow() {
