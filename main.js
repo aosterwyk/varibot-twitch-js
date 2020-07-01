@@ -357,7 +357,7 @@ async function startBot() {
             console.log(`https://id.twitch.tv/oauth2/authorize?client_id=${botSettings.clientId}&redirect_uri=https://acceptdefaults.com/twitch-oauth-token-generator/&response_type=token&scope=bits:read+channel:read:redemptions+channel:moderate+chat:edit+chat:read+user:edit:broadcast`);
             // process.exit();
             readyToConnect = false;
-            statusMsg(`Invalid bot settings. Please run setup.`);        
+            statusMsg(`error`,`Invalid bot settings. Please run setup.`);        
         } 
 
         if(botSettings.channel === undefined || botSettings.channel.length < 1) { 
@@ -391,7 +391,7 @@ async function startBot() {
         client.on('message', async (target, context, msg, self) => {
             if(self) { return; }
             let msgTime = new Date();
-            statusMsg(`[${msgTime.getHours()}:${msgTime.getMinutes()}]${context['display-name']}: ${msg}`);
+            statusMsg(`info`, `[${msgTime.getHours()}:${msgTime.getMinutes()}]${context['display-name']}: ${msg}`);
             if(msg.startsWith('!')) { 
                 cmdArray = msg.slice(1).split(' ');
                 if(isMod(context)) {
@@ -426,7 +426,7 @@ function createWindow() {
 
     win.loadFile('index.htm');
     win.setMenu(null);
-    win.webContents.openDevTools(); // TO DO - comment out before commit 
+    // win.webContents.openDevTools(); // TO DO - comment out before commit 
     // win.webContents.executeJavaScript(`updateSoundsList()`);
     // win.webContents.executeJavaScript(`showPage('home')`);
 }
@@ -514,7 +514,7 @@ ipc.handle('botSettingsFromForm', async (event, args) => {
     await botSettingsDB.sync();
     // await updateBotSettings(ownedGamesSpreadSheetID, args.ownedGamesSpreadSheetID);
     let updateMsg = `Settings updated. You will need to restart if your token was added or changed.`;
-    statusMsg(updateMsg);
+    statusMsg(`success`, updateMsg);
     win.webContents.executeJavaScript(`alertMsg('true','success', '${updateMsg}')`);
     // win.webContents.executeJavaScript(`showPage('home')`);
     return true;
@@ -580,8 +580,13 @@ ipc.handle('getSoundsSettings', async (event, args) => {
     return returnSounds; 
 });
 
-function statusMsg(msg) { 
-    win.webContents.send('status', msg);
+function statusMsg(msgType, msg) { 
+    let sendMsg = {
+        type: msgType,
+        message: msg
+    }
+    // win.webContents.send('status', msg);
+    win.webContents.send('status', sendMsg);
     console.log(msg);
 }
 
@@ -590,18 +595,18 @@ function statusMsg(msg) {
 // pubsub start
 
 function proecssReward(reward) {
-    statusMsg('Reward ' + reward.data.redemption.reward.title + ' was redeemed by ' + reward.data.redemption.user.display_name + ' for ' + reward.data.redemption.reward.cost + ' points');
+    statusMsg(`reward`, 'Reward ' + reward.data.redemption.reward.title + ' was redeemed by ' + reward.data.redemption.user.display_name + ' for ' + reward.data.redemption.reward.cost + ' points');
     if(reward.data.redemption.reward.title.toLowerCase() == 'random sound') {
         // add a while loop to re-roll random if it picks the same sound twice or the beat game sound
         let randomIndex = Math.floor(Math.random() * Math.floor(randomSounds.length));
         win.webContents.executeJavaScript(`playSound('${randomSounds[randomIndex]}')`);
-        statusMsg(`Playing sound ${randomSounds[randomIndex]}`);
+        statusMsg(`info`, `Playing sound ${randomSounds[randomIndex]}`);
     }
     else {
         for(let s in channelPointsSounds) {
             if(channelPointsSounds[s].name.toLowerCase() == reward.data.redemption.reward.title.toLowerCase()) {
                 win.webContents.executeJavaScript(`playSound('${channelPointsSounds[s].filename}')`);
-                statusMsg(`Playing sound ${channelPointsSounds[s].name} (${channelPointsSounds[s].filename})`);
+                statusMsg(`info`, `Playing sound ${channelPointsSounds[s].name} (${channelPointsSounds[s].filename})`);
                 break;
             }   
         }

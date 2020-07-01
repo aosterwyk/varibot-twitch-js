@@ -3,7 +3,7 @@ const remote = require('electron').remote;
 const { shell } = require('electron');
 
 ipc.on('status', (event, msg) => {
-    updateStatus('info',msg);
+    updateStatus(msg.type, msg.message);
 });
 
 function updateStatus(msgType, msg) {
@@ -21,6 +21,9 @@ function updateStatus(msgType, msg) {
         msgColor = `text-white-75`;
     }    
     else if(msgType == 'special') {
+        msgColor = `text-info`;
+    }
+    else if(msgType == 'reward') {
         msgColor = `text-info`;
     }
     else {
