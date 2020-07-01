@@ -69,7 +69,7 @@ async function externalLink(destination) {
         shell.openExternal(`https://id.twitch.tv/oauth2/authorize?client_id=rq2a841j8f63fndu5lnbwzwmbzamoy&redirect_uri=https://acceptdefaults.com/twitch-oauth-token-generator/&response_type=token&scope=bits:read+channel:read:redemptions+channel:moderate+chat:edit+chat:read+user:edit:broadcast`);
     }
     else if(destination == 'manageRewards') {
-        shell.openExternal(`https://dashboard.twitch.tv/u/${result.username}/community/channel-points/rewards`);
+        shell.openExternal(`https://dashboard.twitch.tv/u/${result.username.toLowerCase()}/community/channel-points/rewards`);
     }
     else if(destination == 'wiki') {
         shell.openExternal(`https://github.com/VariXx/varibot-twitch-js/wiki`);
