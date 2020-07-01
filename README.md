@@ -15,16 +15,16 @@ This project was started to learn node. It may eventually be public. If you're r
 
 ## Installation
 
-Download and run the installer linked in the [latest release](https://github.com/VariXx/varibot-twitch-js/releases) or build/package using the instructions below.
+Download and run the installer linked in the [latest release](https://github.com/VariXx/varibot-twitch-js/releases) or build using the instructions below.
 
-### Packaging  
+### Building  
 - Clone the repository 
-- Install electron-packager (global recommended)
-``npm install -g electron-packager``
+- Install electron-builder (global recommended)
+``npm install -g electron-builder``
 - Install dependencies 
 ``npm install`` 
-- Run electron-packager from the project directory 
-``electron-packager``
+- Run electron-builder from the project directory 
+``electron-builder``
 
 ## Usage
 
