@@ -80,31 +80,29 @@ async function beatGame(beatComments, beatChannel) {
     let channelID = await twitchAPI.getChannelID(lookupChannel, botSettings.clientId, botSettings.token);
     let gameName = await twitchAPI.getCurrentGame(channelID, botSettings.clientId, botSettings.token);            
     if(gameName) {
-        // TO DO - clean this up 
+        let commentsString = '';        
+        let beatMsg = '';
         if(beatComments.length > 0) {
-            let commentsString = '';
-            beatComments.forEach(comment => { commentsString += `${comment} `;});
-            let beatGameArray = [gameName, beatTimestamp, commentsString];
-            await beatSheet.addRow(beatGameArray)
-            .catch(error => {console.log(error);});
-            client.say(beatChannel, `Added ${gameName} (${commentsString}) to list`);
-            statusMsg('success',`Added ${gameName} (${commentsString}) to list`);
-            let channelId = await twitchAPI.getChannelID(beatChannel.substr(1), botSettings.clientId, botSettings.token);
-            await twitchAPI.createStreamMarker(channelId,'test with id from api', botSettings.clientId, botSettings.token);
-            statusMsg('success', 'Created stream marker');
-            win.webContents.executeJavaScript(`playSound('${botSettings.beatGameSound}')`);
+            beatComments.forEach(comment => { commentsString += `${comment} `;});   
+            commentsString = commentsString.trim();     
+            beatMsg = `Added ${gameName} (${commentsString}) to list`;    
         }
         else {
-            let beatGameArray = [gameName, beatTimestamp];
-            await beatSheet.addRow(beatGameArray)
-            .catch(error => {console.log(error);});
-            client.say(beatChannel, `Added ${gameName} to list`);
-            statusMsg('success', `Added ${gameName} to list`);
-            let channelId = await twitchAPI.getChannelID(beatChannel.substr(1), botSettings.clientId, botSettings.token);
-            await twitchAPI.createStreamMarker(channelId,'test with id from api', botSettings.clientId, botSettings.token);
-            statusMsg('success', 'Created stream marker');
-            win.webContents.executeJavaScript(`playSound('${botSettings.beatGameSound}')`);
+            commentsString = '';
+            beatMsg = `Added ${gameName} to list`
         }
+        let beatGameArray = [gameName, beatTimestamp, commentsString];
+        await beatSheet.addRow(beatGameArray)
+        .catch(error => {console.log(error);});
+
+        // client.say(beatChannel, `Added ${gameName} (${commentsString}) to list`);
+        // statusMsg('success',`Added ${gameName} (${commentsString}) to list`);
+        client.say(beatChannel, beatMsg);
+        statusMsg('success', beatMsg);
+        let channelId = await twitchAPI.getChannelID(beatChannel.substr(1), botSettings.clientId, botSettings.token);
+        await twitchAPI.createStreamMarker(channelId,'test with id from api', botSettings.clientId, botSettings.token);
+        statusMsg('success', 'Created stream marker');
+        win.webContents.executeJavaScript(`playSound('${botSettings.beatGameSound}')`);
     }
     else {
         console.log('gameName is empty or does not exist');
@@ -353,9 +351,7 @@ async function startBot() {
     botSettings = botset[0];
     if(googleCredsExist) {
         botSettings.googleSheetsClientEmail = googleCreds.client_email;
-        console.log(`google client email loaded`);
         botSettings.googleSheetsPrivateKey = googleCreds.private_key;
-        console.log(`google private key loaded`);
     }
     // botSettings.soundsDir = soundsDir;
 
