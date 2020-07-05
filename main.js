@@ -13,10 +13,13 @@ const pubsubSocket = new WebSocket('wss://pubsub-edge.twitch.tv');
 const { ipcMain, app, BrowserWindow } = require('electron');
 const ipc = ipcMain;
 
+
 let client = null;
 let botSettings = {};
+let googleCredsExist = false;
 // let soundsDir = `${__dirname}\\sounds\\`;
 const soundsDir = `${app.getPath('appData')}\\varibot\\sounds`;
+const googleCredsFile = `${app.getPath('appData')}\\varibot\\googleCreds.json`; // TO DO - allow user to change filename in settings
 let commands = {};
 let channelPointsSounds = {};
 let channelPointsFilenames = []; // add beat game sound to this
@@ -26,6 +29,13 @@ let readyToConnect = true;
 
 if (!fs.existsSync(soundsDir)){
     fs.mkdirSync(soundsDir);
+}
+
+if (fs.existsSync(googleCredsFile)) { 
+    googleCreds = require(`${app.getPath('appData')}\\varibot\\googleCreds`);
+    googleCredsExist = true;
+    // botSettings.googleSheetsClientEmail
+    // botSettings.googleSheetsPrivateKey
 }
 
 threedUniverseGames = ["Grand Theft Auto: Vice City Stories", "Grand Theft Auto: Vice City", "Grand Theft Auto: San Andreas", "Grand Theft Auto: Liberty City Stories", "Grand Theft Auto III"];
@@ -59,7 +69,10 @@ function randomRadio(game) {
 
 async function beatGame(beatComments, beatChannel) {        
     const doc = new GoogleSpreadsheet(botSettings.beatSpreadSheetID);
-    await doc.useServiceAccountAuth({client_email: botSettings.googleSheetsClientEmail, private_key: botSettings.googleSheetsPrivateKey});
+    // await doc.useServiceAccountAuth({client_email: botSettings.googleSheetsClientEmail, private_key: botSettings.googleSheetsPrivateKey});
+    await doc.useServiceAccountAuth(require(`${app.getPath('appData')}\\varibot\\googleCreds`));
+    // console.log(botSettings.googleSheetsClientEmail);
+    // console.log(botSettings.googleSheetsPrivateKey);
     await doc.loadInfo();
 
     let now = new Date();
@@ -78,10 +91,12 @@ async function beatGame(beatComments, beatChannel) {
             await beatSheet.addRow(beatGameArray)
             .catch(error => {console.log(error);});
             client.say(beatChannel, `Added ${gameName} (${commentsString}) to list`);
-            console.log(`Added ${gameName} (${commentsString}) to list`);
-            let channelId = await twitchAPI.getChannelID(targetChannel.substr(1), botSettings.clientId, botSettings.token);
+            // console.log(`Added ${gameName} (${commentsString}) to list`);
+            statusMsg('success',`Added ${gameName} (${commentsString}) to list`);
+            let channelId = await twitchAPI.getChannelID(beatChannel.substr(1), botSettings.clientId, botSettings.token);
             await twitchAPI.createStreamMarker(channelId,'test with id from api', botSettings.clientId, botSettings.token);
-            console.log('Created stream marker'); // broken
+            // console.log('Created stream marker'); // broken
+            statusMsg('success', 'Created stream marker');
             win.webContents.executeJavaScript(`playSound('${botSettings.beatGameSound}')`);
         }
         else {
@@ -89,10 +104,12 @@ async function beatGame(beatComments, beatChannel) {
             await beatSheet.addRow(beatGameArray)
             .catch(error => {console.log(error);});
             client.say(beatChannel, `Added ${gameName} to list`);
-            console.log(`Added ${gameName} to list`);
-            let channelId = await twitchAPI.getChannelID(targetChannel.substr(1), botSettings.clientId, botSettings.token);
+            // console.log(`Added ${gameName} to list`);
+            statusMsg('success', `Added ${gameName} to list`);
+            let channelId = await twitchAPI.getChannelID(beatChannel.substr(1), botSettings.clientId, botSettings.token);
             await twitchAPI.createStreamMarker(channelId,'test with id from api', botSettings.clientId, botSettings.token);
-            console.log('Created stream marker');
+            // console.log('Created stream marker');
+            statusMsg('success', 'Created stream marker');
             win.webContents.executeJavaScript(`playSound('${botSettings.beatGameSound}')`);
         }
     }
@@ -166,12 +183,17 @@ async function runCommand(targetChannel, fromMod, context, inputCmd, args) {
             }
         }
         else if(cmd == 'beat') {
-            if(fromMod) {           
-                await beatGame(args, targetChannel)
-                .catch(error => {console.log(error);});
+            if(googleCredsExist) {
+                if(fromMod) {           
+                    await beatGame(args, targetChannel)
+                    .catch(error => {console.log(error);});
+                }
+                else{
+                    client.say(targetChannel, `${context['display-name']} does not have permission to run this command`);
+                }
             }
-            else{
-                client.say(targetChannel, `${context['display-name']} does not have permission to run this command`);
+            else {
+                statusMsg('error', `Could not find Google creds file.`);
             }
         }
         else if(cmd == 'radio') {
@@ -332,10 +354,16 @@ async function updateBotSettings(option, newValue) {
 }
 
 async function startBot() { 
-    await botSettingsDB.sync();
+    await botSettingsDB.sync(); // TO DO - move this to a function 
     // let botset = await botSettingsDB.findAll(); 
     let botset = await botSettingsDB.findOrCreate({where: {id: 1}}); 
     botSettings = botset[0];
+    if(googleCredsExist) {
+        botSettings.googleSheetsClientEmail = googleCreds.client_email;
+        console.log(`google client email loaded`);
+        botSettings.googleSheetsPrivateKey = googleCreds.private_key;
+        console.log(`google private key loaded`);
+    }
     // botSettings.soundsDir = soundsDir;
 
     await loadCommands();
@@ -426,7 +454,7 @@ function createWindow() {
 
     win.loadFile('index.htm');
     win.setMenu(null);
-    // win.webContents.openDevTools(); // TO DO - comment out before commit 
+    win.webContents.openDevTools(); // TO DO - comment out before commit 
     // win.webContents.executeJavaScript(`updateSoundsList()`);
     // win.webContents.executeJavaScript(`showPage('home')`);
 }
