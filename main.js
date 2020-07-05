@@ -69,10 +69,7 @@ function randomRadio(game) {
 
 async function beatGame(beatComments, beatChannel) {        
     const doc = new GoogleSpreadsheet(botSettings.beatSpreadSheetID);
-    // await doc.useServiceAccountAuth({client_email: botSettings.googleSheetsClientEmail, private_key: botSettings.googleSheetsPrivateKey});
     await doc.useServiceAccountAuth(require(`${app.getPath('appData')}\\varibot\\googleCreds`));
-    // console.log(botSettings.googleSheetsClientEmail);
-    // console.log(botSettings.googleSheetsPrivateKey);
     await doc.loadInfo();
 
     let now = new Date();
@@ -91,11 +88,9 @@ async function beatGame(beatComments, beatChannel) {
             await beatSheet.addRow(beatGameArray)
             .catch(error => {console.log(error);});
             client.say(beatChannel, `Added ${gameName} (${commentsString}) to list`);
-            // console.log(`Added ${gameName} (${commentsString}) to list`);
             statusMsg('success',`Added ${gameName} (${commentsString}) to list`);
             let channelId = await twitchAPI.getChannelID(beatChannel.substr(1), botSettings.clientId, botSettings.token);
             await twitchAPI.createStreamMarker(channelId,'test with id from api', botSettings.clientId, botSettings.token);
-            // console.log('Created stream marker'); // broken
             statusMsg('success', 'Created stream marker');
             win.webContents.executeJavaScript(`playSound('${botSettings.beatGameSound}')`);
         }
@@ -104,11 +99,9 @@ async function beatGame(beatComments, beatChannel) {
             await beatSheet.addRow(beatGameArray)
             .catch(error => {console.log(error);});
             client.say(beatChannel, `Added ${gameName} to list`);
-            // console.log(`Added ${gameName} to list`);
             statusMsg('success', `Added ${gameName} to list`);
             let channelId = await twitchAPI.getChannelID(beatChannel.substr(1), botSettings.clientId, botSettings.token);
             await twitchAPI.createStreamMarker(channelId,'test with id from api', botSettings.clientId, botSettings.token);
-            // console.log('Created stream marker');
             statusMsg('success', 'Created stream marker');
             win.webContents.executeJavaScript(`playSound('${botSettings.beatGameSound}')`);
         }
