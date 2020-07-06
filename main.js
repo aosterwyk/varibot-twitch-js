@@ -85,11 +85,11 @@ async function beatGame(beatComments, beatChannel) {
         if(beatComments.length > 0) {
             beatComments.forEach(comment => { commentsString += `${comment} `;});   
             commentsString = commentsString.trim();     
-            beatMsg = `Added ${gameName} (${commentsString}) to list`;    
+            beatMsg = `Added ${gameName} (${commentsString}) to !list`;    
         }
         else {
             commentsString = '';
-            beatMsg = `Added ${gameName} to list`
+            beatMsg = `Added ${gameName} to !list`
         }
         let beatGameArray = [gameName, beatTimestamp, commentsString];
         await beatSheet.addRow(beatGameArray)
