@@ -4,7 +4,6 @@ const { autoUpdater } = require('electron-updater');
 const { botSettingsDB } = require('./utils/db/botSettingsDB');
 const { commandsDB } = require('./utils/db/commandsDB');
 const { channelPointsSoundsDB } = require('./utils/db/channelPointSoundsDB');
-const { randomNumber } = require('./utils/randomNumber');
 const { randomRadio, isGTAGame } = require('./utils/gta/gtaCmds');
 const { loadSounds } = require('./utils/loadSounds');
 const { getRandomOwnedGame } = require('./utils/ownedGames');
