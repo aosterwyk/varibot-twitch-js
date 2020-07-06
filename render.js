@@ -101,10 +101,10 @@ async function externalLink(destination) {
         shell.openExternal(`https://discord.gg/QNppY7T`);
     }
     else if(destination == 'botSettingsHelp') {
-        shell.openExternal(`https://github.com/VariXx/varibot-twitch-js/wiki/Settings`);
+        shell.openExternal(`https://github.com/VariXx/varibot-twitch-js/wiki/Settings#general-settings`);
     }
     else if(destination == 'googleSheetsHelp') {
-        shell.openExternal(`https://github.com/VariXx/varibot-twitch-js/wiki/GoogleSpreadsheetsSetup`);
+        shell.openExternal(`https://github.com/VariXx/varibot-twitch-js/wiki/Settings#google-spreadsheets-settings`);
     }
 }
 
