@@ -18,6 +18,7 @@ var win = null;
 
 const { updateCommand } = require('./utils/updateCommand');
 const { updateBotSettings } = require('./utils/updateBotSettings');
+const { beatGame } = require('./utils/beatGame');
 
 // TO DO - change to globals? 
 let client = null;
@@ -44,45 +45,6 @@ if (fs.existsSync(googleCredsFile)) {
 }
 
 console.log(`VariBot`);
-
-async function beatGame(beatComments, beatChannel) {        
-    const doc = new GoogleSpreadsheet(botSettings.beatSpreadSheetID);
-    await doc.useServiceAccountAuth(require(`${app.getPath('appData')}\\varibot\\googleCreds`));
-    await doc.loadInfo();
-
-    let now = new Date();
-    let beatTimestamp = `${now.toLocaleDateString()} ${now.toLocaleTimeString()}`;
-    let beatSheet = await doc.sheetsById[botSettings.beatSheetID];
-
-    let lookupChannel = beatChannel.substr(1);
-    let channelID = await twitchAPI.getChannelID(lookupChannel, botSettings.clientId, botSettings.token);
-    let gameName = await twitchAPI.getCurrentGame(channelID, botSettings.clientId, botSettings.token);            
-    if(gameName) {
-        let commentsString = '';        
-        let beatMsg = '';
-        if(beatComments.length > 0) {
-            beatComments.forEach(comment => { commentsString += `${comment} `;});   
-            commentsString = commentsString.trim();     
-            beatMsg = `Added ${gameName} (${commentsString}) to !list`;    
-        }
-        else {
-            commentsString = '';
-            beatMsg = `Added ${gameName} to !list`
-        }
-        let beatGameArray = [gameName, beatTimestamp, commentsString];
-        await beatSheet.addRow(beatGameArray)
-        .catch(error => {console.log(error);});
-        client.say(beatChannel, beatMsg);
-        statusMsg('success', beatMsg);
-        let channelId = await twitchAPI.getChannelID(beatChannel.substr(1), botSettings.clientId, botSettings.token);
-        await twitchAPI.createStreamMarker(channelId,'test with id from api', botSettings.clientId, botSettings.token);
-        statusMsg('success', 'Created stream marker');
-        win.webContents.executeJavaScript(`playSound('${botSettings.beatGameSound}')`);
-    }
-    else {
-        console.log('gameName is empty or does not exist');
-    }
-}
 
 async function runCommand(targetChannel, fromMod, context, inputCmd, args) {   
     let cmd = inputCmd.toLowerCase();
@@ -151,8 +113,11 @@ async function runCommand(targetChannel, fromMod, context, inputCmd, args) {
         else if(cmd == 'beat') {
             if(googleCredsExist) {
                 if(fromMod) {           
-                    await beatGame(args, targetChannel)
+                    let beatMsg = await beatGame(args, targetChannel, botSettings.beatSpreadSheetID, botSettings.beatSheetID, botSettings.clientId, botSettings.token, googleCredsFile)
                     .catch(error => {console.log(error);});
+                    client.say(targetChannel, beatMsg);
+                    statusMsg('success', beatMsg);
+                    win.webContents.executeJavaScript(`playSound('${botSettings.beatGameSound}')`);
                 }
                 else{
                     client.say(targetChannel, `${context['display-name']} does not have permission to run this command`);
