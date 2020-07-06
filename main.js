@@ -298,17 +298,6 @@ async function loadCommands() {
     console.log(`Loaded ${dbResult.length} commands`);
 }   
 
-// async function updateBotSettings(option, newValue) { 
-//     await botSettingsDB.sync();
-//     await botSettingsDB.update({
-//         [option]: newValue,
-//     }, {
-//         where: {
-//             id: 1
-//         }
-//     });  
-// }
-
 async function startBot() { 
     await botSettingsDB.sync(); // TO DO - move this to a function 
     // let botset = await botSettingsDB.findAll(); 
