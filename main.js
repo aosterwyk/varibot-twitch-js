@@ -19,7 +19,6 @@ const ipc = ipcMain;
 let client = null;
 let botSettings = {};
 let googleCredsExist = false;
-// let soundsDir = `${__dirname}\\sounds\\`;
 const soundsDir = `${app.getPath('appData')}\\varibot\\sounds`;
 const googleCredsFile = `${app.getPath('appData')}\\varibot\\googleCreds.json`; // TO DO - allow user to change filename in settings
 let commands = {};
@@ -36,8 +35,6 @@ if (!fs.existsSync(soundsDir)){
 if (fs.existsSync(googleCredsFile)) { 
     googleCreds = require(`${app.getPath('appData')}\\varibot\\googleCreds`);
     googleCredsExist = true;
-    // botSettings.googleSheetsClientEmail
-    // botSettings.googleSheetsPrivateKey
 }
 
 console.log(`VariBot`);
@@ -69,9 +66,6 @@ async function beatGame(beatComments, beatChannel) {
         let beatGameArray = [gameName, beatTimestamp, commentsString];
         await beatSheet.addRow(beatGameArray)
         .catch(error => {console.log(error);});
-
-        // client.say(beatChannel, `Added ${gameName} (${commentsString}) to list`);
-        // statusMsg('success',`Added ${gameName} (${commentsString}) to list`);
         client.say(beatChannel, beatMsg);
         statusMsg('success', beatMsg);
         let channelId = await twitchAPI.getChannelID(beatChannel.substr(1), botSettings.clientId, botSettings.token);
@@ -112,7 +106,7 @@ async function runCommand(targetChannel, fromMod, context, inputCmd, args) {
             }
         }
         if(cmd == 'shuffle') { 
-            // check that the spreadsheet is not called template
+            // TO DO - check that the spreadsheet is not called template
             let searchPlatform = '';
             args.forEach(searchString => searchPlatform += searchString);
             if(searchPlatform.length > 0) {
@@ -420,8 +414,6 @@ function createWindow() {
     win.loadFile('index.htm');
     win.setMenu(null);
     // win.webContents.openDevTools(); // TO DO - comment out before commit 
-    // win.webContents.executeJavaScript(`updateSoundsList()`);
-    // win.webContents.executeJavaScript(`showPage('home')`);
 }
 
 app.whenReady().then(createWindow);
@@ -438,13 +430,6 @@ if (BrowserWindow.getAllWindows().length === 0) {
 }
 });
 
-// ipc.handle('closeBot', async () => {
-//     await botSettingsDB.sync();
-//     await commandsDB.sync();
-//     await channelPointsSoundsDB.sync();
-//     process.exit();
-// });
-
 ipc.handle('newSoundsSettings', async (event, args) => {
     await channelPointsSoundsDB.sync(); // sync channel points sounds   
     await channelPointsSoundsDB.findAll().then(result => {
@@ -460,13 +445,11 @@ ipc.handle('newSoundsSettings', async (event, args) => {
         });
     }
     await channelPointsSoundsDB.sync(); // update channel points sounds with new values
-    // console.log(`Random sounds before ${randomSounds}`);
     await loadChannelPointsSounds(); // load channel points sounds     
     if(soundsDir.length > 1) {
         randomSounds = []; // clear random sounds array
         randomSounds = await loadSounds(soundsDir, channelPointsFilenames); // rebuild random sounds array
     }
-    // console.log(`Random sounds after ${randomSounds}`);
 });
 
 ipc.handle('botSettingsFromForm', async (event, args) => {
@@ -483,15 +466,6 @@ ipc.handle('botSettingsFromForm', async (event, args) => {
     if(args.channel.length > 1) {        
         await updateBotSettings('channel', args.channel);
     }
-    // if(args.soundsDir.length > 1) {        
-    //     await updateBotSettings('soundsDir', args.soundsDir);
-    // }
-    // if(args.googleSheetsClientEmail.length > 1) {    
-    //     await updateBotSettings('googleSheetsClientEmail', args.googleSheetsClientEmail);
-    // }
-    // if(args.googleSheetsPrivateKey.length > 1) {    
-    //     await updateBotSettings('googleSheetsPrivateKey', args.googleSheetsPrivateKey);
-    // }
     if(args.beatSheetID.length > 1) {    
         await updateBotSettings('beatSheetID', args.beatSheetID);
     }
@@ -505,11 +479,9 @@ ipc.handle('botSettingsFromForm', async (event, args) => {
         await updateBotSettings('beatGameSound', args.beatGameSound);
     }
     await botSettingsDB.sync();
-    // await updateBotSettings(ownedGamesSpreadSheetID, args.ownedGamesSpreadSheetID);
     let updateMsg = `Settings updated. You will need to restart if your token was added or changed.`;
     statusMsg(`success`, updateMsg);
     win.webContents.executeJavaScript(`alertMsg('true','success', '${updateMsg}')`);
-    // win.webContents.executeJavaScript(`showPage('home')`);
     return true;
 });
 
@@ -536,7 +508,6 @@ ipc.handle('updateCmdSettings', async (event, args) => {
 
 ipc.handle('getCurrentSettings', async (event, args) => {
     await botSettingsDB.sync();
-    // let dbSettings = await botSettingsDB.findAll(); 
     let dbSettings = await botSettingsDB.findOrCreate({where: {id: 1}}); 
     if(dbSettings[0] !== undefined) {
         let result = {
@@ -545,7 +516,6 @@ ipc.handle('getCurrentSettings', async (event, args) => {
             clientId: dbSettings[0].clientId,
             channel: dbSettings[0].channel,
             cooldown: dbSettings[0].cooldown,
-            // soundsDir: `__dirname\\${dbSettings[0].soundsDir}`,
             soundsDir: soundsDir,
             googleSheetsClientEmail: dbSettings[0].googleSheetsClientEmail,
             googleSheetsPrivateKey: dbSettings[0].googleSheetsPrivateKey,
@@ -554,7 +524,6 @@ ipc.handle('getCurrentSettings', async (event, args) => {
             beatGameSound: dbSettings[0].beatGameSound,
             ownedGamesSpreadSheetID: dbSettings[0].ownedGamesSpreadSheetID
         }
-        // console.log(result.soundsDir);
         return result;
     }
 });
@@ -578,7 +547,6 @@ function statusMsg(msgType, msg) {
         type: msgType,
         message: msg
     }
-    // win.webContents.send('status', msg);
     win.webContents.send('status', sendMsg);
     console.log(msg);
 }
@@ -622,11 +590,8 @@ function pubsubPings() {
 
 pubsubSocket.onopen = async function(e) {
     await botSettingsDB.sync();
-    // let botset = await botSettingsDB.findAll(); 
     let botset = await botSettingsDB.findOrCreate({where: {id: 1}}); 
-    botSettings = botset[0];
-    // botSettings.soundsDir = soundsDir;
-    
+    botSettings = botset[0];  
     // TO DO - move bot settings to a command or load it all before starting these 
     if(botSettings !== undefined) {
         let channelId = await twitchAPI.getChannelID(botSettings.channel, botSettings.clientId, botSettings.token);
