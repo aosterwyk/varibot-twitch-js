@@ -5,6 +5,7 @@ const { botSettingsDB } = require('./db/botSettingsDB');
 const { commandsDB } = require('./db/commandsDB');
 const { channelPointsSoundsDB } = require('./db/channelPointSoundsDB');
 const { randomNumber } = require('./utils/randomNumber');
+const { randomRadio, isGTAGame } = require('./utils/gta/gtaCmds');
 const { loadSounds } = require('./utils/loadSounds');
 const { GoogleSpreadsheet } = require('google-spreadsheet');
 const { getRandomOwnedGame } = require('./utils/ownedGames');
@@ -40,12 +41,6 @@ if (fs.existsSync(googleCredsFile)) {
 }
 
 console.log(`VariBot`);
-
-function randomRadio(game) {
-  radios = gtaRadios[game];
-  returnStation = radios[randomNumber(0,radios.length)];
-  return returnStation;
-}
 
 async function beatGame(beatComments, beatChannel) {        
     const doc = new GoogleSpreadsheet(botSettings.beatSpreadSheetID);
@@ -169,18 +164,19 @@ async function runCommand(targetChannel, fromMod, context, inputCmd, args) {
         }
         else if(cmd == 'radio') {
             let lookupChannel = targetChannel.substr(1);
-            let channelID = await twitchAPI.getChannelID(lookupChannel, botSettings.clientId, botSettings.token);
-            let currentGame = await twitchAPI.getCurrentGame(channelID, botSettings.clientId, botSettings.token);            
-            if(threedUniverseGames.includes(currentGame) || hdUniverseGames.includes(currentGame)) {
+            let channelId = await twitchAPI.getChannelID(lookupChannel, botSettings.clientId, botSettings.token);
+            let currentGame = await twitchAPI.getCurrentGame(channelId, botSettings.clientId, botSettings.token);            
+            if(isGTAGame(currentGame)) {
                 try {
-                    radioResult = randomRadio(currentGame);
+                    let radioResult = randomRadio(currentGame);
                     client.say(targetChannel, radioResult);
+                    statusMsg('special', `Random radio: ${radioResult}`);
                 }
                 catch(error){console.log(error);}         
                 return;   
             }
             else {
-                client.say(targetChannel, `${currentGame} is not a GTA game.`);
+                statusMsg('error', `${currentGame} is not a GTA game`);
                 return;
             }
         }
