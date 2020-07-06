@@ -14,7 +14,7 @@ const WebSocket = require('ws');
 const pubsubSocket = new WebSocket('wss://pubsub-edge.twitch.tv');
 const { ipcMain, app, BrowserWindow } = require('electron');
 const ipc = ipcMain;
-
+var win = null;
 
 let client = null;
 let botSettings = {};
@@ -399,8 +399,6 @@ async function startBot() {
 }
 
 // electron start
-
-var win = null;
 
 function createWindow() {
     win = new BrowserWindow({
