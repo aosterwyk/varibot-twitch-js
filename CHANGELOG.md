@@ -5,7 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-_No unreleased changes_
+<!-- _No unreleased changes_ -->
+- Added cards for general and google spreadsheets settings in Settings page
+- Changed Google Spreasheets to load creds from file
 
 ## [1.0.1] - 2020-06-30
 - Added changelog
