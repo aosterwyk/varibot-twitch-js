@@ -7,7 +7,6 @@ const { channelPointsSoundsDB } = require('./utils/db/channelPointSoundsDB');
 const { randomNumber } = require('./utils/randomNumber');
 const { randomRadio, isGTAGame } = require('./utils/gta/gtaCmds');
 const { loadSounds } = require('./utils/loadSounds');
-const { GoogleSpreadsheet } = require('google-spreadsheet');
 const { getRandomOwnedGame } = require('./utils/ownedGames');
 const twitchAPI = require('./utils/api');
 const WebSocket = require('ws');
