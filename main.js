@@ -17,6 +17,7 @@ const ipc = ipcMain;
 var win = null;
 
 const { updateCommand } = require('./utils/updateCommand');
+const { updateBotSettings } = require('./utils/updateBotSettings');
 
 // TO DO - change to globals? 
 let client = null;
@@ -297,27 +298,16 @@ async function loadCommands() {
     console.log(`Loaded ${dbResult.length} commands`);
 }   
 
-// async function updateCommand(command, option, newValue) {
-//     await commandsDB.sync();
-//     await commandsDB.update({
+// async function updateBotSettings(option, newValue) { 
+//     await botSettingsDB.sync();
+//     await botSettingsDB.update({
 //         [option]: newValue,
 //     }, {
 //         where: {
-//             name: command
+//             id: 1
 //         }
-//     });    
+//     });  
 // }
-
-async function updateBotSettings(option, newValue) { 
-    await botSettingsDB.sync();
-    await botSettingsDB.update({
-        [option]: newValue,
-    }, {
-        where: {
-            id: 1
-        }
-    });  
-}
 
 async function startBot() { 
     await botSettingsDB.sync(); // TO DO - move this to a function 
