@@ -1,6 +1,6 @@
 const tmi = require('tmi.js');
 const fs = require('fs');
-const { autoUpdater} = require('electron-updater');
+const { autoUpdater } = require('electron-updater');
 const { botSettingsDB } = require('./db/botSettingsDB');
 const { commandsDB } = require('./db/commandsDB');
 const { channelPointsSoundsDB } = require('./db/channelPointSoundsDB');
@@ -16,17 +16,20 @@ const { ipcMain, app, BrowserWindow } = require('electron');
 const ipc = ipcMain;
 var win = null;
 
+// TO DO - change to globals? 
 let client = null;
-let botSettings = {};
-let googleCredsExist = false;
-const soundsDir = `${app.getPath('appData')}\\varibot\\sounds`;
-const googleCredsFile = `${app.getPath('appData')}\\varibot\\googleCreds.json`; // TO DO - allow user to change filename in settings
 let commands = {};
+let botSettings = {};
+let randomSounds = [];
+let readyToConnect = true;
 let channelPointsSounds = {};
 let channelPointsFilenames = []; // add beat game sound to this
-let randomSounds = [];
+const soundsDir = `${app.getPath('appData')}\\varibot\\sounds`;
+
+let googleCredsExist = false;
+const googleCredsFile = `${app.getPath('appData')}\\varibot\\googleCreds.json`; // TO DO - allow user to change filename in settings
+
 let lastRunTimestamp = new Date(); // hacky cooldown 
-let readyToConnect = true;
 
 if (!fs.existsSync(soundsDir)){
     fs.mkdirSync(soundsDir);
