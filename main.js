@@ -1,9 +1,9 @@
 const tmi = require('tmi.js');
 const fs = require('fs');
 const { autoUpdater } = require('electron-updater');
-const { botSettingsDB } = require('./db/botSettingsDB');
-const { commandsDB } = require('./db/commandsDB');
-const { channelPointsSoundsDB } = require('./db/channelPointSoundsDB');
+const { botSettingsDB } = require('./utils/db/botSettingsDB');
+const { commandsDB } = require('./utils/db/commandsDB');
+const { channelPointsSoundsDB } = require('./utils/db/channelPointSoundsDB');
 const { randomNumber } = require('./utils/randomNumber');
 const { randomRadio, isGTAGame } = require('./utils/gta/gtaCmds');
 const { loadSounds } = require('./utils/loadSounds');
@@ -15,6 +15,8 @@ const pubsubSocket = new WebSocket('wss://pubsub-edge.twitch.tv');
 const { ipcMain, app, BrowserWindow } = require('electron');
 const ipc = ipcMain;
 var win = null;
+
+const { updateCommand } = require('./utils/updateCommand');
 
 // TO DO - change to globals? 
 let client = null;
@@ -295,16 +297,16 @@ async function loadCommands() {
     console.log(`Loaded ${dbResult.length} commands`);
 }   
 
-async function updateCommand(command, option, newValue) {
-    await commandsDB.sync();
-    await commandsDB.update({
-        [option]: newValue,
-    }, {
-        where: {
-            name: command
-        }
-    });    
-}
+// async function updateCommand(command, option, newValue) {
+//     await commandsDB.sync();
+//     await commandsDB.update({
+//         [option]: newValue,
+//     }, {
+//         where: {
+//             name: command
+//         }
+//     });    
+// }
 
 async function updateBotSettings(option, newValue) { 
     await botSettingsDB.sync();
