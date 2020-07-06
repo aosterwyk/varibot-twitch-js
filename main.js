@@ -329,27 +329,23 @@ async function startBot() {
 
     if(botSettings === undefined) { 
         console.log('Bot settings are empty. Please run setup.');
-        // process.exit();
         readyToConnect = false;
     }
     else {
         if(botSettings.clientId === undefined || botSettings.clientId.length < 1) { 
             console.log('Invalid client ID in bot settings. Please run setup.');
-            // process.exit();
             readyToConnect = false;
         }
 
         if(botSettings.token === undefined || botSettings.token.length < 1) { 
             console.log('Invalid auth token. Please use the link below to authorize the bot and get a token.');
             console.log(`https://id.twitch.tv/oauth2/authorize?client_id=${botSettings.clientId}&redirect_uri=https://acceptdefaults.com/twitch-oauth-token-generator/&response_type=token&scope=bits:read+channel:read:redemptions+channel:moderate+chat:edit+chat:read+user:edit:broadcast`);
-            // process.exit();
             readyToConnect = false;
             statusMsg(`error`,`Invalid bot settings. Please run setup.`);        
         } 
 
         if(botSettings.channel === undefined || botSettings.channel.length < 1) { 
             console.log('Invalid channel in bot settings. Please run setup.');
-            // process.exit();
             readyToConnect = false;
         }
         await loadChannelPointsSounds();
