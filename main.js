@@ -510,12 +510,12 @@ ipc.handle('botSettingsFromForm', async (event, args) => {
     // if(args.soundsDir.length > 1) {        
     //     await updateBotSettings('soundsDir', args.soundsDir);
     // }
-    if(args.googleSheetsClientEmail.length > 1) {    
-        await updateBotSettings('googleSheetsClientEmail', args.googleSheetsClientEmail);
-    }
-    if(args.googleSheetsPrivateKey.length > 1) {    
-        await updateBotSettings('googleSheetsPrivateKey', args.googleSheetsPrivateKey);
-    }
+    // if(args.googleSheetsClientEmail.length > 1) {    
+    //     await updateBotSettings('googleSheetsClientEmail', args.googleSheetsClientEmail);
+    // }
+    // if(args.googleSheetsPrivateKey.length > 1) {    
+    //     await updateBotSettings('googleSheetsPrivateKey', args.googleSheetsPrivateKey);
+    // }
     if(args.beatSheetID.length > 1) {    
         await updateBotSettings('beatSheetID', args.beatSheetID);
     }

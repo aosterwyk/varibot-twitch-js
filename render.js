@@ -100,6 +100,12 @@ async function externalLink(destination) {
     else if(destination == 'discord') {
         shell.openExternal(`https://discord.gg/QNppY7T`);
     }
+    else if(destination == 'botSettingsHelp') {
+        shell.openExternal(`https://github.com/VariXx/varibot-twitch-js/wiki/Settings`);
+    }
+    else if(destination == 'googleSheetsHelp') {
+        shell.openExternal(`https://github.com/VariXx/varibot-twitch-js/wiki/GoogleSpreadsheetsSetup`);
+    }
 }
 
 // async function openTokenPage() { 
@@ -143,8 +149,8 @@ async function populateSettings(settingsPage) {
             document.getElementById('clientId').value = result.clientId;
             document.getElementById('channel').value = result.channel;
             // document.getElementById('soundsDir').value = result.soundsDir;
-            document.getElementById('googleSheetsClientEmail').value = result.googleSheetsClientEmail;
-            document.getElementById('googleSheetsPrivateKey').value = result.googleSheetsPrivateKey;
+            // document.getElementById('googleSheetsClientEmail').value = result.googleSheetsClientEmail;
+            // document.getElementById('googleSheetsPrivateKey').value = result.googleSheetsPrivateKey;
             document.getElementById('beatSpreadSheetID').value = result.beatSpreadSheetID;
             document.getElementById('beatSheetID').value = result.beatSheetID;
             document.getElementById('beatGameSound').value = result.beatGameSound;
@@ -305,8 +311,8 @@ function saveSettingsFromForm() {
         clientId: clientId.value,
         channel: channel.value,
         // soundsDir: soundsDir.value,
-        googleSheetsClientEmail: googleSheetsClientEmail.value,
-        googleSheetsPrivateKey: googleSheetsPrivateKey.value,
+        // googleSheetsClientEmail: googleSheetsClientEmail.value,
+        // googleSheetsPrivateKey: googleSheetsPrivateKey.value,
         beatSpreadSheetID: beatSpreadSheetID.value,
         beatSheetID: beatSheetID.value,
         beatGameSound: beatGameSound.value
