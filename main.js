@@ -4,6 +4,7 @@ const { autoUpdater} = require('electron-updater');
 const { botSettingsDB } = require('./db/botSettingsDB');
 const { commandsDB } = require('./db/commandsDB');
 const { channelPointsSoundsDB } = require('./db/channelPointSoundsDB');
+const { randomNumber } = require('./utils/randomNumber');
 const { loadSounds } = require('./utils/loadSounds');
 const { GoogleSpreadsheet } = require('google-spreadsheet');
 const { getRandomOwnedGame } = require('./utils/ownedGames');
@@ -39,10 +40,6 @@ if (fs.existsSync(googleCredsFile)) {
 }
 
 console.log(`VariBot`);
-
-function randomNumber(min, max) {
-    return Math.floor(Math.random() * (max - min + 1) + min);
-}
 
 function randomRadio(game) {
   radios = gtaRadios[game];
