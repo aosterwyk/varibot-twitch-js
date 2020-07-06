@@ -19,6 +19,7 @@ var win = null;
 const { updateCommand } = require('./utils/updateCommand');
 const { updateBotSettings } = require('./utils/updateBotSettings');
 const { beatGame } = require('./utils/beatGame');
+const { getMultiLink } = require('./utils/multiLink');
 
 // TO DO - change to globals? 
 let client = null;
@@ -90,24 +91,9 @@ async function runCommand(targetChannel, fromMod, context, inputCmd, args) {
             client.say(targetChannel, `https://docs.google.com/spreadsheets/d/${botSettings.beatSpreadSheetID}`);
         }
         else if(cmd == 'multi') { 
-            let channelId = await twitchAPI.getChannelID(targetChannel.substr(1), botSettings.clientId, botSettings.token);
-            let channelTitle = await twitchAPI.getStreamTitle(channelId, botSettings.clientId, botSettings.token);
-            let multiLink = `https://multistre.am/${botSettings.channel}/`
-            if(channelTitle.includes('!multi') && channelTitle.includes('@')) { 
-                let mentionLocation = channelTitle.search('@');
-                if(mentionLocation != -1) {
-                    let multiChannels = channelTitle.slice(mentionLocation);
-                    multiChannels = multiChannels.trim().split(' ');
-                    multiChannels.forEach((chan, c) => {
-                    if(chan.includes('@') && chan.length > 4) {
-                        multiLink += `${(chan.slice(1)).trim()}/`;
-                    }
-                    });
-                    client.say(targetChannel,`${multiLink}`);
-                }
-            }
-            else { 
-                console.log('Topic does not have !multi and @ in title');
+            let multiLink = await getMultiLink(botSettings.channel, botSettings.clientId, botSettings.token);
+            if(multiLink !== undefined) {
+                client.say(targetChannel,`${multiLink}`);
             }
         }
         else if(cmd == 'beat') {
