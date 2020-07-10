@@ -18,6 +18,7 @@ const { updateCommand } = require('./utils/updateCommand');
 const { updateBotSettings } = require('./utils/updateBotSettings');
 const { beatGame } = require('./utils/beatGame');
 const { getMultiLink } = require('./utils/multiLink');
+const { isMod } = require('./utils/isMod');
 
 // TO DO - change to globals? 
 let client = null;
@@ -148,12 +149,6 @@ async function checkCooldown(lastRun) {
         return true;
     }
     return false;
-}
-
-function isMod(checkMsg) {
-    if(checkMsg.mod){return true;}
-    else if(checkMsg.badges && checkMsg.badges.broadcaster) {return true;}
-    else{return false;}
 }
 
 async function loadChannelPointsSounds() { 
