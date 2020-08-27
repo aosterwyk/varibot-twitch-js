@@ -486,10 +486,10 @@ function proecssReward(reward) {
         statusMsg(`info`, `Playing sound ${randomSounds[randomIndex]}`);
     }
     else {
-        for(let s in channelPointsSounds) {
-            if(channelPointsSounds[s].name.toLowerCase() == reward.data.redemption.reward.title.toLowerCase()) {
-                win.webContents.executeJavaScript(`playSound('${channelPointsSounds[s].filename}')`);
-                statusMsg(`info`, `Playing sound ${channelPointsSounds[s].name} (${channelPointsSounds[s].filename})`);
+        for(let x in channelPointsSounds) {
+            if(channelPointsSounds[x].name.toLowerCase() == reward.data.redemption.reward.title.toLowerCase()) {
+                win.webContents.executeJavaScript(`playSound('${channelPointsSounds[x].filename}')`);
+                statusMsg(`info`, `Playing sound ${channelPointsSounds[x].name} (${channelPointsSounds[x].filename})`);
                 break;
             }   
         }
