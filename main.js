@@ -543,7 +543,7 @@ app.on('ready', () => {
 });
 
 autoUpdater.on('update-available', () => {
-    statusMsg(`special`, `Update available. Starting download.`);
+    statusMsg(`info`, `Update available. Starting download.`);
 });
 
 autoUpdater.on('update-downloaded', () => {
