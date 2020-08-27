@@ -31,4 +31,4 @@ async function getRandomOwnedGame(googleSheetsClientEmail, googleSheetsPrivateKe
     return gameResult;
 }
 
-module.exports = { getRandomOwnedGame };
+module.exports.getRandomOwnedGame = getRandomOwnedGame;

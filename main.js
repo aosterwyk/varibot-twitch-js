@@ -1,31 +1,39 @@
 const tmi = require('tmi.js');
 const fs = require('fs');
-const { autoUpdater} = require('electron-updater');
-const { botSettingsDB } = require('./db/botSettingsDB');
-const { commandsDB } = require('./db/commandsDB');
-const { channelPointsSoundsDB } = require('./db/channelPointSoundsDB');
+const { autoUpdater } = require('electron-updater');
+const { botSettingsDB } = require('./utils/db/botSettingsDB');
+const { commandsDB } = require('./utils/db/commandsDB');
+const { channelPointsSoundsDB } = require('./utils/db/channelPointSoundsDB');
+const { randomRadio, isGTAGame } = require('./utils/gta/gtaCmds');
 const { loadSounds } = require('./utils/loadSounds');
-const { GoogleSpreadsheet } = require('google-spreadsheet');
 const { getRandomOwnedGame } = require('./utils/ownedGames');
 const twitchAPI = require('./utils/api');
 const WebSocket = require('ws');
 const pubsubSocket = new WebSocket('wss://pubsub-edge.twitch.tv');
 const { ipcMain, app, BrowserWindow } = require('electron');
-const ipc = ipcMain;
+// const ipcMain = ipcMain;
+var win = null;
 
+const { updateCommand } = require('./utils/updateCommand');
+const { updateBotSettings } = require('./utils/updateBotSettings');
+const { beatGame } = require('./utils/beatGame');
+const { getMultiLink } = require('./utils/multiLink');
+const { isMod } = require('./utils/isMod');
 
+// TO DO - change to globals? 
 let client = null;
-let botSettings = {};
-let googleCredsExist = false;
-// let soundsDir = `${__dirname}\\sounds\\`;
-const soundsDir = `${app.getPath('appData')}\\varibot\\sounds`;
-const googleCredsFile = `${app.getPath('appData')}\\varibot\\googleCreds.json`; // TO DO - allow user to change filename in settings
 let commands = {};
+let botSettings = {};
+let randomSounds = [];
+let readyToConnect = true;
 let channelPointsSounds = {};
 let channelPointsFilenames = []; // add beat game sound to this
-let randomSounds = [];
+const soundsDir = `${app.getPath('appData')}\\varibot\\sounds`;
+
+let googleCredsExist = false;
+const googleCredsFile = `${app.getPath('appData')}\\varibot\\googleCreds.json`; // TO DO - allow user to change filename in settings
+
 let lastRunTimestamp = new Date(); // hacky cooldown 
-let readyToConnect = true;
 
 if (!fs.existsSync(soundsDir)){
     fs.mkdirSync(soundsDir);
@@ -34,80 +42,9 @@ if (!fs.existsSync(soundsDir)){
 if (fs.existsSync(googleCredsFile)) { 
     googleCreds = require(`${app.getPath('appData')}\\varibot\\googleCreds`);
     googleCredsExist = true;
-    // botSettings.googleSheetsClientEmail
-    // botSettings.googleSheetsPrivateKey
 }
-
-threedUniverseGames = ["Grand Theft Auto: Vice City Stories", "Grand Theft Auto: Vice City", "Grand Theft Auto: San Andreas", "Grand Theft Auto: Liberty City Stories", "Grand Theft Auto III"];
-threedUniverseTimeline = "Vice City Stories (1984) Vice City (1986) San Andreas (1992) Liberty City Stories (1998) Advance (2000) (Skipped) GTA III (2001)";
-hdUniverseGames = ["Grand Theft Auto IV", "Grand Theft Auto: Episodes from Liberty City", "Grand Theft Auto: Chinatown Wars", "Grand Theft Auto V"];
-hdUniverseTimeline = "GTA IV (2008) The Lost and Damned (2008) The Ballad of Gay Tony (2008) Chinatown Wars (2009) GTA Online (2013-present) (Skipped)  GTA V (2013)";
-gtaRadios = {
-"Grand Theft Auto III" : ["Chatterbox FM", "Double Clef FM", "Flashback 95.6", "Game FM", "Head Radio", "K-Jah", "Lips 106", "MSX FM", "Rise FM"], 
-"Grand Theft Auto: Vice City" : ["Emotion 98.3", "Fever 105", "Flash FM", "KCHAT", "Radio Espantoso", "V-Rock", "VCPR", "Wave 103", "Wildstyle"], 
-"Grand Theft Auto: San Andreas" : ["Bounce FM", "CSR 103.9", "K Rose", "K-DST", "K-Jah West", "Master Sounds 98.3", "Playback FM", "Radio Los Santos", "Radio X", "SF-UR", "WCTR"],
-"Grand Theft Auto: Liberty City Stories" : ["Double Clef FM", "Flashback FM", "Head Radio", "K-Jah", "LCFR", "Lips 106", "MSX 98", "Radio Del Mundo", "Rise FM", "The Liberty Jam"],
-"Grand Theft Auto: Vice City Stories" : ["Emotion 98.3", "Flash FM", "Fresh 105 FM", "Paradise FM", "Radio Espantoso", "The Wave 103", "V-Rock", "VCFL", "VCPR"],
-"Grand Theft Auto IV" : ["Electro-Choc", "Fusion FM", "Integrity 2.0", "International Funk", "Jazz Nation Radio 108.5", "K109 The Studio", "Liberty City Hardcore", "Liberty Rock Radio 97.8", "Massive B Soundsystem 96.9", "PLR", "Radio Broker", "San Juan Sounds", "The Beat 102.7", "The Classics 104.1", "The Journey", "The Vibe 98.8", "Tuff Gong Radio", "WKTT Radio", "Vladivostok FM"],
-"Grand Theft Auto: Episodes from Liberty City" : ["Electro-Choc", "Integrity 2.0", "Liberty City Hardcore", "Liberty Rock Radio 97.8", "K109 The Studio", "Radio Broker", "RamJam FM", "San Juan Sounds", "Self-Actualization FM", "The Beat 102.7", "Vice City FM", "Vladivostok FM", "WKTT Radio"],
-"Grand Theft Auto: Chinatown Wars" : ["Alchemist", "Deadmau5", "Prairie Cartel", "Ticklah", "Truth & Soul", "Anvil", "DFA", "DJ Khalil", "Sinowav FM", "Tortoise", "Turntables on the Hudson"],
-"Grand Theft Auto V" : ["Blaine County Talk Radio", "Channel X", "East Los FM", "FlyLo FM", "Los Santos Rock Radio", "Non Stop Pop FM", "Radio Los Santos", "Radio Mirror Park", "Rebel Radio", "Soulwax FM", "Space 103.2", "The Blue Ark", "The Lab", "The Low Down 91.1", "Vinewood Boulevard Radio", "WCTR 95.6", "West Coast Classics", "Worldwide FM"]
-};
-gtaPassedSounds = ["GTA 3 - Mission Complete.mp3", "GTA IV - Mission Complete 2.mp3", "GTA IV - Mission Complete.mp3", "Liberity City Stories - Mission Complete.mp3", "San Andreas - Mission Complete.mp3", "Vice City - Mission Complete.mp3", "Vice City Stories - Mission Complete.mp3", "wolf3d-yeah.mp3"];
 
 console.log(`VariBot`);
-
-function randomNumber(min, max) {
-    return Math.floor(Math.random() * (max - min + 1) + min);
-}
-
-function randomRadio(game) {
-  radios = gtaRadios[game];
-  returnStation = radios[randomNumber(0,radios.length)];
-  return returnStation;
-}
-
-async function beatGame(beatComments, beatChannel) {        
-    const doc = new GoogleSpreadsheet(botSettings.beatSpreadSheetID);
-    await doc.useServiceAccountAuth(require(`${app.getPath('appData')}\\varibot\\googleCreds`));
-    await doc.loadInfo();
-
-    let now = new Date();
-    let beatTimestamp = `${now.toLocaleDateString()} ${now.toLocaleTimeString()}`;
-    let beatSheet = await doc.sheetsById[botSettings.beatSheetID];
-
-    let lookupChannel = beatChannel.substr(1);
-    let channelID = await twitchAPI.getChannelID(lookupChannel, botSettings.clientId, botSettings.token);
-    let gameName = await twitchAPI.getCurrentGame(channelID, botSettings.clientId, botSettings.token);            
-    if(gameName) {
-        let commentsString = '';        
-        let beatMsg = '';
-        if(beatComments.length > 0) {
-            beatComments.forEach(comment => { commentsString += `${comment} `;});   
-            commentsString = commentsString.trim();     
-            beatMsg = `Added ${gameName} (${commentsString}) to !list`;    
-        }
-        else {
-            commentsString = '';
-            beatMsg = `Added ${gameName} to !list`
-        }
-        let beatGameArray = [gameName, beatTimestamp, commentsString];
-        await beatSheet.addRow(beatGameArray)
-        .catch(error => {console.log(error);});
-
-        // client.say(beatChannel, `Added ${gameName} (${commentsString}) to list`);
-        // statusMsg('success',`Added ${gameName} (${commentsString}) to list`);
-        client.say(beatChannel, beatMsg);
-        statusMsg('success', beatMsg);
-        let channelId = await twitchAPI.getChannelID(beatChannel.substr(1), botSettings.clientId, botSettings.token);
-        await twitchAPI.createStreamMarker(channelId,'test with id from api', botSettings.clientId, botSettings.token);
-        statusMsg('success', 'Created stream marker');
-        win.webContents.executeJavaScript(`playSound('${botSettings.beatGameSound}')`);
-    }
-    else {
-        console.log('gameName is empty or does not exist');
-    }
-}
 
 async function runCommand(targetChannel, fromMod, context, inputCmd, args) {   
     let cmd = inputCmd.toLowerCase();
@@ -137,7 +74,7 @@ async function runCommand(targetChannel, fromMod, context, inputCmd, args) {
             }
         }
         if(cmd == 'shuffle') { 
-            // check that the spreadsheet is not called template
+            // TO DO - check that the spreadsheet is not called template
             let searchPlatform = '';
             args.forEach(searchString => searchPlatform += searchString);
             if(searchPlatform.length > 0) {
@@ -153,31 +90,19 @@ async function runCommand(targetChannel, fromMod, context, inputCmd, args) {
             client.say(targetChannel, `https://docs.google.com/spreadsheets/d/${botSettings.beatSpreadSheetID}`);
         }
         else if(cmd == 'multi') { 
-            let channelId = await twitchAPI.getChannelID(targetChannel.substr(1), botSettings.clientId, botSettings.token);
-            let channelTitle = await twitchAPI.getStreamTitle(channelId, botSettings.clientId, botSettings.token);
-            let multiLink = `https://multistre.am/${botSettings.channel}/`
-            if(channelTitle.includes('!multi') && channelTitle.includes('@')) { 
-                let mentionLocation = channelTitle.search('@');
-                if(mentionLocation != -1) {
-                    let multiChannels = channelTitle.slice(mentionLocation);
-                    multiChannels = multiChannels.trim().split(' ');
-                    multiChannels.forEach((chan, c) => {
-                    if(chan.includes('@') && chan.length > 4) {
-                        multiLink += `${(chan.slice(1)).trim()}/`;
-                    }
-                    });
-                    client.say(targetChannel,`${multiLink}`);
-                }
-            }
-            else { 
-                console.log('Topic does not have !multi and @ in title');
+            let multiLink = await getMultiLink(botSettings.channel, botSettings.clientId, botSettings.token);
+            if(multiLink !== undefined) {
+                client.say(targetChannel,`${multiLink}`);
             }
         }
         else if(cmd == 'beat') {
             if(googleCredsExist) {
                 if(fromMod) {           
-                    await beatGame(args, targetChannel)
+                    let beatMsg = await beatGame(args, targetChannel, botSettings.beatSpreadSheetID, botSettings.beatSheetID, botSettings.clientId, botSettings.token, googleCredsFile)
                     .catch(error => {console.log(error);});
+                    client.say(targetChannel, beatMsg);
+                    statusMsg('success', beatMsg);
+                    win.webContents.executeJavaScript(`playSound('${botSettings.beatGameSound}')`);
                 }
                 else{
                     client.say(targetChannel, `${context['display-name']} does not have permission to run this command`);
@@ -189,18 +114,19 @@ async function runCommand(targetChannel, fromMod, context, inputCmd, args) {
         }
         else if(cmd == 'radio') {
             let lookupChannel = targetChannel.substr(1);
-            let channelID = await twitchAPI.getChannelID(lookupChannel, botSettings.clientId, botSettings.token);
-            let currentGame = await twitchAPI.getCurrentGame(channelID, botSettings.clientId, botSettings.token);            
-            if(threedUniverseGames.includes(currentGame) || hdUniverseGames.includes(currentGame)) {
+            let channelId = await twitchAPI.getChannelID(lookupChannel, botSettings.clientId, botSettings.token);
+            let currentGame = await twitchAPI.getCurrentGame(channelId, botSettings.clientId, botSettings.token);            
+            if(isGTAGame(currentGame)) {
                 try {
-                    radioResult = randomRadio(currentGame);
+                    let radioResult = randomRadio(currentGame);
                     client.say(targetChannel, radioResult);
+                    statusMsg('special', `Random radio: ${radioResult}`);
                 }
                 catch(error){console.log(error);}         
                 return;   
             }
             else {
-                client.say(targetChannel, `${currentGame} is not a GTA game.`);
+                statusMsg('error', `${currentGame} is not a GTA game`);
                 return;
             }
         }
@@ -223,12 +149,6 @@ async function checkCooldown(lastRun) {
         return true;
     }
     return false;
-}
-
-function isMod(checkMsg) {
-    if(checkMsg.mod){return true;}
-    else if(checkMsg.badges && checkMsg.badges.broadcaster) {return true;}
-    else{return false;}
 }
 
 async function loadChannelPointsSounds() { 
@@ -322,28 +242,6 @@ async function loadCommands() {
     console.log(`Loaded ${dbResult.length} commands`);
 }   
 
-async function updateCommand(command, option, newValue) {
-    await commandsDB.sync();
-    await commandsDB.update({
-        [option]: newValue,
-    }, {
-        where: {
-            name: command
-        }
-    });    
-}
-
-async function updateBotSettings(option, newValue) { 
-    await botSettingsDB.sync();
-    await botSettingsDB.update({
-        [option]: newValue,
-    }, {
-        where: {
-            id: 1
-        }
-    });  
-}
-
 async function startBot() { 
     await botSettingsDB.sync(); // TO DO - move this to a function 
     // let botset = await botSettingsDB.findAll(); 
@@ -359,27 +257,23 @@ async function startBot() {
 
     if(botSettings === undefined) { 
         console.log('Bot settings are empty. Please run setup.');
-        // process.exit();
         readyToConnect = false;
     }
     else {
         if(botSettings.clientId === undefined || botSettings.clientId.length < 1) { 
             console.log('Invalid client ID in bot settings. Please run setup.');
-            // process.exit();
             readyToConnect = false;
         }
 
         if(botSettings.token === undefined || botSettings.token.length < 1) { 
             console.log('Invalid auth token. Please use the link below to authorize the bot and get a token.');
             console.log(`https://id.twitch.tv/oauth2/authorize?client_id=${botSettings.clientId}&redirect_uri=https://acceptdefaults.com/twitch-oauth-token-generator/&response_type=token&scope=bits:read+channel:read:redemptions+channel:moderate+chat:edit+chat:read+user:edit:broadcast`);
-            // process.exit();
             readyToConnect = false;
             statusMsg(`error`,`Invalid bot settings. Please run setup.`);        
         } 
 
         if(botSettings.channel === undefined || botSettings.channel.length < 1) { 
             console.log('Invalid channel in bot settings. Please run setup.');
-            // process.exit();
             readyToConnect = false;
         }
         await loadChannelPointsSounds();
@@ -430,8 +324,6 @@ async function startBot() {
 
 // electron start
 
-var win = null;
-
 function createWindow() {
     win = new BrowserWindow({
         width: 1200,
@@ -441,11 +333,9 @@ function createWindow() {
         }
     });
 
-    win.loadFile('index.htm');
+    win.loadFile('index.html');
     win.setMenu(null);
     // win.webContents.openDevTools(); // TO DO - comment out before commit 
-    // win.webContents.executeJavaScript(`updateSoundsList()`);
-    // win.webContents.executeJavaScript(`showPage('home')`);
 }
 
 app.whenReady().then(createWindow);
@@ -462,14 +352,7 @@ if (BrowserWindow.getAllWindows().length === 0) {
 }
 });
 
-// ipc.handle('closeBot', async () => {
-//     await botSettingsDB.sync();
-//     await commandsDB.sync();
-//     await channelPointsSoundsDB.sync();
-//     process.exit();
-// });
-
-ipc.handle('newSoundsSettings', async (event, args) => {
+ipcMain.handle('newSoundsSettings', async (event, args) => {
     await channelPointsSoundsDB.sync(); // sync channel points sounds   
     await channelPointsSoundsDB.findAll().then(result => {
         for(x = 0; x < result.length; x++) {
@@ -484,16 +367,14 @@ ipc.handle('newSoundsSettings', async (event, args) => {
         });
     }
     await channelPointsSoundsDB.sync(); // update channel points sounds with new values
-    // console.log(`Random sounds before ${randomSounds}`);
     await loadChannelPointsSounds(); // load channel points sounds     
     if(soundsDir.length > 1) {
         randomSounds = []; // clear random sounds array
         randomSounds = await loadSounds(soundsDir, channelPointsFilenames); // rebuild random sounds array
     }
-    // console.log(`Random sounds after ${randomSounds}`);
 });
 
-ipc.handle('botSettingsFromForm', async (event, args) => {
+ipcMain.handle('botSettingsFromForm', async (event, args) => {
     // TO DO - change names to match and run this through a loop - skip any blank values
     if(args.botUsername.length > 1) {
         await updateBotSettings('username', args.botUsername);
@@ -507,15 +388,6 @@ ipc.handle('botSettingsFromForm', async (event, args) => {
     if(args.channel.length > 1) {        
         await updateBotSettings('channel', args.channel);
     }
-    // if(args.soundsDir.length > 1) {        
-    //     await updateBotSettings('soundsDir', args.soundsDir);
-    // }
-    // if(args.googleSheetsClientEmail.length > 1) {    
-    //     await updateBotSettings('googleSheetsClientEmail', args.googleSheetsClientEmail);
-    // }
-    // if(args.googleSheetsPrivateKey.length > 1) {    
-    //     await updateBotSettings('googleSheetsPrivateKey', args.googleSheetsPrivateKey);
-    // }
     if(args.beatSheetID.length > 1) {    
         await updateBotSettings('beatSheetID', args.beatSheetID);
     }
@@ -529,15 +401,13 @@ ipc.handle('botSettingsFromForm', async (event, args) => {
         await updateBotSettings('beatGameSound', args.beatGameSound);
     }
     await botSettingsDB.sync();
-    // await updateBotSettings(ownedGamesSpreadSheetID, args.ownedGamesSpreadSheetID);
     let updateMsg = `Settings updated. You will need to restart if your token was added or changed.`;
     statusMsg(`success`, updateMsg);
     win.webContents.executeJavaScript(`alertMsg('true','success', '${updateMsg}')`);
-    // win.webContents.executeJavaScript(`showPage('home')`);
     return true;
 });
 
-ipc.handle('loadSounds', async (event, args) => {
+ipcMain.handle('loadSounds', async (event, args) => {
     await loadChannelPointsSounds();
     if(soundsDir.length > 1) {
         randomSounds = await loadSounds(soundsDir, channelPointsFilenames);
@@ -546,21 +416,20 @@ ipc.handle('loadSounds', async (event, args) => {
     return returnSounds;
 });
 
-ipc.handle('getCurrentCommands', async (event, args) => {
+ipcMain.handle('getCurrentCommands', async (event, args) => {
     await loadCommands();
     return commands;
 });
 
-ipc.handle('updateCmdSettings', async (event, args) => {
+ipcMain.handle('updateCmdSettings', async (event, args) => {
     let newCmdSettings = args;
     for(key in newCmdSettings) {
         await updateCommand(newCmdSettings[key].name, 'enabled', newCmdSettings[key].enabled); 
     }
 });
 
-ipc.handle('getCurrentSettings', async (event, args) => {
+ipcMain.handle('getCurrentSettings', async (event, args) => {
     await botSettingsDB.sync();
-    // let dbSettings = await botSettingsDB.findAll(); 
     let dbSettings = await botSettingsDB.findOrCreate({where: {id: 1}}); 
     if(dbSettings[0] !== undefined) {
         let result = {
@@ -569,7 +438,6 @@ ipc.handle('getCurrentSettings', async (event, args) => {
             clientId: dbSettings[0].clientId,
             channel: dbSettings[0].channel,
             cooldown: dbSettings[0].cooldown,
-            // soundsDir: `__dirname\\${dbSettings[0].soundsDir}`,
             soundsDir: soundsDir,
             googleSheetsClientEmail: dbSettings[0].googleSheetsClientEmail,
             googleSheetsPrivateKey: dbSettings[0].googleSheetsPrivateKey,
@@ -578,12 +446,11 @@ ipc.handle('getCurrentSettings', async (event, args) => {
             beatGameSound: dbSettings[0].beatGameSound,
             ownedGamesSpreadSheetID: dbSettings[0].ownedGamesSpreadSheetID
         }
-        // console.log(result.soundsDir);
         return result;
     }
 });
 
-ipc.handle('getSoundsSettings', async (event, args) => {
+ipcMain.handle('getSoundsSettings', async (event, args) => {
 
     await loadChannelPointsSounds();
     let randSounds = [];
@@ -602,7 +469,6 @@ function statusMsg(msgType, msg) {
         type: msgType,
         message: msg
     }
-    // win.webContents.send('status', msg);
     win.webContents.send('status', sendMsg);
     console.log(msg);
 }
@@ -620,10 +486,10 @@ function proecssReward(reward) {
         statusMsg(`info`, `Playing sound ${randomSounds[randomIndex]}`);
     }
     else {
-        for(let s in channelPointsSounds) {
-            if(channelPointsSounds[s].name.toLowerCase() == reward.data.redemption.reward.title.toLowerCase()) {
-                win.webContents.executeJavaScript(`playSound('${channelPointsSounds[s].filename}')`);
-                statusMsg(`info`, `Playing sound ${channelPointsSounds[s].name} (${channelPointsSounds[s].filename})`);
+        for(let x in channelPointsSounds) {
+            if(channelPointsSounds[x].name.toLowerCase() == reward.data.redemption.reward.title.toLowerCase()) {
+                win.webContents.executeJavaScript(`playSound('${channelPointsSounds[x].filename}')`);
+                statusMsg(`info`, `Playing sound ${channelPointsSounds[x].name} (${channelPointsSounds[x].filename})`);
                 break;
             }   
         }
@@ -646,11 +512,8 @@ function pubsubPings() {
 
 pubsubSocket.onopen = async function(e) {
     await botSettingsDB.sync();
-    // let botset = await botSettingsDB.findAll(); 
     let botset = await botSettingsDB.findOrCreate({where: {id: 1}}); 
-    botSettings = botset[0];
-    // botSettings.soundsDir = soundsDir;
-    
+    botSettings = botset[0];  
     // TO DO - move bot settings to a command or load it all before starting these 
     if(botSettings !== undefined) {
         let channelId = await twitchAPI.getChannelID(botSettings.channel, botSettings.clientId, botSettings.token);

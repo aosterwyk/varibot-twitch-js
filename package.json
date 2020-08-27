@@ -1,6 +1,6 @@
 {
   "name": "varibot",
-  "version": "1.0.3",
+  "version": "1.1.1-alpha1",
   "description": "twitch chat bot",
   "main": "main.js",
   "scripts": {
@@ -13,7 +13,7 @@
     "url": "git+https://github.com/VariXx/varibot-twitch-js.git"
   },
   "author": "",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/VariXx/varibot-twitch-js/issues"
   },
@@ -32,9 +32,6 @@
     "electron-builder": "^22.7.0"
   },
   "build": {
-    "nsis": {
-      "oneClick": false,
-      "allowToChangeInstallationDirectory": true
-    }
+    "productName": "VariBot"
   }
 }
