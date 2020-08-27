@@ -333,7 +333,7 @@ function createWindow() {
         }
     });
 
-    win.loadFile('index.htm');
+    win.loadFile('index.html');
     win.setMenu(null);
     // win.webContents.openDevTools(); // TO DO - comment out before commit 
 }
