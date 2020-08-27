@@ -1,5 +1,8 @@
-const tmi = require('tmi.js');
 const fs = require('fs');
+const tmi = require('tmi.js');
+const WebSocket = require('ws');
+const twitchAPI = require('./utils/api');
+const pubsubSocket = new WebSocket('wss://pubsub-edge.twitch.tv');
 const { autoUpdater } = require('electron-updater');
 const { botSettingsDB } = require('./utils/db/botSettingsDB');
 const { commandsDB } = require('./utils/db/commandsDB');
@@ -7,18 +10,15 @@ const { channelPointsSoundsDB } = require('./utils/db/channelPointSoundsDB');
 const { randomRadio, isGTAGame } = require('./utils/gta/gtaCmds');
 const { loadSounds } = require('./utils/loadSounds');
 const { getRandomOwnedGame } = require('./utils/ownedGames');
-const twitchAPI = require('./utils/api');
-const WebSocket = require('ws');
-const pubsubSocket = new WebSocket('wss://pubsub-edge.twitch.tv');
-const { ipcMain, app, BrowserWindow } = require('electron');
-// const ipcMain = ipcMain;
-var win = null;
-
 const { updateCommand } = require('./utils/updateCommand');
 const { updateBotSettings } = require('./utils/updateBotSettings');
 const { beatGame } = require('./utils/beatGame');
 const { getMultiLink } = require('./utils/multiLink');
 const { isMod } = require('./utils/isMod');
+
+const { ipcMain, app, BrowserWindow } = require('electron');
+// const ipcMain = ipcMain;
+var win = null;
 
 // TO DO - change to globals? 
 let client = null;
