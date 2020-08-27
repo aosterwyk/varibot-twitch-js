@@ -14,6 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Changed functions to load from individual files in utils directory
 - Changed changelog to correct formatting for change types 
 - Updated [Apache License 2.0](https://choosealicense.com/licenses/apache-2.0/) license info 
+- Changed window title and electron builder product name
+- Changed installer to use electron builder default settings
 
 ### Security
 - Updated lodash for CVE-2020-8203
