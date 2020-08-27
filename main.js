@@ -11,7 +11,7 @@ const twitchAPI = require('./utils/api');
 const WebSocket = require('ws');
 const pubsubSocket = new WebSocket('wss://pubsub-edge.twitch.tv');
 const { ipcMain, app, BrowserWindow } = require('electron');
-const ipc = ipcMain;
+// const ipcMain = ipcMain;
 var win = null;
 
 const { updateCommand } = require('./utils/updateCommand');
@@ -352,7 +352,7 @@ if (BrowserWindow.getAllWindows().length === 0) {
 }
 });
 
-ipc.handle('newSoundsSettings', async (event, args) => {
+ipcMain.handle('newSoundsSettings', async (event, args) => {
     await channelPointsSoundsDB.sync(); // sync channel points sounds   
     await channelPointsSoundsDB.findAll().then(result => {
         for(x = 0; x < result.length; x++) {
@@ -374,7 +374,7 @@ ipc.handle('newSoundsSettings', async (event, args) => {
     }
 });
 
-ipc.handle('botSettingsFromForm', async (event, args) => {
+ipcMain.handle('botSettingsFromForm', async (event, args) => {
     // TO DO - change names to match and run this through a loop - skip any blank values
     if(args.botUsername.length > 1) {
         await updateBotSettings('username', args.botUsername);
@@ -407,7 +407,7 @@ ipc.handle('botSettingsFromForm', async (event, args) => {
     return true;
 });
 
-ipc.handle('loadSounds', async (event, args) => {
+ipcMain.handle('loadSounds', async (event, args) => {
     await loadChannelPointsSounds();
     if(soundsDir.length > 1) {
         randomSounds = await loadSounds(soundsDir, channelPointsFilenames);
@@ -416,19 +416,19 @@ ipc.handle('loadSounds', async (event, args) => {
     return returnSounds;
 });
 
-ipc.handle('getCurrentCommands', async (event, args) => {
+ipcMain.handle('getCurrentCommands', async (event, args) => {
     await loadCommands();
     return commands;
 });
 
-ipc.handle('updateCmdSettings', async (event, args) => {
+ipcMain.handle('updateCmdSettings', async (event, args) => {
     let newCmdSettings = args;
     for(key in newCmdSettings) {
         await updateCommand(newCmdSettings[key].name, 'enabled', newCmdSettings[key].enabled); 
     }
 });
 
-ipc.handle('getCurrentSettings', async (event, args) => {
+ipcMain.handle('getCurrentSettings', async (event, args) => {
     await botSettingsDB.sync();
     let dbSettings = await botSettingsDB.findOrCreate({where: {id: 1}}); 
     if(dbSettings[0] !== undefined) {
@@ -450,7 +450,7 @@ ipc.handle('getCurrentSettings', async (event, args) => {
     }
 });
 
-ipc.handle('getSoundsSettings', async (event, args) => {
+ipcMain.handle('getSoundsSettings', async (event, args) => {
 
     await loadChannelPointsSounds();
     let randSounds = [];
