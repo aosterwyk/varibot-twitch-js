@@ -13,7 +13,7 @@
     "url": "git+https://github.com/VariXx/varibot-twitch-js.git"
   },
   "author": "",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/VariXx/varibot-twitch-js/issues"
   },
