@@ -542,5 +542,13 @@ app.on('ready', () => {
     autoUpdater.checkForUpdatesAndNotify();
 });
 
+autoUpdater.on('update-available', () => {
+    statusMsg(`info`, `Update available. Starting download.`);
+});
+
+autoUpdater.on('update-downloaded', () => {
+    statusMsg(`info`, `Update downloaded. Update will be installed next time the bot is closed.`);
+});
+
 startBot();
 
