@@ -543,11 +543,11 @@ app.on('ready', () => {
 });
 
 autoUpdater.on('update-available', () => {
-    statusMsg(`info`, `Update available. Starting download.`);
+    statusMsg(`special`, `Update available. Starting download.`);
 });
 
 autoUpdater.on('update-downloaded', () => {
-    statusMsg(`info`, `Update downloaded. Update will be installed next time the bot is closed.`);
+    statusMsg(`success`, `Update downloaded. Update will be installed next time the bot is closed.`);
 });
 
 startBot();
