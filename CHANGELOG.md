@@ -19,6 +19,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Changed installer to use electron builder default settings
 - Changed Bootstrap theme to [Darkly](https://bootswatch.com/darkly/) 
 
+### Fixed
+- Fixed clientid not populating if null
+
 ### Security
 - Updated lodash for CVE-2020-8203
 
