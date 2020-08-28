@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added play button to sounds in sounds settings page
 - Added quick actions and recent cards
 - Added play random sound button to quick actions
+- Added about page
 
 ### Changed
 - Changed Google Spreasheets to load creds from file

@@ -232,6 +232,17 @@ async function populateSettings(settingsPage) {
         }
         document.getElementById('cmds').innerHTML = cmdPageHTML;
     }
+    if(settingsPage.toLowerCase() == 'about') {
+        let result = await ipc.invoke('getAbout');
+        let aboutPageHTML = `<div class="card"><div class="card-header">About</div>`;
+        aboutPageHTML += `<div class="card-body text-muted">
+        <p>VariBot v${result.versionNumber}</p>
+        <p>Random sounds loaded: ${result.randomSoundsCount}</p>
+        <p>Channel reward sounds loaded: ${result.channelPointsSoundsCount}</p>
+        <p>Google creds logged in: ${result.googleCredsExist}</p>
+        </div></div>`;
+        document.getElementById('about').innerHTML = aboutPageHTML;
+    }
 }
 
 async function saveCmdForm() {
@@ -313,7 +324,7 @@ async function saveSoundsForm() {
 }
 
 async function showPage(page) {
-    let pages = ['home','settings','sounds','cmds'];
+    let pages = ['home','settings','sounds','cmds', 'about'];
     let showPage;
     for(let p = 0; p < pages.length; p++) { 
         if(pages[p] == page.toLowerCase()) {

@@ -424,6 +424,16 @@ ipcMain.handle('getCurrentCommands', async (event, args) => {
     return commands;
 });
 
+ipcMain.handle('getAbout', async (event, args) => {
+    let aboutInfo = {
+        versionNumber: versionNumber,
+        randomSoundsCount: randomSounds.length,
+        channelPointsSoundsCount: channelPointsFilenames.length,
+        googleCredsExist: googleCredsExist
+    }
+    return aboutInfo;
+});
+
 ipcMain.handle('updateCmdSettings', async (event, args) => {
     let newCmdSettings = args;
     for(key in newCmdSettings) {
