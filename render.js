@@ -209,8 +209,9 @@ async function populateSettings(settingsPage) {
     }
     if(settingsPage.toLowerCase() == 'cmds') {
         let result = await ipc.invoke('getCurrentCommands');
-        let cmdPageHTML = ``;
+        let cmdPageHTML = `<div class="card"><div class="card-header">Commands</div>`;
         if(result !== undefined) {
+            cmdPageHTML += `<div class="card-body" id="cmdsBody">`;            
             if(Object.keys(result)) {                
                 cmdPageHTML += `<form id="cmdForm"><table class="table table-hover" style="table-layout:auto;"><tbody>`;
                 for(let cmd in result) { 
@@ -224,9 +225,11 @@ async function populateSettings(settingsPage) {
                     cmdPageHTML += `</td><td id="cmdName">${result[cmd].name}</td></tr>`;
                 }
                 cmdPageHTML += `</tbody></table></form><button type="submit" class="btn btn-primary btn-sm mt-2" onclick="saveCmdForm()">Save</button>`;
-                document.getElementById('cmds').innerHTML = cmdPageHTML;
+                
             }
+            cmdPageHTML += `</div>`;
         }
+        document.getElementById('cmds').innerHTML = cmdPageHTML;
     }
 }
 
