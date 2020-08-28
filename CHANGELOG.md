@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added [Apache License 2.0](https://choosealicense.com/licenses/apache-2.0/) license info
 - Added auto update notification messages
 - Added play button to sounds in sounds settings page
+- Added quick actions and recent cards
 
 ### Changed
 - Changed Google Spreasheets to load creds from file
