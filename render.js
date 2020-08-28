@@ -73,6 +73,10 @@ async function updateSoundsList() {
     document.getElementById('soundsList').innerHTML = soundsHTML;
 }
 
+function playRandomSound() {
+    ipc.send('playRandomSound');
+}
+
 async function playSound(sound) {
     let result = await ipc.invoke('getCurrentSettings');
     if(result !== undefined) {

@@ -464,6 +464,10 @@ ipcMain.handle('getSoundsSettings', async (event, args) => {
     return returnSounds; 
 });
 
+ipcMain.on('playRandomSound', (event) => {
+    playRandomSound();
+});
+
 function statusMsg(msgType, msg) { 
     let sendMsg = {
         type: msgType,
@@ -477,13 +481,20 @@ function statusMsg(msgType, msg) {
 
 // pubsub start
 
+function playRandomSound() { 
+    let randomIndex = Math.floor(Math.random() * Math.floor(randomSounds.length));
+    win.webContents.executeJavaScript(`playSound('${randomSounds[randomIndex]}')`);
+    statusMsg(`info`, `Playing sound ${randomSounds[randomIndex]}`); 
+}
+
 function proecssReward(reward) {
     statusMsg(`reward`, 'Reward ' + reward.data.redemption.reward.title + ' was redeemed by ' + reward.data.redemption.user.display_name + ' for ' + reward.data.redemption.reward.cost + ' points');
     if(reward.data.redemption.reward.title.toLowerCase() == 'random sound') {
         // add a while loop to re-roll random if it picks the same sound twice or the beat game sound
-        let randomIndex = Math.floor(Math.random() * Math.floor(randomSounds.length));
-        win.webContents.executeJavaScript(`playSound('${randomSounds[randomIndex]}')`);
-        statusMsg(`info`, `Playing sound ${randomSounds[randomIndex]}`);
+        // let randomIndex = Math.floor(Math.random() * Math.floor(randomSounds.length));
+        // win.webContents.executeJavaScript(`playSound('${randomSounds[randomIndex]}')`);
+        // statusMsg(`info`, `Playing sound ${randomSounds[randomIndex]}`);
+        playRandomSound();
     }
     else {
         for(let x in channelPointsSounds) {

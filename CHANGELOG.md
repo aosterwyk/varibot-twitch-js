@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added auto update notification messages
 - Added play button to sounds in sounds settings page
 - Added quick actions and recent cards
+- Added play random sound button to quick actions
 
 ### Changed
 - Changed Google Spreasheets to load creds from file
