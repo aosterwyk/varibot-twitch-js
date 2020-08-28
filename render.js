@@ -175,19 +175,19 @@ async function populateSettings(settingsPage) {
     if(settingsPage.toLowerCase() == 'sounds') {
         await ipc.invoke('loadSounds');        
         let result = await ipc.invoke('getSoundsSettings');
-        let soundsPageHTML = `<h3>Sounds</h3>`;
+        let soundsPageHTML = `<div class="card"><div class="card-header">Sounds</div><div class="card-body">`;
         if(result !== undefined) {
-            soundsPageHTML += `<button type="submit" class="btn btn-primary btn-sm mr-1" onclick="saveSoundsForm()">Save</button><button class="btn btn-primary btn-sm mr-1" onclick="openSoundsDir()"><svg class="bi bi-folder-symlink" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+            soundsPageHTML += `<button type="submit" class="btn btn-primary btn-sm mr-2 mb-4" onclick="saveSoundsForm()">Save</button><button class="btn btn-primary btn-sm mr-2 mb-4" onclick="openSoundsDir()"><svg class="bi bi-folder-symlink" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
             <path d="M9.828 4a3 3 0 0 1-2.12-.879l-.83-.828A1 1 0 0 0 6.173 2H2.5a1 1 0 0 0-1 .981L1.546 4h-1L.5 3a2 2 0 0 1 2-2h3.672a2 2 0 0 1 1.414.586l.828.828A2 2 0 0 0 9.828 3v1z"/>
             <path fill-rule="evenodd" d="M13.81 4H2.19a1 1 0 0 0-.996 1.09l.637 7a1 1 0 0 0 .995.91h10.348a1 1 0 0 0 .995-.91l.637-7A1 1 0 0 0 13.81 4zM2.19 3A2 2 0 0 0 .198 5.181l.637 7A2 2 0 0 0 2.826 14h10.348a2 2 0 0 0 1.991-1.819l.637-7A2 2 0 0 0 13.81 3H2.19z"/>
             <path d="M8.616 10.24l3.182-1.969a.443.443 0 0 0 0-.742l-3.182-1.97c-.27-.166-.616.036-.616.372V6.7c-.857 0-3.429 0-4 4.8 1.429-2.7 4-2.4 4-2.4v.769c0 .336.346.538.616.371z"/>
-          </svg> Open sounds folder</button><button class="btn btn-primary btn-sm mr-1" onclick="externalLink('manageRewards')"> Manage Channel Rewards</button><form id="soundsForm"><table class="table table-striped table-hover"><thead><tr><th scope="col">Filename</th><th scope="col">Reward Name (leave unchecked for random)</th></tr></thead><tbody>`;
+          </svg> Open sounds folder</button><button class="btn btn-primary btn-sm mr-2 mb-4" onclick="externalLink('manageRewards')"> Manage Channel Rewards</button><form id="soundsForm"><table class="table table-hover"><thead><tr><th scope="col">Filename</th><th scope="col">Reward Name (leave unchecked for random)</th></tr></thead><tbody>`;
             let randomSounds = result.random; 
             if(Object.keys(result.rewards).length > 0) {
                 for(let sound in result.rewards) {
                     soundsPageHTML += `<tr id="${result.rewards[sound].filename}"><td id="filename"><svg onclick="playSound('${result.rewards[sound].filename}')" width="20px" height="20px" viewBox="0 0 16 16" class="bi bi-play mr-2" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                     <path fill-rule="evenodd" d="M10.804 8L5 4.633v6.734L10.804 8zm.792-.696a.802.802 0 0 1 0 1.392l-6.363 3.692C4.713 12.69 4 12.345 4 11.692V4.308c0-.653.713-.998 1.233-.696l6.363 3.692z"/>
-                  </svg>${result.rewards[sound].filename.replace('.mp3','')}</td><td><div class="input-group mb-3">
+                  </svg>${result.rewards[sound].filename.replace('.mp3','')}</td><td><div class="input-group">
                     <div class="input-group-prepend"><div class="input-group-text"><input type="checkbox" checked>
                     </div></div>
                     <input type="text" class="form-control" value="${result.rewards[sound].name}"></div></td></tr>`;                    
@@ -197,7 +197,7 @@ async function populateSettings(settingsPage) {
                 for(let s = 0; s < randomSounds.length; s++) {
                     soundsPageHTML += `<tr id="${randomSounds[s]}"><td id="filename"><svg onclick="playSound('${randomSounds[s]}')" width="20px" height="20px" viewBox="0 0 16 16" class="bi bi-play mr-2" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                     <path fill-rule="evenodd" d="M10.804 8L5 4.633v6.734L10.804 8zm.792-.696a.802.802 0 0 1 0 1.392l-6.363 3.692C4.713 12.69 4 12.345 4 11.692V4.308c0-.653.713-.998 1.233-.696l6.363 3.692z"/>
-                  </svg>${randomSounds[s].replace('.mp3','')}</td><td><div class="input-group mb-3">
+                  </svg>${randomSounds[s].replace('.mp3','')}</td><td><div class="input-group">
                     <div class="input-group-prepend"><div class="input-group-text"><input type="checkbox">
                     </div></div>
                     <input type="text" class="form-control"></div></td></tr>`;
@@ -205,6 +205,7 @@ async function populateSettings(settingsPage) {
             }
             soundsPageHTML += `</tbody></table></form><button type="submit" class="btn btn-primary btn-sm" onclick="saveSoundsForm()">Save</button>`;
         }
+        soundsPageHTML += `</div></div>`;
         document.getElementById('sounds').innerHTML = soundsPageHTML;
     }
     if(settingsPage.toLowerCase() == 'cmds') {
