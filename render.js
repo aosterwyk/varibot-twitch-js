@@ -216,12 +216,12 @@ async function populateSettings(settingsPage) {
                 for(let cmd in result) { 
                     cmdPageHTML += `<tr id="${result[cmd].name}"><td style="width: 5px; text-align: center;">`;
                     if(result[cmd].enabled) {
-                        cmdPageHTML += `<input type="checkbox" checked>`;
+                        cmdPageHTML += `<input type="checkbox" checked id="cmdStatus">`;
                     }
                     else {
-                        cmdPageHTML += `<input type="checkbox">`;
+                        cmdPageHTML += `<input type="checkbox" id="cmdStatus">`;
                     }
-                    cmdPageHTML += `</td><td>${result[cmd].name}</td></tr>`;
+                    cmdPageHTML += `</td><td id="cmdName">${result[cmd].name}</td></tr>`;
                 }
                 cmdPageHTML += `</tbody></table></form><button type="submit" class="btn btn-primary btn-sm mt-2" onclick="saveCmdForm()">Save</button>`;
                 document.getElementById('cmds').innerHTML = cmdPageHTML;
@@ -235,8 +235,8 @@ async function saveCmdForm() {
     let cmdTRs = cmdForm.getElementsByTagName('tr');
     let cmdChanges = {};
     for(let x = 0; x < cmdTRs.length; x++) { 
-        let cmdName = cmdTRs[x].childNodes[1].innerText;
-        let cmdStatus = cmdTRs[x].childNodes[0].childNodes[0].checked;
+        let cmdName = cmdTRs[x].getElementsByTagName('td')['cmdName'].innerText.trim();
+        let cmdStatus = cmdTRs[x].getElementsByTagName('input')['cmdStatus'].checked;
         cmdChanges[cmdName] = {
             name: cmdName,
             enabled: cmdStatus

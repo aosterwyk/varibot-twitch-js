@@ -25,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Removed .mp3 from sound labels in home and sounds settings pages
 - Changed settings cards titles to headers
 - Changed card layouts on home page
+- Changed how settings are read and saved on commands settings page
 
 ### Fixed
 - Fixed clientid not populating if null
