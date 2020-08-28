@@ -18,6 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Changed window title and electron builder product name
 - Changed installer to use electron builder default settings
 - Changed Bootstrap theme to [Darkly](https://bootswatch.com/darkly/) 
+- Changed button class for hover effect
+- Removed .mp3 from sound button labels
 
 ### Fixed
 - Fixed clientid not populating if null
