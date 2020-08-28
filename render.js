@@ -127,10 +127,10 @@ async function openSoundsDir() {
 
 function changeActiveTab(activeTab) { 
     let navbar = document.getElementById('navBar-left');
-    let navLis = navbar.getElementsByTagName('li');
-    for(let x = 0; x < navLis.length; x++) {
-        if(navLis[x].classList.contains('active')) {
-            navLis[x].classList.remove('active');
+    let navList = navbar.getElementsByTagName('li');
+    for(let x = 0; x < navList.length; x++) {
+        if(navList[x].classList.contains('active')) {
+            navList[x].classList.remove('active');
         }
     }
     let newActive = document.getElementById(`${activeTab}Nav`);
