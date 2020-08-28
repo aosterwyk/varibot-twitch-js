@@ -172,7 +172,9 @@ async function populateSettings(settingsPage) {
             let randomSounds = result.random; 
             if(Object.keys(result.rewards).length > 0) {
                 for(let sound in result.rewards) {
-                    soundsPageHTML += `<tr id="${result.rewards[sound].filename}"><td id="filename">${result.rewards[sound].filename}</td><td><div class="input-group mb-3">
+                    soundsPageHTML += `<tr id="${result.rewards[sound].filename}"><td id="filename"><svg onclick="playSound('${result.rewards[sound].filename}')" width="20px" height="20px" viewBox="0 0 16 16" class="bi bi-play mr-2" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" d="M10.804 8L5 4.633v6.734L10.804 8zm.792-.696a.802.802 0 0 1 0 1.392l-6.363 3.692C4.713 12.69 4 12.345 4 11.692V4.308c0-.653.713-.998 1.233-.696l6.363 3.692z"/>
+                  </svg>${result.rewards[sound].filename.replace('.mp3','')}</td><td><div class="input-group mb-3">
                     <div class="input-group-prepend"><div class="input-group-text"><input type="checkbox" checked>
                     </div></div>
                     <input type="text" class="form-control" value="${result.rewards[sound].name}"></div></td></tr>`;                    
@@ -180,7 +182,9 @@ async function populateSettings(settingsPage) {
             }               
             if(randomSounds.length > 0) {
                 for(let s = 0; s < randomSounds.length; s++) {
-                    soundsPageHTML += `<tr id="${randomSounds[s]}"><td id="filename">${randomSounds[s]}</td><td><div class="input-group mb-3">
+                    soundsPageHTML += `<tr id="${randomSounds[s]}"><td id="filename"><svg onclick="playSound('${randomSounds[s]}')" width="20px" height="20px" viewBox="0 0 16 16" class="bi bi-play mr-2" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" d="M10.804 8L5 4.633v6.734L10.804 8zm.792-.696a.802.802 0 0 1 0 1.392l-6.363 3.692C4.713 12.69 4 12.345 4 11.692V4.308c0-.653.713-.998 1.233-.696l6.363 3.692z"/>
+                  </svg>${randomSounds[s].replace('.mp3','')}</td><td><div class="input-group mb-3">
                     <div class="input-group-prepend"><div class="input-group-text"><input type="checkbox">
                     </div></div>
                     <input type="text" class="form-control"></div></td></tr>`;

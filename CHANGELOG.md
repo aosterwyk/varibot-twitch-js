@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added cards for general and google spreadsheets settings in Settings page
 - Added [Apache License 2.0](https://choosealicense.com/licenses/apache-2.0/) license info
 - Added auto update notification messages
+- Added play button to sounds in sounds settings page
 
 ### Changed
 - Changed Google Spreasheets to load creds from file
@@ -19,7 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Changed installer to use electron builder default settings
 - Changed Bootstrap theme to [Darkly](https://bootswatch.com/darkly/) 
 - Changed button class for hover effect
-- Removed .mp3 from sound button labels
+- Removed .mp3 from sound labels in home and sounds settings pages
 - Changed settings cards titles to headers
 
 ### Fixed
