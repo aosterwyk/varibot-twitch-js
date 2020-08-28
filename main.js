@@ -102,6 +102,7 @@ async function runCommand(targetChannel, fromMod, context, inputCmd, args) {
                     .catch(error => {console.log(error);});
                     client.say(targetChannel, beatMsg);
                     statusMsg('success', beatMsg);
+                    updateRecentEvents(beatMsg);
                     win.webContents.executeJavaScript(`playSound('${botSettings.beatGameSound}')`);
                 }
                 else{
@@ -403,6 +404,7 @@ ipcMain.handle('botSettingsFromForm', async (event, args) => {
     await botSettingsDB.sync();
     let updateMsg = `Settings updated. You will need to restart if your token was added or changed.`;
     statusMsg(`success`, updateMsg);
+    updateRecentEvents(updateMsg);
     win.webContents.executeJavaScript(`alertMsg('true','success', '${updateMsg}')`);
     return true;
 });
@@ -464,8 +466,9 @@ ipcMain.handle('getSoundsSettings', async (event, args) => {
     return returnSounds; 
 });
 
-ipcMain.on('playRandomSound', (event) => {
-    playRandomSound();
+ipcMain.handle('playRandomSound', (event) => {
+    let soundName = playRandomSound();
+    updateRecentEvents(`You played random sound ${soundName}`);
 });
 
 function statusMsg(msgType, msg) { 
@@ -477,6 +480,10 @@ function statusMsg(msgType, msg) {
     console.log(msg);
 }
 
+function updateRecentEvents(msg) {
+    win.webContents.send('updateRecentEvents', msg);
+}
+
 // electron end
 
 // pubsub start
@@ -485,6 +492,7 @@ function playRandomSound() {
     let randomIndex = Math.floor(Math.random() * Math.floor(randomSounds.length));
     win.webContents.executeJavaScript(`playSound('${randomSounds[randomIndex]}')`);
     statusMsg(`info`, `Playing sound ${randomSounds[randomIndex]}`); 
+    return randomSounds[randomIndex];
 }
 
 function proecssReward(reward) {
@@ -494,13 +502,16 @@ function proecssReward(reward) {
         // let randomIndex = Math.floor(Math.random() * Math.floor(randomSounds.length));
         // win.webContents.executeJavaScript(`playSound('${randomSounds[randomIndex]}')`);
         // statusMsg(`info`, `Playing sound ${randomSounds[randomIndex]}`);
-        playRandomSound();
+        let soundName = playRandomSound();
+        updateRecentEvents(`${reward.data.redemption.user.display_name} played random sound ${soundName}`);
+        // updateRecentEvents('Reward ' + reward.data.redemption.reward.title + ' was redeemed by ' + reward.data.redemption.user.display_name + ' for ' + reward.data.redemption.reward.cost + ' points');        
     }
     else {
         for(let x in channelPointsSounds) {
             if(channelPointsSounds[x].name.toLowerCase() == reward.data.redemption.reward.title.toLowerCase()) {
                 win.webContents.executeJavaScript(`playSound('${channelPointsSounds[x].filename}')`);
                 statusMsg(`info`, `Playing sound ${channelPointsSounds[x].name} (${channelPointsSounds[x].filename})`);
+                updateRecentEvents(`${reward.data.redemption.user.display_name} played sound ${channelPointsSounds[x].filename}`);
                 break;
             }   
         }
@@ -558,7 +569,7 @@ autoUpdater.on('update-available', () => {
 });
 
 autoUpdater.on('update-downloaded', () => {
-    statusMsg(`success`, `Update downloaded. Update will be installed next time the bot is closed.`);
+    updateRecentEvents(`Update downloaded. Update will be installed next time the bot is closed.`);
 });
 
 startBot();

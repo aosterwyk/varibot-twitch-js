@@ -6,9 +6,13 @@ ipc.on('status', (event, msg) => {
     updateStatus(msg.type, msg.message);
 });
 
+ipc.on('updateRecentEvents', (event, msg) => {
+    updateRecentEvents(msg);
+});
+
 function updateRecentEvents(msg) {
     let recentList = document.getElementById('recentList');
-    recentList.innerHTML = `<li class="list-group-item"><small>${msg}</small></li> ${recentList.innerHTML}`;
+    recentList.innerHTML = `<li class="list-group-item text-muted">${msg}</li> ${recentList.innerHTML}`;
 }
 
 function updateStatus(msgType, msg) {
@@ -79,7 +83,7 @@ async function updateSoundsList() {
 }
 
 function playRandomSound() {
-    ipc.send('playRandomSound');
+    ipc.invoke('playRandomSound');
 }
 
 async function playSound(sound) {
