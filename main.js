@@ -15,6 +15,7 @@ const { updateBotSettings } = require('./utils/updateBotSettings');
 const { beatGame } = require('./utils/beatGame');
 const { getMultiLink } = require('./utils/multiLink');
 const { isMod } = require('./utils/isMod');
+const versionNumber = require('./package.json').version;
 
 const { ipcMain, app, BrowserWindow } = require('electron');
 // const ipcMain = ipcMain;
@@ -44,7 +45,7 @@ if (fs.existsSync(googleCredsFile)) {
     googleCredsExist = true;
 }
 
-console.log(`VariBot`);
+console.log(`VariBot ${versionNumber}`);
 
 async function runCommand(targetChannel, fromMod, context, inputCmd, args) {   
     let cmd = inputCmd.toLowerCase();
