@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 <!-- _No unreleased changes_ -->
+
+## [1.1.0] - 2020-08-28
 ### Added
 - Added cards for general and google spreadsheets settings in Settings page
 - Added [Apache License 2.0](https://choosealicense.com/licenses/apache-2.0/) license info
@@ -49,6 +51,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.0.0] - 2020-06-25
 ### Initial Release
 
+[1.1.0]: https://github.com/VariXx/varibot-twitch-js/tree/v1.1.0
 [1.0.3]: https://github.com/VariXx/varibot-twitch-js/tree/v1.0.3
 [1.0.1]: https://github.com/VariXx/varibot-twitch-js/tree/v1.0.1
 [1.0.0]: https://github.com/VariXx/varibot-twitch-js/tree/v1.0.0
