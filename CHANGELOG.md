@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Changed changelog to correct formatting for change types 
 - Changed window title and electron builder product name
 - Changed installer to use electron builder default settings
+- Changed Bootstrap theme to [Darkly](https://bootswatch.com/darkly/) 
 
 ### Security
 - Updated lodash for CVE-2020-8203
