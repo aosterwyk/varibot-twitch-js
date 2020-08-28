@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Changed Bootstrap theme to [Darkly](https://bootswatch.com/darkly/) 
 - Changed button class for hover effect
 - Removed .mp3 from sound button labels
+- Changed settings cards titles to headers
 
 ### Fixed
 - Fixed clientid not populating if null
