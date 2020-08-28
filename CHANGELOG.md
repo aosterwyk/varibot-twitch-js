@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 <!-- _No unreleased changes_ -->
 
+## [1.1.1] - 2020-08-28
+### Changed
+- Sounds reload when switching to home page
+- Settings page loads content like other pages 
+
+### Fixed
+- Fixed buttons in settings page incorrectly returning to home page 
+
 ## [1.1.0] - 2020-08-28
 ### Added
 - Added cards for general and google spreadsheets settings in Settings page
