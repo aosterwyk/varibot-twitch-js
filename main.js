@@ -490,9 +490,10 @@ function updateRecentEvents(msg) {
 
 function playRandomSound() { 
     let randomIndex = Math.floor(Math.random() * Math.floor(randomSounds.length));
-    win.webContents.executeJavaScript(`playSound('${randomSounds[randomIndex]}')`);
-    statusMsg(`info`, `Playing sound ${randomSounds[randomIndex]}`); 
-    return randomSounds[randomIndex];
+    let randomSound = randomSounds[randomIndex];
+    win.webContents.executeJavaScript(`playSound('${randomSound}')`);
+    statusMsg(`info`, `Playing sound ${randomSound}`); 
+    return randomSound;
 }
 
 function proecssReward(reward) {
