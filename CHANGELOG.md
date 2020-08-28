@@ -22,7 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Changed installer to use electron builder default settings
 - Changed Bootstrap theme to [Darkly](https://bootswatch.com/darkly/) 
 - Changed button class for hover effect
-- Removed .mp3 from sound labels in home and sounds settings pages
+- Removed .mp3 from sound labels in home
 - Changed settings cards titles to headers
 - Changed card layouts on home page
 - Changed how settings are read and saved on commands settings page
