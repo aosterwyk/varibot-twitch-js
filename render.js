@@ -6,6 +6,11 @@ ipc.on('status', (event, msg) => {
     updateStatus(msg.type, msg.message);
 });
 
+function updateRecentEvents(msg) {
+    let recentList = document.getElementById('recentList');
+    recentList.innerHTML = `<li class="list-group-item"><small>${msg}</small></li> ${recentList.innerHTML}`;
+}
+
 function updateStatus(msgType, msg) {
     let msgColor = `text-white-75`;
     if(msgType == 'error') {        
