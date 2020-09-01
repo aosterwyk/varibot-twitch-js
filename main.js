@@ -360,8 +360,8 @@ ipcMain.handle('runAd', async (event) => {
         const adResult = await twitchAPI.runAd(channelId, botSettings.clientId, botSettings.token, 90);
         // console.log(adResult);
         if(adResult.result) {
-            statusMsg(`success`, `Running a 90 second ad`);
-            updateRecentEvents(`You ran a 90 second ad. Next ad can run in ${adResult.retry_after} seconds.`);            
+            statusMsg(`success`, `Running a ${adResult.adLength} second ad`);
+            updateRecentEvents(`You ran a ${adResult.adLength} second ad. Next ad can run in ${adResult.retry_after} seconds.`);            
         }
         else {
             statusMsg(`error`, `Error running ad: ${adResult.message}`);
@@ -375,7 +375,7 @@ ipcMain.handle('createStreamMarker', async (event) => {
     if(channelId !== undefined) {
         const markerResult = await twitchAPI.createStreamMarker(channelId, botSettings.clientId, botSettings.token, `Created from VariBot quick actions`)
         if(markerResult.result) { 
-            statusMsg(`success`, `Created stream marker (ID: ${markerResult.id}) at ${markerResult.position_seconds}`);
+            statusMsg(`success`, `Created stream marker (ID: ${markerResult.id}) at ${markerResult.position_seconds} seconds`);
             updateRecentEvents(`You created a stream marker`);
         }
         else {

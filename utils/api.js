@@ -25,7 +25,7 @@ async function createStreamMarker(channelId, clientId, token, description) {
         }
     }   
     if(response.data !== undefined) {
-        const data = resonse.data[0];
+        const data = response.data[0];
         returnResult = {
             result: true,
             status: null,
@@ -96,17 +96,19 @@ async function runAd(channelId, clientId, token, adLength) {
     body: `{"broadcaster_id":"${channelId}", "length":${adLength}}`});
     const response = await result.json();
     let returnResult = {};
-    if(response.message.length !== undefined && response.message.length > 1) {
+    if(response.message !== undefined && response.message.length > 1) {
         returnResult = {
             result: false,
-            adTime: response.message["length"],
-            message: response.message,
-            retry_after: response.retry_after
+            adLength: response.message["length"],
+            message: response.message
         }
     }
     else {
+        const responseData = response.data[0];
         returnResult = {
-            successful: true
+            result: true,
+            adLength: responseData["length"],
+            retry_after: responseData.retry_after
         }
     }
     return returnResult;
