@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- _No unreleased changes_ -->
 ### Added 
 - Added run 90 second ad button
+- Added create stream marker button
 
 ## [1.1.1] - 2020-08-28
 ### Changed

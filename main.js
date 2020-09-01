@@ -357,11 +357,18 @@ if (BrowserWindow.getAllWindows().length === 0) {
 ipcMain.handle('runAd', async (event) => {
     let channelId = await twitchAPI.getChannelID(botSettings.channel, botSettings.clientId, botSettings.token);    
     if(channelId !== undefined) {
-        // await twitchAPI.runAd(channelId,90);
         await twitchAPI.runAd(channelId, botSettings.clientId, botSettings.token, 90);
-        // console.log(`Running Ad`);
         statusMsg(`success`, `Running a 90 second ad`);
         updateRecentEvents(`You ran a 90 second ad`);
+    }
+});
+
+ipcMain.handle('createStreamMarker', async (event) => {
+    let channelId = await twitchAPI.getChannelID(botSettings.channel, botSettings.clientId, botSettings.token);    
+    if(channelId !== undefined) {
+        await twitchAPI.createStreamMarker(channelId, `Created from VariBot quick actions`, botSettings.clientId, botSettings.token)
+        statusMsg(`success`, `Created stream marker`);
+        updateRecentEvents(`You created stream marker`);
     }
 });
 

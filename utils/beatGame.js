@@ -29,7 +29,7 @@ async function beatGame(beatComments, beatChannel, beatSpreadSheetID, beatSheetI
         await beatSheet.addRow(beatGameArray)
         .catch(error => {console.log(error);});
         let channelId = await getChannelID(beatChannel.substr(1), clientId, token);
-        await createStreamMarker(channelId, commentsString, clientId, token);
+        await createStreamMarker(channelId, clientId, token, commentsString);
         return beatMsg;
     }
     else {

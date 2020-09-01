@@ -7,7 +7,7 @@ async function twitchAPI(url, clientId, token) {
     return result;
 }
 
-async function createStreamMarker(channelId, description, clientId, token) { 
+async function createStreamMarker(channelId, clientId, token, description) { 
     let url = 'https://api.twitch.tv/helix/streams/markers';
     let result = await fetch(url, {method: 'post', headers: {'Client-ID': clientId, 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json'},
     body: `{"user_id":"${channelId}", "description":"${description}"}`
