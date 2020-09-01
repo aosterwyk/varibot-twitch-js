@@ -9,10 +9,34 @@ async function twitchAPI(url, clientId, token) {
 
 async function createStreamMarker(channelId, clientId, token, description) { 
     let url = 'https://api.twitch.tv/helix/streams/markers';
-    let result = await fetch(url, {method: 'post', headers: {'Client-ID': clientId, 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json'},
-    body: `{"user_id":"${channelId}", "description":"${description}"}`
-    // varixx 9502699
-    });   
+    const result = await fetch(url, {method: 'post', headers: {'Client-ID': clientId, 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json'},
+    body: `{"user_id":"${channelId}", "description":"${description}"}`});
+    const response = await result.json();
+    let returnResult = {};
+    if(response.error !== undefined) {
+        returnResult = {
+            result: false,
+            status: response.status,
+            message: response.message,
+            id: null,
+            created_at: null,
+            description: null,
+            position_seconds: null
+        }
+    }   
+    if(response.data !== undefined) {
+        const data = resonse.data[0];
+        returnResult = {
+            result: true,
+            status: null,
+            message: null,
+            id: data.id,
+            created_at: data.created_at,
+            description: data.description,
+            position_seconds: data.position_seconds
+        }
+    }
+    return returnResult;
 }
 
 async function getChannelID(channelName, clientId, token) {
@@ -68,7 +92,7 @@ async function getGameName(findGameID) {
 
 async function runAd(channelId, clientId, token, adLength) {
     let url = 'https://api.twitch.tv/helix/channels/commercial';
-    let result = await fetch(url, {method: 'post', headers: {'Client-ID': clientId, 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json'},
+    const result = await fetch(url, {method: 'post', headers: {'Client-ID': clientId, 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json'},
     body: `{"broadcaster_id":"${channelId}", "length":${adLength}}`});
     const response = await result.json();
     let returnResult = {};
