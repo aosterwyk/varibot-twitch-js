@@ -365,6 +365,9 @@ ipcMain.handle('runAd', async (event) => {
         }
         else {
             statusMsg(`error`, `Error running ad: ${adResult.message}`);
+            if((adResult.message).search(`Missing scope`) !== -1) { 
+                statusMsg(`error`, `Missing scope for command. Please create a new token by clicking Get Token in the settings page. DO NOT DO THIS WHILE LIVE!`);
+            }
             updateRecentEvents(`Error running ad. Check status box below for details`);
         }
     }
@@ -380,6 +383,9 @@ ipcMain.handle('createStreamMarker', async (event) => {
         }
         else {
             statusMsg(`error`, `Error creating stream marker: ${markerResult.message}`);
+            if((markerResult.message).search(`Missing scope`) !== -1) { 
+                statusMsg(`error`, `Missing scope for command. Please create a new token by clicking Get Token in the settings page. DO NOT DO THIS WHILE LIVE!`);
+            }            
             updateRecentEvents(`Error creating stream marker. Check status box below for details`);
         }
     }
