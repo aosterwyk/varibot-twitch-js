@@ -165,7 +165,7 @@ function changeActiveTab(activeTab) {
 
 async function populateSettings(settingsPage) {
     if(settingsPage.toLowerCase() == 'home') { 
-        updateSoundsList();
+        // no settings
     }
     if(settingsPage.toLowerCase() == 'settings') {
         let settingsPageHTML = `<div class="card my-4">
