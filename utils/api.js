@@ -66,7 +66,14 @@ async function getGameName(findGameID) {
     }
 }
 
+async function runAd(channelId, clientId, token, adLength) {
+    let url = 'https://api.twitch.tv/helix/channels/commercial';
+    let result = await fetch(url, {method: 'post', headers: {'Client-ID': clientId, 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json'},
+    body: `{"broadcaster_id":"${channelId}", "length":"${adLength}"}`});
+}   
+
 module.exports.getChannelID = getChannelID;
 module.exports.getCurrentGame = getCurrentGame;
 module.exports.getStreamTitle = getStreamTitle;
 module.exports.createStreamMarker = createStreamMarker;
+module.exports.runAd = runAd;

@@ -53,6 +53,14 @@ async function loadSettings() {
     return result;
 }
 
+function runAd() {
+    ipc.invoke('runAd');
+}
+
+function createStreamMarker() {
+    ipc.invoke('createStreamMarker');
+}
+
 async function updateSoundsList() { 
     let sounds = await ipc.invoke('loadSounds');
     let soundsHTML = ` `;

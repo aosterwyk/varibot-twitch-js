@@ -354,6 +354,17 @@ if (BrowserWindow.getAllWindows().length === 0) {
 }
 });
 
+ipcMain.handle('runAd', async (event) => {
+    let channelId = await twitchAPI.getChannelID(botSettings.channel, botSettings.clientId, botSettings.token);    
+    if(channelId !== undefined) {
+        // await twitchAPI.runAd(channelId,90);
+        await twitchAPI.runAd(channelId, botSettings.clientId, botSettings.token, 90);
+        // console.log(`Running Ad`);
+        statusMsg(`success`, `Running a 90 second ad`);
+        updateRecentEvents(`You ran a 90 second ad`);
+    }
+});
+
 ipcMain.handle('newSoundsSettings', async (event, args) => {
     await channelPointsSoundsDB.sync(); // sync channel points sounds   
     await channelPointsSoundsDB.findAll().then(result => {
