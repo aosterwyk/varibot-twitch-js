@@ -357,9 +357,16 @@ if (BrowserWindow.getAllWindows().length === 0) {
 ipcMain.handle('runAd', async (event) => {
     let channelId = await twitchAPI.getChannelID(botSettings.channel, botSettings.clientId, botSettings.token);    
     if(channelId !== undefined) {
-        await twitchAPI.runAd(channelId, botSettings.clientId, botSettings.token, 90);
-        statusMsg(`success`, `Running a 90 second ad`);
-        updateRecentEvents(`You ran a 90 second ad`);
+        const adResult = await twitchAPI.runAd(channelId, botSettings.clientId, botSettings.token, 90);
+        console.log(adResult);
+        if(adResult.result) {
+            statusMsg(`success`, `Running a 90 second ad`);
+            updateRecentEvents(`You ran a 90 second ad. Next ad can run in ${adResult.retry_after} seconds.`);            
+        }
+        else {
+            statusMsg(`error`, `Error running ad: ${adResult.message}`);
+            updateRecentEvents(`Error running ad. Check status box below for details`);
+        }
     }
 });
 
