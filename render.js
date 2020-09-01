@@ -61,6 +61,11 @@ function createStreamMarker() {
     ipc.invoke('createStreamMarker');
 }
 
+function brb() {
+    createStreamMarker();
+    runAd();
+}
+
 async function updateSoundsList() { 
     let sounds = await ipc.invoke('loadSounds');
     let soundsHTML = ` `;

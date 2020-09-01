@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added 
 - Added run 90 second ad button
 - Added create stream marker button
+- Added BRB quick action that creates a stream marker and runs a 90 second ad 
 
 ### Fixed
 - Fixed stream marker command 
