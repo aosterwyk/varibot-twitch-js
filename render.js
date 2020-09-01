@@ -87,7 +87,8 @@ async function updateSoundsList() {
                 buttonRowCount = 0;
                 soundsHTML += `</tr><tr>`;
             }
-            soundsHTML += `<td><button type="button" class="btn btn-secondary" style="height: 100%; width:100%;" onclick="playSound('${sounds[s]}')">${sounds[s].replace('.mp3','')}</button></td>`;
+            let soundName = sounds[s].replace('.mp3','');
+            soundsHTML += `<td><button type="button" class="btn btn-secondary" style="height: 100%; width:100%;" onclick="playSound('${sounds[s]}')">${soundName}</button></td>`;
             buttonRowCount++;
         }
     }
@@ -165,7 +166,7 @@ function changeActiveTab(activeTab) {
 
 async function populateSettings(settingsPage) {
     if(settingsPage.toLowerCase() == 'home') { 
-        // no settings
+        // no settings 
     }
     if(settingsPage.toLowerCase() == 'settings') {
         let settingsPageHTML = `<div class="card my-4">

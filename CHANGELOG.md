@@ -13,8 +13,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added create stream marker button
 - Added BRB quick action that creates a stream marker and runs a 90 second ad 
 
+### Changed
+- Changed how .mp3 is removed from button label
+
 ### Fixed
 - Fixed stream marker command 
+
+### Removed
+- Removed reloading sounds when switching to dashboard
 
 ## [1.1.1] - 2020-08-28
 ### Changed
