@@ -246,10 +246,12 @@ async function populateSettings(settingsPage) {
             document.getElementById('botToken').value = result.token;
             document.getElementById('clientId').value = result.clientId;
             document.getElementById('channel').value = result.channel;
-            if(result.beatSpreadSheetID !== undefined && result.beatSheetID !== undefined) {
-                if(result.beatSpreadSheetID.length > 1 && result.beatSheetID.length > 1) {
-                    let spreadSheetUrl = `https://docs.google.com/spreadsheets/d/${result.beatSpreadSheetID}/edit#gid=${result.beatSheetID}`;
-                    document.getElementById('beatSpreadSheetUrl').value = spreadSheetUrl; 
+            if(result.beatSpreadSheetID !== undefined && result.beatSpreadSheetID !== null) {
+                if(result.beatSheetID !== undefined && result.beatSheetID !== null) {
+                    if(result.beatSpreadSheetID.length > 1 && result.beatSheetID.length > 1) {
+                        let spreadSheetUrl = `https://docs.google.com/spreadsheets/d/${result.beatSpreadSheetID}/edit#gid=${result.beatSheetID}`;
+                        document.getElementById('beatSpreadSheetUrl').value = spreadSheetUrl; 
+                    }
                 }
             }
             document.getElementById('beatGameSound').value = result.beatGameSound;
@@ -325,7 +327,7 @@ async function populateSettings(settingsPage) {
         <p>VariBot v${result.versionNumber}</p>
         <p>Random sounds loaded: ${result.randomSoundsCount}</p>
         <p>Channel reward sounds loaded: ${result.channelPointsSoundsCount}</p>
-        <p>Google creds logged in: ${result.googleCredsExist}</p>
+        <p>Google creds file loaded: ${result.googleCredsExist}</p>
         </div></div>`;
         document.getElementById('about').innerHTML = aboutPageHTML;
     }

@@ -41,9 +41,14 @@ if (!fs.existsSync(soundsDir)){
     fs.mkdirSync(soundsDir);
 }
 
-if (fs.existsSync(googleCredsFilePath)) { 
-    googleCreds = require(`${app.getPath('appData')}\\varibot\\googleCreds`);
-    googleCredsExist = true;
+function checkGoogleCreds() {
+    if (fs.existsSync(googleCredsFilePath)) { 
+        googleCreds = require(`${app.getPath('appData')}\\varibot\\googleCreds`);
+        googleCredsExist = true;
+    }
+    else {
+        googleCredsExist = false;
+    }
 }
 
 console.log(`VariBot ${versionNumber}`);
@@ -98,6 +103,7 @@ async function runCommand(targetChannel, fromMod, context, inputCmd, args) {
             }
         }
         else if(cmd == 'beat') {
+            checkGoogleCreds();
             if(googleCredsExist) {
                 if(fromMod) {           
                     let beatMsg = await beatGame(args, targetChannel, botSettings.beatSpreadSheetID, botSettings.beatSheetID, botSettings.clientId, botSettings.token, googleCredsFilePath)
@@ -249,6 +255,7 @@ async function startBot() {
     await botSettingsDB.sync(); // TO DO - move this to a function 
     let botset = await botSettingsDB.findOrCreate({where: {id: 1}}); 
     botSettings = botset[0];
+    checkGoogleCreds();
     if(googleCredsExist) {
         botSettings.googleSheetsClientEmail = googleCreds.client_email;
         botSettings.googleSheetsPrivateKey = googleCreds.private_key;
@@ -462,6 +469,7 @@ ipcMain.handle('getCurrentCommands', async (event, args) => {
 });
 
 ipcMain.handle('getAbout', async (event, args) => {
+    checkGoogleCreds();
     let aboutInfo = {
         versionNumber: versionNumber,
         randomSoundsCount: randomSounds.length,
@@ -524,11 +532,13 @@ ipcMain.handle('saveGoogleCredsFile', (event, args) => {
         fs.copyFileSync(args, googleCredsFilePath);
         statusMsg('success', 'Google creds file saved.');
         win.webContents.executeJavaScript(`alertMsg(true, 'success', 'Google creds file saved.')`);
+        checkGoogleCreds();
         return true;
     }
     catch(error) {
         statusMsg('error', `Error saved google creds file: ${error}`);
         win.webContents.executeJavaScript(`alertMsg(true, 'error', 'Error saving Google creds file. See status box for details.')`);
+        checkGoogleCreds();
         return false;
     }
 });
