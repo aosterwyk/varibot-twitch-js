@@ -15,6 +15,7 @@ const { updateBotSettings } = require('./utils/updateBotSettings');
 const { beatGame } = require('./utils/beatGame');
 const { getMultiLink } = require('./utils/multiLink');
 const { isMod } = require('./utils/isMod');
+const { getSpreadsheetInfo } = require('./utils/getSpreadsheetInfo');
 const versionNumber = require('./package.json').version;
 
 const { ipcMain, app, BrowserWindow } = require('electron');
@@ -246,14 +247,12 @@ async function loadCommands() {
 
 async function startBot() { 
     await botSettingsDB.sync(); // TO DO - move this to a function 
-    // let botset = await botSettingsDB.findAll(); 
     let botset = await botSettingsDB.findOrCreate({where: {id: 1}}); 
     botSettings = botset[0];
     if(googleCredsExist) {
         botSettings.googleSheetsClientEmail = googleCreds.client_email;
         botSettings.googleSheetsPrivateKey = googleCreds.private_key;
     }
-    // botSettings.soundsDir = soundsDir;
 
     await loadCommands();
 
@@ -427,14 +426,15 @@ ipcMain.handle('botSettingsFromForm', async (event, args) => {
     if(args.channel.length > 1) {        
         await updateBotSettings('channel', args.channel);
     }
-    if(args.beatSheetID.length > 1) {    
-        await updateBotSettings('beatSheetID', args.beatSheetID);
-    }
-    if(args.beatSpreadSheetID.length > 1) {
-        await updateBotSettings('beatSpreadSheetID', args.beatSpreadSheetID);
-    }
-    if(args.beatSheetID.length > 1) {
-        await updateBotSettings('beatSheetID', args.beatSheetID);
+    if(args.beatSpreadSheetUrl !== undefined && args.beatSpreadSheetUrl.length > 1) {  
+        try {
+            let beatSheetInfo = getSpreadsheetInfo(args.beatSpreadSheetUrl);
+            await updateBotSettings('beatSheetID', beatSheetInfo.worksheetId);
+            await updateBotSettings('beatSpreadSheetID', beatSheetInfo.spreadsheetId);
+        }
+        catch(error) {
+            console.log(error);
+        }
     }
     if(args.beatGameSound.length > 1) {
         await updateBotSettings('beatGameSound', args.beatGameSound);
@@ -548,12 +548,8 @@ function proecssReward(reward) {
     statusMsg(`reward`, 'Reward ' + reward.data.redemption.reward.title + ' was redeemed by ' + reward.data.redemption.user.display_name + ' for ' + reward.data.redemption.reward.cost + ' points');
     if(reward.data.redemption.reward.title.toLowerCase() == 'random sound') {
         // add a while loop to re-roll random if it picks the same sound twice or the beat game sound
-        // let randomIndex = Math.floor(Math.random() * Math.floor(randomSounds.length));
-        // win.webContents.executeJavaScript(`playSound('${randomSounds[randomIndex]}')`);
-        // statusMsg(`info`, `Playing sound ${randomSounds[randomIndex]}`);
         let soundName = playRandomSound();
         updateRecentEvents(`${reward.data.redemption.user.display_name} played random sound ${soundName}`);
-        // updateRecentEvents('Reward ' + reward.data.redemption.reward.title + ' was redeemed by ' + reward.data.redemption.user.display_name + ' for ' + reward.data.redemption.reward.cost + ' points');        
     }
     else {
         for(let x in channelPointsSounds) {

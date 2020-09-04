@@ -69,14 +69,6 @@ function brb() {
 async function updateSoundsList() { 
     let sounds = await ipc.invoke('loadSounds');
     let soundsHTML = ` `;
-//     `<button class="btn btn-primary btn-sm mr-1" onclick="updateSoundsList()"><svg class="bi bi-arrow-clockwise" width="1em" height="1em" viewBox="0 0 16 16" fill="white" xmlns="http://www.w3.org/2000/svg">
-//     <path fill-rule="evenodd" d="M3.17 6.706a5 5 0 0 1 7.103-3.16.5.5 0 1 0 .454-.892A6 6 0 1 0 13.455 5.5a.5.5 0 0 0-.91.417 5 5 0 1 1-9.375.789z"/>
-//     <path fill-rule="evenodd" d="M8.147.146a.5.5 0 0 1 .707 0l2.5 2.5a.5.5 0 0 1 0 .708l-2.5 2.5a.5.5 0 1 1-.707-.708L10.293 3 8.147.854a.5.5 0 0 1 0-.708z"/>
-//   </svg> Reload Sounds</button><button class="btn btn-primary btn-sm mr-1" onclick="openSoundsDir()"><svg class="bi bi-folder-symlink" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-//   <path d="M9.828 4a3 3 0 0 1-2.12-.879l-.83-.828A1 1 0 0 0 6.173 2H2.5a1 1 0 0 0-1 .981L1.546 4h-1L.5 3a2 2 0 0 1 2-2h3.672a2 2 0 0 1 1.414.586l.828.828A2 2 0 0 0 9.828 3v1z"/>
-//   <path fill-rule="evenodd" d="M13.81 4H2.19a1 1 0 0 0-.996 1.09l.637 7a1 1 0 0 0 .995.91h10.348a1 1 0 0 0 .995-.91l.637-7A1 1 0 0 0 13.81 4zM2.19 3A2 2 0 0 0 .198 5.181l.637 7A2 2 0 0 0 2.826 14h10.348a2 2 0 0 0 1.991-1.819l.637-7A2 2 0 0 0 13.81 3H2.19z"/>
-//   <path d="M8.616 10.24l3.182-1.969a.443.443 0 0 0 0-.742l-3.182-1.97c-.27-.166-.616.036-.616.372V6.7c-.857 0-3.429 0-4 4.8 1.429-2.7 4-2.4 4-2.4v.769c0 .336.346.538.616.371z"/>
-// </svg> Open Sounds Folder</button>`;
     if(sounds.length > 0){
         let buttonRowCount = 0;
         let buttonRows = 1;
@@ -206,12 +198,9 @@ async function populateSettings(settingsPage) {
               <path d="M5.25 6.033h1.32c0-.781.458-1.384 1.36-1.384.685 0 1.313.343 1.313 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.007.463h1.307v-.355c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.326 0-2.786.647-2.754 2.533zm1.562 5.516c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94z"/>
             </svg></h4>
             <div class="form-group">
-              <label for="beatSpreadSheetID">Completed games spreadsheet ID</label>
-              <input type="text" class="form-control" id="beatSpreadSheetID" placeholder="Enter ID">
-            </div>              
-            <div class="form-group">
-              <label for="beatSheetID">Completed games spreadsheet worksheet ID</label>
-              <input type="text" class="form-control" id="beatSheetID" placeholder="Enter ID">
+              <label for="beatSpreadSheetUrl">Completed games spreadsheet URL</label>
+              <input type="text" class="form-control" id="beatSpreadSheetUrl" placeholder="https://docs.google.com/spreadsheets/d/<spreadsheet-id>/edit#gid=<worksheet-id>">
+              <small id="beatSpreadSheetUrlHelp" class="form-text text-muted">Full URL of completed games spreadsheet in Google Drive.</small>              
             </div>              
             <div class="form-group">
               <label for="beatGameSound">Beat game sound</label>
@@ -228,11 +217,12 @@ async function populateSettings(settingsPage) {
             document.getElementById('botToken').value = result.token;
             document.getElementById('clientId').value = result.clientId;
             document.getElementById('channel').value = result.channel;
-            // document.getElementById('soundsDir').value = result.soundsDir;
-            // document.getElementById('googleSheetsClientEmail').value = result.googleSheetsClientEmail;
-            // document.getElementById('googleSheetsPrivateKey').value = result.googleSheetsPrivateKey;
-            document.getElementById('beatSpreadSheetID').value = result.beatSpreadSheetID;
-            document.getElementById('beatSheetID').value = result.beatSheetID;
+            if(result.beatSpreadSheetID !== undefined && result.beatSheetID !== undefined) {
+                if(result.beatSpreadSheetID.length > 1 && result.beatSheetID.length > 1) {
+                    let spreadSheetUrl = `https://docs.google.com/spreadsheets/d/${result.beatSpreadSheetID}/edit#gid=${result.beatSheetID}`;
+                    document.getElementById('beatSpreadSheetUrl').value = spreadSheetUrl; 
+                }
+            }
             document.getElementById('beatGameSound').value = result.beatGameSound;
         }
         if(result.clientId === null) {
@@ -402,7 +392,6 @@ async function showPage(page) {
     await populateSettings(showPage);
     changeActiveTab(showPage);
     document.getElementById(showPage).style.display = 'block';
-    // TO DO - change active tab in nav 
 }
 
 function saveSettingsFromForm() {
@@ -412,27 +401,19 @@ function saveSettingsFromForm() {
         botToken: botToken.value,
         clientId: clientId.value,
         channel: channel.value,
-        // soundsDir: soundsDir.value,
-        // googleSheetsClientEmail: googleSheetsClientEmail.value,
-        // googleSheetsPrivateKey: googleSheetsPrivateKey.value,
-        beatSpreadSheetID: beatSpreadSheetID.value,
-        beatSheetID: beatSheetID.value,
         beatGameSound: beatGameSound.value
     }
+    if(beatSpreadSheetUrl.value !== undefined && beatSpreadSheetUrl.value.length > 1) {
+        let checkSpreadSheetUrl = beatSpreadSheetUrl.value.search(`https://docs.google.com/spreadsheets/d/`);
+        if(checkSpreadSheetUrl !== -1) {
+            botSettingsFromForm.beatSpreadSheetUrl = beatSpreadSheetUrl.value;
+        }
+        else {
+            updateStatus('error', 'Invalid Google Spreadsheet URL');
+        }
+    }    
     let result = ipc.invoke('botSettingsFromForm', botSettingsFromForm);
-    /*
-    botUsername
-    botToken
-    clientId
-    channel
-    soundsDir
-    googleSheetsClientEmail
-    googleSheetsPrivateKey
-    beatSpreadSheetID
-    beatSheetID
-    beatGameSound
-    */
-   showPage('home');
+    showPage('home');
 }
 
 function closeBot() {

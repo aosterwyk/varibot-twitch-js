@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Changed how .mp3 is removed from button label
+- Changed Google Spreadsheets settings to read from URL 
 
 ### Fixed
 - Fixed stream marker command 
