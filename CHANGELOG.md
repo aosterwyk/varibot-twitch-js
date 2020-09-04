@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added run 90 second ad button
 - Added create stream marker button
 - Added BRB quick action that creates a stream marker and runs a 90 second ad 
+- Added button to upload Google creds file for Google Spreadsheets 
 
 ### Changed
 - Changed how .mp3 is removed from button label

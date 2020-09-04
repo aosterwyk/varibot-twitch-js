@@ -10,6 +10,31 @@ ipc.on('updateRecentEvents', (event, msg) => {
     updateRecentEvents(msg);
 });
 
+async function loadGoogleCredsFile() {
+    let win = remote.getCurrentWindow();
+    let openOptions = {
+        title: "Open Google Creds File",
+        buttonLabel: "Open",
+        filters: [{name: "JSON", extensions: ['json']}]
+    };
+    let selectedFile = await remote.dialog.showOpenDialogSync(win, openOptions);
+    // console.log(selectedFile);
+    let savedResult = await ipc.invoke('saveGoogleCredsFile', selectedFile[0]);
+    console.log(savedResult);
+    if(savedResult) {
+        let googleCredsUploadButton = document.getElementById('googleCredsUploadButton'); 
+        googleCredsUploadButton.innerHTML = `Google Creds File Saved &#10003;`
+        googleCredsUploadButton.classList.add('btn-success');
+        googleCredsUploadButton.classList.add('btn-secondary');
+    }
+    else {
+        let googleCredsUploadButton = document.getElementById('googleCredsUploadButton'); 
+        googleCredsUploadButton.innerHTML = `Error saving file &#10007;`
+        googleCredsUploadButton.classList.add('btn-danger');
+        googleCredsUploadButton.classList.add('btn-secondary');
+    }
+}
+
 function updateRecentEvents(msg) {
     let recentList = document.getElementById('recentList');
     recentList.innerHTML = `<li class="list-group-item text-muted">${msg}</li> ${recentList.innerHTML}`;
@@ -144,6 +169,10 @@ async function openSoundsDir() {
     }
 }
 
+function updateElement() { 
+
+}
+
 function changeActiveTab(activeTab) { 
     let navbar = document.getElementById('navBar-left');
     let navList = navbar.getElementsByTagName('li');
@@ -207,7 +236,7 @@ async function populateSettings(settingsPage) {
               <input type="text" class="form-control" id="beatGameSound" placeholder="Enter filename">
               <small id="beatGameSoundHelp" class="form-text text-muted">Sound played after adding game to completed games spreadsheet. This must be in the sounds directory listed above. Filename (including .mp3) only.</small>
             </div>     
-            </form><button class="btn btn-primary btn-sm" onclick="saveSettingsFromForm()">Save</button><button class="btn btn-danger btn-sm ml-2" onclick="externalLink('token')">Get Token</button>                           
+            </form><button class="btn btn-primary btn-sm" onclick="saveSettingsFromForm()">Save</button><button class="btn btn-danger btn-sm ml-2" onclick="externalLink('token')">Get Token</button><button class="btn btn-secondary btn-sm ml-2" id="googleCredsUploadButton" onclick="loadGoogleCredsFile()">Save Google Creds File</button>
         </div>  
       </div>`;
       document.getElementById('settings').innerHTML = settingsPageHTML;      
