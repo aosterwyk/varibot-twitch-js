@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Fixed stream marker command 
+- Bot will give an error message when connecting if token is invalid
 
 ### Removed
 - Removed reloading sounds when switching to dashboard
