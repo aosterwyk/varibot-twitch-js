@@ -17,7 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Changed how .mp3 is removed from button label
 - Changed Google Spreadsheets settings to read from URL 
-- Google creds now load before running Google related commands. Bot no longer needs to be restarted after updating Google creds file. 
+- Google creds now load before running Google related commands. Bot does not need to be restarted after updating Google creds file. 
 
 ### Fixed
 - Fixed stream marker command 
