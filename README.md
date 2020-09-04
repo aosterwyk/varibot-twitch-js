@@ -28,7 +28,7 @@ Download and run the installer linked in the [latest release](https://github.com
 
 ## Usage
 
-See the [settings wiki page](https://github.com/VariXx/varibot-twitch-js/wiki/Settings) for settings details.
+See the [setup wiki page](https://github.com/VariXx/varibot-twitch-js/wiki/Setup) for steps. 
 
 ### Basic setup
 
