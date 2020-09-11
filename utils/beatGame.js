@@ -8,8 +8,7 @@ async function beatGame(beatComments, beatChannel, beatSpreadSheetID, beatSheetI
 
     let now = new Date();
     let beatTimestamp = `${now.toLocaleDateString()} ${now.toLocaleTimeString()}`;
-    let beatSheet = await doc.sheetsById[beatSheetID];
-
+    let beatSheet = await doc.sheetsByIndex[0];
     let lookupChannel = beatChannel.substr(1);
     let channelID = await getChannelID(lookupChannel, clientId, token);
     let gameName = await getCurrentGame(channelID, clientId, token);            
