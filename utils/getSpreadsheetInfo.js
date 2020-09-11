@@ -7,11 +7,11 @@ function getSpreadsheetInfo(url) {
         let trimmedSheetUrl = url.replace('https://docs.google.com/spreadsheets/d/', '');
         let splitSheetUrl = trimmedSheetUrl.split(`/`); 
         let spreadsheetId = splitSheetUrl[0];
-        let worksheetId = (splitSheetUrl[1]).replace('edit#gid=', '');
+        // let worksheetId = (splitSheetUrl[1]).replace('edit#gid=', '');
 
         spreadsheetInfo = {
-            spreadsheetId: spreadsheetId,
-            worksheetId: worksheetId
+            spreadsheetId: spreadsheetId
+            // worksheetId: worksheetId
         };
         return spreadsheetInfo
     }

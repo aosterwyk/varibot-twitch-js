@@ -472,7 +472,7 @@ ipcMain.handle('botSettingsFromForm', async (event, args) => {
     if(args.beatSpreadSheetUrl !== undefined && args.beatSpreadSheetUrl.length > 1) {  
         try {
             let beatSheetInfo = getSpreadsheetInfo(args.beatSpreadSheetUrl);
-            await updateBotSettings('beatSheetID', beatSheetInfo.worksheetId);
+            // await updateBotSettings('beatSheetID', beatSheetInfo.worksheetId);
             await updateBotSettings('beatSpreadSheetID', beatSheetInfo.spreadsheetId);
         }
         catch(error) {
