@@ -106,7 +106,7 @@ async function runCommand(targetChannel, fromMod, context, inputCmd, args) {
             checkGoogleCreds();
             if(googleCredsExist) {
                 if(fromMod) {           
-                    let beatMsg = await beatGame(args, targetChannel, botSettings.beatSpreadSheetID, botSettings.beatSheetID, botSettings.clientId, botSettings.token, googleCredsFilePath)
+                    let beatMsg = await beatGame(args, targetChannel, botSettings.beatSpreadSheetID, botSettings.clientId, botSettings.token, googleCredsFilePath)
                     .catch(error => {console.log(error);});
                     client.say(targetChannel, beatMsg);
                     statusMsg('success', beatMsg);

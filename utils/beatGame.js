@@ -1,7 +1,7 @@
 const { GoogleSpreadsheet } = require('google-spreadsheet');
 const { getChannelID, getCurrentGame, createStreamMarker } = require('./api');
 
-async function beatGame(beatComments, beatChannel, beatSpreadSheetID, beatSheetID, clientId, token, googleCredsFile) {        
+async function beatGame(beatComments, beatChannel, beatSpreadSheetID, clientId, token, googleCredsFile) {        
     const doc = new GoogleSpreadsheet(beatSpreadSheetID);
     await doc.useServiceAccountAuth(require(googleCredsFile));
     await doc.loadInfo();
