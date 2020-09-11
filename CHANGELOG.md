@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 <!-- _No unreleased changes_ -->
 
+## [1.2.1] - 2020-09-10
+### Fixed
+- Removed worksheet ID from Google Spreadsheets settings for [!beat command issue](https://github.com/VariXx/varibot-twitch-js/issues/12) when using share URLs with different formats. Command will now use first worksheet in spreadsheet. 
+
 ## [1.2.0] - 2020-09-03
 ### Added 
 - Added run 90 second ad button
@@ -78,6 +82,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.0.0] - 2020-06-25
 ### Initial Release
 
+[1.2.1]: https://github.com/VariXx/varibot-twitch-js/tree/v1.2.1
 [1.2.0]: https://github.com/VariXx/varibot-twitch-js/tree/v1.2.0
 [1.1.1]: https://github.com/VariXx/varibot-twitch-js/tree/v1.1.1
 [1.1.0]: https://github.com/VariXx/varibot-twitch-js/tree/v1.1.0
