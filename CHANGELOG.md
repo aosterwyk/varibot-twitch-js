@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 _No unreleased changes_
 
 ## [1.2.3] - 2020-11-04
+### Security
+- Updated electron to 9.3.1 for [CVE-2020-15215](https://github.com/advisories/GHSA-56pc-6jqp-xqj8) 
+
 ### Fixed 
 - Fixed settings page not populating when starting bot without settings
 
