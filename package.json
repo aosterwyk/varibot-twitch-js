@@ -1,6 +1,6 @@
 {
   "name": "varibot",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "twitch chat bot",
   "main": "main.js",
   "scripts": {

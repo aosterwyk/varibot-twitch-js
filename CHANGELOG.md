@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 _No unreleased changes_
 
+## [1.2.3] - 2020-11-04
+### Fixed 
+- Fixed settings page not populating when starting bot without settings
+
 ## [1.2.2] - 2020-09-18
 ### Security
 - Updated node-fetch to 2.6.1 for CVE-2020-15168
