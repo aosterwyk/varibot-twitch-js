@@ -34,6 +34,7 @@ const soundsDir = `${app.getPath('appData')}\\varibot\\sounds`;
 
 let googleCredsExist = false;
 const googleCredsFilePath = `${app.getPath('appData')}\\varibot\\googleCreds.json`;
+const botSettingsFilePath = `${app.getPath('appData')}\\varibot\\configs\\botSettings.json`;
 
 let lastRunTimestamp = new Date(); // hacky cooldown 
 
@@ -254,6 +255,9 @@ async function loadCommands() {
 async function startBot() { 
     await botSettingsDB.sync(); // TO DO - move this to a function 
     let botset = await botSettingsDB.findOrCreate({where: {id: 1}}); 
+
+    let botset = await getBotSettings(botSettingsFilePath);
+
     botSettings = botset[0];
     checkGoogleCreds();
     if(googleCredsExist) {
