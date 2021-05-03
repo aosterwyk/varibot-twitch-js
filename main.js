@@ -18,6 +18,9 @@ const { isMod } = require('./utils/isMod');
 const { getSpreadsheetInfo } = require('./utils/getSpreadsheetInfo');
 const versionNumber = require('./package.json').version;
 
+const { getBotSettings } = require('./utils/config/getBotSettings');
+const { setBotSettings } = require('./utils/config/setBotSettings');
+
 const { ipcMain, app, BrowserWindow } = require('electron');
 // const ipcMain = ipcMain;
 var win = null;
@@ -34,7 +37,7 @@ const soundsDir = `${app.getPath('appData')}\\varibot\\sounds`;
 
 let googleCredsExist = false;
 const googleCredsFilePath = `${app.getPath('appData')}\\varibot\\googleCreds.json`;
-const botSettingsFilePath = `${app.getPath('appData')}\\varibot\\configs\\botSettings.json`;
+const botSettingsFilePath = `${app.getPath('appData')}\\varibot\\botSettings.json`;
 
 let lastRunTimestamp = new Date(); // hacky cooldown 
 
@@ -254,7 +257,7 @@ async function loadCommands() {
 
 async function startBot() { 
     await botSettingsDB.sync(); // TO DO - move this to a function 
-    let botset = await botSettingsDB.findOrCreate({where: {id: 1}}); 
+    // let botset = await botSettingsDB.findOrCreate({where: {id: 1}}); 
 
     let botset = await getBotSettings(botSettingsFilePath);
 
@@ -463,21 +466,26 @@ ipcMain.handle('botSettingsFromForm', async (event, args) => {
     // TO DO - change names to match and run this through a loop - skip any blank values
     if(args.botUsername.length > 1) {
         await updateBotSettings('username', args.botUsername);
+        await setBotSettings(botSettingsFilePath,'username', args.botUsername);
     }
     if(args.botToken.length > 1) {
         await updateBotSettings('token', args.botToken);
+        await setBotSettings(botSettingsFilePath,'token', args.botToken);
     }
     if(args.clientId.length > 1) {        
         await updateBotSettings('clientId', args.clientId);
+        await setBotSettings(botSettingsFilePath,'clientId', args.clientId);
     }
     if(args.channel.length > 1) {        
         await updateBotSettings('channel', args.channel);
+        await setBotSettings(botSettingsFilePath,'channel', args.channel);
     }
     if(args.beatSpreadSheetUrl !== undefined && args.beatSpreadSheetUrl.length > 1) {  
         try {
             let beatSheetInfo = getSpreadsheetInfo(args.beatSpreadSheetUrl);
             // await updateBotSettings('beatSheetID', beatSheetInfo.worksheetId);
             await updateBotSettings('beatSpreadSheetID', beatSheetInfo.spreadsheetId);
+            await setBotSettings(botSettingsFilePath,'beatSpreadSheetID', beatSheetInfo.spreadsheetId);
         }
         catch(error) {
             console.log(error);
@@ -485,6 +493,7 @@ ipcMain.handle('botSettingsFromForm', async (event, args) => {
     }
     if(args.beatGameSound.length > 1) {
         await updateBotSettings('beatGameSound', args.beatGameSound);
+        await setBotSettings(botSettingsFilePath,'beatGameSound', args.beatGameSound);
     }
     await botSettingsDB.sync();
     let updateMsg = `Settings updated. You will need to restart if your token was added or changed.`;
