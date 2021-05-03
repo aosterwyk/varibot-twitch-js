@@ -258,10 +258,10 @@ async function loadCommands() {
 async function startBot() { 
     await botSettingsDB.sync(); // TO DO - move this to a function 
     // let botset = await botSettingsDB.findOrCreate({where: {id: 1}}); 
+    // botSettings = botset[0];
 
-    let botset = await getBotSettings(botSettingsFilePath);
+    let botSettings = await getBotSettings(botSettingsFilePath);
 
-    botSettings = botset[0];
     checkGoogleCreds();
     if(googleCredsExist) {
         botSettings.googleSheetsClientEmail = googleCreds.client_email;
