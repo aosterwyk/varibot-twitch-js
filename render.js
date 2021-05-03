@@ -239,22 +239,32 @@ async function populateSettings(settingsPage) {
             </form><button class="btn btn-primary btn-sm" onclick="saveSettingsFromForm()">Save</button><button class="btn btn-danger btn-sm ml-2" onclick="externalLink('token')">Get Token</button><button class="btn btn-secondary btn-sm ml-2" id="googleCredsUploadButton" onclick="loadGoogleCredsFile()">Save Google Creds File</button>
         </div>  
       </div>`;
-      document.getElementById('settings').innerHTML = settingsPageHTML;      
+        document.getElementById('settings').innerHTML = settingsPageHTML;      
         let result = await ipc.invoke('getCurrentSettings');
         if(result !== undefined) {
-            document.getElementById('botUsername').value = result.username;
-            document.getElementById('botToken').value = result.token;
-            document.getElementById('clientId').value = result.clientId;
-            document.getElementById('channel').value = result.channel;
+            if(result.username !== undefined) {
+                document.getElementById('botUsername').value = result.username;
+            }
+            if(result.token !== undefined) {
+                document.getElementById('botToken').value = result.token;
+            }
+            if(result.clientId !== undefined) {
+                document.getElementById('clientId').value = result.clientId;
+            }
+            if(result.channel !== undefined) {
+                document.getElementById('channel').value = result.channel;
+            }
             if(result.beatSpreadSheetID !== undefined && result.beatSpreadSheetID.length ) {
                 let spreadSheetUrl = `https://docs.google.com/spreadsheets/d/${result.beatSpreadSheetID}`;
                 document.getElementById('beatSpreadSheetUrl').value = spreadSheetUrl; 
             }
-            document.getElementById('beatGameSound').value = result.beatGameSound;
+            if(result.beatGameSound !== undefined) {
+                document.getElementById('beatGameSound').value = result.beatGameSound;
+            }
         }
-        if(result.clientId === null) {
-            document.getElementById('clientId').value = `rq2a841j8f63fndu5lnbwzwmbzamoy`;
-        }
+        // if(result.clientId === null) {
+        //     document.getElementById('clientId').value = `rq2a841j8f63fndu5lnbwzwmbzamoy`;
+        // }
     }
     if(settingsPage.toLowerCase() == 'sounds') {
         await ipc.invoke('loadSounds');        

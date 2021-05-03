@@ -33,13 +33,18 @@ let randomSounds = [];
 let readyToConnect = true;
 let channelPointsSounds = {};
 let channelPointsFilenames = []; // add beat game sound to this
+const configsDir = `${app.getPath('appData')}\\varibot\\configs`;
 const soundsDir = `${app.getPath('appData')}\\varibot\\sounds`;
 
 let googleCredsExist = false;
 const googleCredsFilePath = `${app.getPath('appData')}\\varibot\\googleCreds.json`;
-const botSettingsFilePath = `${app.getPath('appData')}\\varibot\\botSettings.json`;
+const botSettingsFilePath = `${app.getPath('appData')}\\varibot\\configs\\botSettings.json`;
 
 let lastRunTimestamp = new Date(); // hacky cooldown 
+
+if (!fs.existsSync(configsDir)){
+    fs.mkdirSync(configsDir);
+}
 
 if (!fs.existsSync(soundsDir)){
     fs.mkdirSync(soundsDir);
@@ -386,7 +391,7 @@ function createWindow() {
 
     win.loadFile('index.html');
     win.setMenu(null);
-    // win.webContents.openDevTools(); // TO DO - comment out before commit 
+    win.webContents.openDevTools(); // TO DO - comment out before commit 
 }
 
 app.whenReady().then(createWindow);
@@ -464,19 +469,19 @@ ipcMain.handle('newSoundsSettings', async (event, args) => {
 
 ipcMain.handle('botSettingsFromForm', async (event, args) => {
     // TO DO - change names to match and run this through a loop - skip any blank values
-    if(args.botUsername.length > 1) {
+    if(args.botUsername.length > 1 && args.botUsername !== undefined) {
         await updateBotSettings('username', args.botUsername);
         await setBotSettings(botSettingsFilePath,'username', args.botUsername);
     }
-    if(args.botToken.length > 1) {
+    if(args.botToken.length > 1 && args.botToken !== undefined) {
         await updateBotSettings('token', args.botToken);
         await setBotSettings(botSettingsFilePath,'token', args.botToken);
     }
-    if(args.clientId.length > 1) {        
+    if(args.clientId.length > 1 && args.clientId !== undefined) {        
         await updateBotSettings('clientId', args.clientId);
         await setBotSettings(botSettingsFilePath,'clientId', args.clientId);
     }
-    if(args.channel.length > 1) {        
+    if(args.channel.length > 1 && args.channel !== undefined) {        
         await updateBotSettings('channel', args.channel);
         await setBotSettings(botSettingsFilePath,'channel', args.channel);
     }
@@ -536,24 +541,33 @@ ipcMain.handle('updateCmdSettings', async (event, args) => {
 });
 
 ipcMain.handle('getCurrentSettings', async (event, args) => {
-    await botSettingsDB.sync();
-    let dbSettings = await botSettingsDB.findOrCreate({where: {id: 1}}); 
-    if(dbSettings[0] !== undefined) {
-        let result = {
-            username: dbSettings[0].username,
-            token: dbSettings[0].token,
-            clientId: dbSettings[0].clientId,
-            channel: dbSettings[0].channel,
-            cooldown: dbSettings[0].cooldown,
-            soundsDir: soundsDir,
-            googleSheetsClientEmail: dbSettings[0].googleSheetsClientEmail,
-            googleSheetsPrivateKey: dbSettings[0].googleSheetsPrivateKey,
-            beatSheetID: dbSettings[0].beatSheetID,
-            beatSpreadSheetID: dbSettings[0].beatSpreadSheetID,
-            beatGameSound: dbSettings[0].beatGameSound,
-            ownedGamesSpreadSheetID: dbSettings[0].ownedGamesSpreadSheetID
-        }
-        return result;
+    // await botSettingsDB.sync();
+    // let dbSettings = await botSettingsDB.findOrCreate({where: {id: 1}}); 
+    // if(dbSettings[0] !== undefined) {
+    //     let result = {
+    //         username: dbSettings[0].username,
+    //         token: dbSettings[0].token,
+    //         clientId: dbSettings[0].clientId,
+    //         channel: dbSettings[0].channel,
+    //         cooldown: dbSettings[0].cooldown,
+    //         soundsDir: soundsDir,
+    //         googleSheetsClientEmail: dbSettings[0].googleSheetsClientEmail,
+    //         googleSheetsPrivateKey: dbSettings[0].googleSheetsPrivateKey,
+    //         beatSheetID: dbSettings[0].beatSheetID,
+    //         beatSpreadSheetID: dbSettings[0].beatSpreadSheetID,
+    //         beatGameSound: dbSettings[0].beatGameSound,
+    //         ownedGamesSpreadSheetID: dbSettings[0].ownedGamesSpreadSheetID
+    //     }
+    //     return result;
+    // }
+
+    let currentSettings = await getBotSettings(botSettingsFilePath);
+    if(currentSettings.successful) {
+        currentSettings['soundsDir'] = soundsDir;
+        return currentSettings;
+    }
+    else {
+        return undefined;
     }
 });
 

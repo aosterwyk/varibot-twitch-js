@@ -9,7 +9,7 @@ async function getBotSettings(botSettingsFilePath) {
             const settingsFile = await readFile(botSettingsFilePath);
             botSettings = JSON.parse(settingsFile);
             botSettings.successful = true;
-            console.log(botSettings);
+            // console.log(botSettings);
         }
         catch(error) {
             console.log(error);
@@ -21,7 +21,7 @@ async function getBotSettings(botSettingsFilePath) {
         let errorMsg = `Could not load file: ${botSettingsFilePath}`;
         console.error(errorMsg);
         botSettings.error = errorMsg;
-        botSettings.successful = false;        
+        botSettings.successful = false;
     }
     return botSettings;
 }
