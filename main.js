@@ -5,6 +5,7 @@ const twitchAPI = require('./utils/api');
 const pubsubSocket = new WebSocket('wss://pubsub-edge.twitch.tv');
 const { autoUpdater } = require('electron-updater');
 const { commandsDB } = require('./utils/db/commandsDB');
+const { checkConfigDir } = require('./utils/config/checkConfigDir');
 const { randomRadio, isGTAGame } = require('./utils/gta/gtaCmds');
 const { loadSounds } = require('./utils/loadSounds');
 const { getRandomOwnedGame } = require('./utils/ownedGames');
@@ -34,7 +35,9 @@ let readyToConnect = true;
 let channelPointsSounds = {};
 let channelPointsFilenames = []; // add beat game sound to this
 const configsDir = `${app.getPath('appData')}\\varibot\\configs`;
+checkConfigDir(configsDir);
 const soundsDir = `${app.getPath('appData')}\\varibot\\sounds`;
+checkConfigDir(soundsDir);
 
 let googleCredsExist = false;
 const googleCredsFilePath = `${app.getPath('appData')}\\varibot\\googleCreds.json`;
@@ -43,13 +46,6 @@ const soundsSettingsFilePath = `${app.getPath('appData')}\\varibot\\configs\\sou
 
 let lastRunTimestamp = new Date(); // hacky cooldown
 
-if (!fs.existsSync(configsDir)){
-    fs.mkdirSync(configsDir);
-}
-
-if (!fs.existsSync(soundsDir)){
-    fs.mkdirSync(soundsDir);
-}
 
 function checkGoogleCreds() {
     if (fs.existsSync(googleCredsFilePath)) { 
