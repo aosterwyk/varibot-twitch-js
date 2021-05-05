@@ -1,12 +1,11 @@
 const fs = require('fs');
 const { getBotSettings } = require('./getBotSettings');
 
-async function setBotSettings(botSettingsFile, setting, newValue) {
-
+async function setBotSettings(botSettingsFilePath, setting, newValue) {
     let newSettings = {}; 
-    if(fs.existsSync(botSettingsFile)) {
+    if(fs.existsSync(botSettingsFilePath)) {
         let foundSetting = false;
-        const oldSettings = await getBotSettings(botSettingsFile);
+        const oldSettings = await getBotSettings(botSettingsFilePath);
         for(let key in oldSettings) {
             if(key == setting) { 
                 newSettings[key] = newValue;
@@ -24,7 +23,7 @@ async function setBotSettings(botSettingsFile, setting, newValue) {
         newSettings[setting] = newValue;
     }
     try {
-        fs.writeFileSync(botSettingsFile,JSON.stringify(newSettings));
+        fs.writeFileSync(botSettingsFilePath,JSON.stringify(newSettings));
         return true;
     }
     catch(error) {

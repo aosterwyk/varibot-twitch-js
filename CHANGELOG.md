@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 _No unreleased changes_
+### Changed 
+- Changed bot settings and channel points to use individual settings files (%appdata%\varbot\configs) instead of DB
 
 ## [1.2.2] - 2020-09-18
 ### Security

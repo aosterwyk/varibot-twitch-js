@@ -4,9 +4,7 @@ const WebSocket = require('ws');
 const twitchAPI = require('./utils/api');
 const pubsubSocket = new WebSocket('wss://pubsub-edge.twitch.tv');
 const { autoUpdater } = require('electron-updater');
-const { botSettingsDB } = require('./utils/db/botSettingsDB');
 const { commandsDB } = require('./utils/db/commandsDB');
-const { channelPointsSoundsDB } = require('./utils/db/channelPointSoundsDB');
 const { randomRadio, isGTAGame } = require('./utils/gta/gtaCmds');
 const { loadSounds } = require('./utils/loadSounds');
 const { getRandomOwnedGame } = require('./utils/ownedGames');
@@ -20,6 +18,8 @@ const versionNumber = require('./package.json').version;
 
 const { getBotSettings } = require('./utils/config/getBotSettings');
 const { setBotSettings } = require('./utils/config/setBotSettings');
+const { getChannelPointsSounds } = require('./utils/config/getChannelPointsSounds');
+const { setChannelPointsSounds } = require('./utils/config/setChannelPointsSounds');
 
 const { ipcMain, app, BrowserWindow } = require('electron');
 // const ipcMain = ipcMain;
@@ -38,9 +38,10 @@ const soundsDir = `${app.getPath('appData')}\\varibot\\sounds`;
 
 let googleCredsExist = false;
 const googleCredsFilePath = `${app.getPath('appData')}\\varibot\\googleCreds.json`;
-const botSettingsFilePath = `${app.getPath('appData')}\\varibot\\configs\\botSettings.json`;
+const botSettingsFilePath = `${app.getPath('appData')}\\varibot\\configs\\botSettings.ini`;
+const soundsSettingsFilePath = `${app.getPath('appData')}\\varibot\\configs\\soundsSettings.ini`;
 
-let lastRunTimestamp = new Date(); // hacky cooldown 
+let lastRunTimestamp = new Date(); // hacky cooldown
 
 if (!fs.existsSync(configsDir)){
     fs.mkdirSync(configsDir);
@@ -170,18 +171,19 @@ async function checkCooldown(lastRun) {
 }
 
 async function loadChannelPointsSounds() { 
-    await channelPointsSoundsDB.sync();
     channelPointsSounds = {};
     channelPointsFilenames = [];
-    let dbResult = await channelPointsSoundsDB.findAll();
-    for(let x = 0; x < dbResult.length; x++) {
-        channelPointsSounds[dbResult[x].name] = {
-            name: dbResult[x].name,
-            filename: dbResult[x].filename
+    let soundsFromFile = await getChannelPointsSounds(soundsSettingsFilePath);
+    if(soundsFromFile !== undefined) {
+        for(let key in soundsFromFile){
+            channelPointsSounds[key] = {
+                name: key,
+                filename: soundsFromFile[key]
+            }
+            channelPointsFilenames.push(soundsFromFile[key]);
         }
-        channelPointsFilenames.push(dbResult[x].filename);        
+        console.log(`Loaded ${Object.keys(channelPointsSounds).length} channel reward sounds`);
     }
-    console.log(`Loaded ${dbResult.length} channel reward sounds`);
 }
 
 async function loadCommands() {
@@ -261,10 +263,6 @@ async function loadCommands() {
 }   
 
 async function startBot() { 
-    await botSettingsDB.sync(); // TO DO - move this to a function 
-    // let botset = await botSettingsDB.findOrCreate({where: {id: 1}}); 
-    // botSettings = botset[0];
-
     let botSettings = await getBotSettings(botSettingsFilePath);
 
     checkGoogleCreds();
@@ -347,9 +345,7 @@ async function startBot() {
         });    
 
         pubsubSocket.onopen = async function(e) {
-            await botSettingsDB.sync();
-            let botset = await botSettingsDB.findOrCreate({where: {id: 1}}); 
-            botSettings = botset[0];  
+            botSettings = await getBotSettings(botSettingsFilePath);            
             if(botSettings !== undefined) {
                 try {
                     let channelId = await twitchAPI.getChannelID(botSettings.channel, botSettings.clientId, botSettings.token);
@@ -446,20 +442,11 @@ ipcMain.handle('createStreamMarker', async (event) => {
 });
 
 ipcMain.handle('newSoundsSettings', async (event, args) => {
-    await channelPointsSoundsDB.sync(); // sync channel points sounds   
-    await channelPointsSoundsDB.findAll().then(result => {
-        for(x = 0; x < result.length; x++) {
-            result[x].destroy(); // clear channel points sounds table
-        }
-    });
-    await channelPointsSoundsDB.sync();    
+    let newChannelPointsSounds = {};
     for(let key in args[0]) {
-        await channelPointsSoundsDB.create({
-            name: args[0][key].name,
-            filename: args[0][key].filename
-        });
+        newChannelPointsSounds[args[0][key].name] = args[0][key].filename;
     }
-    await channelPointsSoundsDB.sync(); // update channel points sounds with new values
+    await setChannelPointsSounds(soundsSettingsFilePath, newChannelPointsSounds);
     await loadChannelPointsSounds(); // load channel points sounds     
     if(soundsDir.length > 1) {
         randomSounds = []; // clear random sounds array
@@ -500,7 +487,6 @@ ipcMain.handle('botSettingsFromForm', async (event, args) => {
         await updateBotSettings('beatGameSound', args.beatGameSound);
         await setBotSettings(botSettingsFilePath,'beatGameSound', args.beatGameSound);
     }
-    await botSettingsDB.sync();
     let updateMsg = `Settings updated. You will need to restart if your token was added or changed.`;
     statusMsg(`success`, updateMsg);
     updateRecentEvents(updateMsg);
@@ -541,26 +527,6 @@ ipcMain.handle('updateCmdSettings', async (event, args) => {
 });
 
 ipcMain.handle('getCurrentSettings', async (event, args) => {
-    // await botSettingsDB.sync();
-    // let dbSettings = await botSettingsDB.findOrCreate({where: {id: 1}}); 
-    // if(dbSettings[0] !== undefined) {
-    //     let result = {
-    //         username: dbSettings[0].username,
-    //         token: dbSettings[0].token,
-    //         clientId: dbSettings[0].clientId,
-    //         channel: dbSettings[0].channel,
-    //         cooldown: dbSettings[0].cooldown,
-    //         soundsDir: soundsDir,
-    //         googleSheetsClientEmail: dbSettings[0].googleSheetsClientEmail,
-    //         googleSheetsPrivateKey: dbSettings[0].googleSheetsPrivateKey,
-    //         beatSheetID: dbSettings[0].beatSheetID,
-    //         beatSpreadSheetID: dbSettings[0].beatSpreadSheetID,
-    //         beatGameSound: dbSettings[0].beatGameSound,
-    //         ownedGamesSpreadSheetID: dbSettings[0].ownedGamesSpreadSheetID
-    //     }
-    //     return result;
-    // }
-
     let currentSettings = await getBotSettings(botSettingsFilePath);
     if(currentSettings.successful) {
         currentSettings['soundsDir'] = soundsDir;
@@ -578,9 +544,10 @@ ipcMain.handle('getSoundsSettings', async (event, args) => {
     if(soundsDir.length > 1) {
          randSounds = await loadSounds(soundsDir, channelPointsFilenames);
     }
+    // console.log(channelPointsFilenames);
     let returnSounds = {
-        rewards: channelPointsSounds,
-        random: randomSounds
+        random: randomSounds,
+        rewards: channelPointsSounds
     }
     return returnSounds; 
 });

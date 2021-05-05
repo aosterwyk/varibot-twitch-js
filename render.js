@@ -269,6 +269,7 @@ async function populateSettings(settingsPage) {
     if(settingsPage.toLowerCase() == 'sounds') {
         await ipc.invoke('loadSounds');        
         let result = await ipc.invoke('getSoundsSettings');
+        // console.log(`render result: ${result}`);
         let soundsPageHTML = `<div class="card"><div class="card-header">Sounds</div><div class="card-body">`;
         if(result !== undefined) {
             soundsPageHTML += `<button type="submit" class="btn btn-primary btn-sm mr-2 mb-4" onclick="saveSoundsForm()">Save</button><button class="btn btn-primary btn-sm mr-2 mb-4" onclick="openSoundsDir()"><svg class="bi bi-folder-symlink" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
@@ -278,7 +279,8 @@ async function populateSettings(settingsPage) {
           </svg> Open sounds folder</button><button class="btn btn-primary btn-sm mr-2 mb-4" onclick="externalLink('manageRewards')"> Manage Channel Rewards</button><form id="soundsForm"><table class="table table-hover"><thead><tr><th scope="col">Filename</th><th scope="col">Reward Name (leave unchecked for random)</th></tr></thead><tbody>`;
             let randomSounds = result.random; 
             if(Object.keys(result.rewards).length > 0) {
-                for(let sound in result.rewards) {
+            // if(result.rewards !== undefined) {
+                for(let sound in result.rewards) { 
                     soundsPageHTML += `<tr id="${result.rewards[sound].filename}"><td id="filename"><svg onclick="playSound('${result.rewards[sound].filename}')" width="20px" height="20px" viewBox="0 0 16 16" class="bi bi-play mr-2" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                     <path fill-rule="evenodd" d="M10.804 8L5 4.633v6.734L10.804 8zm.792-.696a.802.802 0 0 1 0 1.392l-6.363 3.692C4.713 12.69 4 12.345 4 11.692V4.308c0-.653.713-.998 1.233-.696l6.363 3.692z"/>
                   </svg>${result.rewards[sound].filename}</td><td><div class="input-group">
