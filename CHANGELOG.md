@@ -14,6 +14,7 @@ _No unreleased changes_
 - Removed all DB related functions 
 
 ### Security 
+- Updated google-spreadsheet to 3.1.15 for CVE-2020-28168 (axios)
 - Updated electron to 10.2.0 for CVE-2020-26272
 
 ## [1.2.2] - 2020-09-18
