@@ -9,6 +9,10 @@ _No unreleased changes_
 ### Changed 
 - Changed bot settings and channel points to use individual settings files (%appdata%\varbot\configs) instead of DB
 
+### Removed
+- Removed sequelize and sqlite3
+- Removed all DB related functions 
+
 ## [1.2.2] - 2020-09-18
 ### Security
 - Updated node-fetch to 2.6.1 for CVE-2020-15168
