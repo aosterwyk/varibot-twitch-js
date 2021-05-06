@@ -13,6 +13,9 @@ _No unreleased changes_
 - Removed sequelize and sqlite3
 - Removed all DB related functions 
 
+### Security 
+- Updated electron to 10.2.0 for CVE-2020-26272
+
 ## [1.2.2] - 2020-09-18
 ### Security
 - Updated node-fetch to 2.6.1 for CVE-2020-15168
