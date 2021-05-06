@@ -183,79 +183,31 @@ async function loadChannelPointsSounds() {
 }
 
 async function loadCommands() {
-    await commandsDB.sync();
-    let dbResult = await commandsDB.findAll();
-    for(let x = 0; x < dbResult.length; x++) {
-        commands[dbResult[x].name] = {
-            name: dbResult[x].name,
-            scope: dbResult[x].scope,
-            cooldown: dbResult[x].cooldown,
-            enabled: dbResult[x].enabled,
-            result: dbResult[x].result,
-            cmdType: dbResult[x].cmdType
+    console.log(`Loading commands...`);
+    botSettings = await getBotSettings(botSettingsFilePath);
+    let builtinCmds = ['shuffle', 'list', 'multi', 'beat', 'radio'];
+    for(let x = 0; x < builtinCmds.length; x++) {
+        let foundCmd = false;
+        for(key in botSettings) { 
+            if(key.toLowerCase() == builtinCmds[x].toLowerCase()) {
+                commands[key] = {
+                    name: key,
+                    enabled: botSettings[key]
+                }
+                foundCmd = true;
+            }
+        }
+        if(!foundCmd) {
+            commands[builtinCmds[x]] = {
+                name: builtinCmds[x],
+                enabled: false
+            }
+            console.log(`Did not find command ${builtinCmds[x]} in bot settings, creating command.`);
+            await setBotSettings(botSettingsFilePath, builtinCmds[x], false);
+            console.log(`Added command ${builtinCmds[x]} to bot settings file.`);
         }
     }
-    let missingCommands = false;
-    if(!('shuffle' in commands)) { 
-        console.log(`Built in command shuffle was not found in commands. Creating command in DB.`);
-        commandsDB.create({
-            name: 'shuffle',
-            scope: 'all',
-            cooldown: 'TODO',
-            enabled: false,
-            cmdType: 'builtin'
-        });
-        missingCommands = true;
-    }
-    if(!('list' in commands)) { 
-        console.log(`Built in command list was not found in commands. Creating command in DB.`);
-        commandsDB.create({
-            name: 'list',
-            scope: 'all',
-            cooldown: 'TODO',
-            enabled: false,
-            cmdType: 'builtin'
-        });
-        missingCommands = true;
-    }
-    if(!('multi' in commands)) { 
-        console.log(`Built in command multi was not found in commands. Creating command in DB.`);
-        commandsDB.create({
-            name: 'multi',
-            scope: 'all',
-            cooldown: 'TODO',
-            enabled: false,
-            cmdType: 'builtin'
-        });
-        missingCommands = true;
-    }
-    if(!('beat' in commands)) { 
-        console.log(`Built in command beat was not found in commands. Creating command in DB.`);
-        commandsDB.create({
-            name: 'beat',
-            scope: 'all',
-            cooldown: 'TODO',
-            enabled: false,
-            cmdType: 'builtin'
-        });
-        missingCommands = true;
-    }
-    if(!('radio' in commands)) { 
-        console.log(`Built in command radio was not found in commands. Creating command in DB.`);
-        commandsDB.create({
-            name: 'radio',
-            scope: 'all',
-            cooldown: 'TODO',
-            enabled: false,
-            cmdType: 'builtin'
-        });
-        missingCommands = true;
-    }
-    if(missingCommands) { 
-        await loadCommands();
-        return;
-    }
-    console.log(`Loaded ${dbResult.length} commands`);
+    console.log(`Loaded ${Object.keys(commands).length} commands`);
 }   
 
 async function startBot() { 
@@ -518,7 +470,9 @@ ipcMain.handle('getAbout', async (event, args) => {
 ipcMain.handle('updateCmdSettings', async (event, args) => {
     let newCmdSettings = args;
     for(key in newCmdSettings) {
-        await updateCommand(newCmdSettings[key].name, 'enabled', newCmdSettings[key].enabled); 
+        // await updateCommand(newCmdSettings[key].name, 'enabled', newCmdSettings[key].enabled); 
+        // await setCommand(commandsFilePath, newCmdSettings[key].name, 'enabled', newCmdSettings[key].enabled);
+        await setBotSettings(botSettingsFilePath, newCmdSettings[key].name, newCmdSettings[key].enabled);        
     }
 });
 
