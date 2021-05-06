@@ -4,23 +4,21 @@ const WebSocket = require('ws');
 const twitchAPI = require('./utils/api');
 const pubsubSocket = new WebSocket('wss://pubsub-edge.twitch.tv');
 const { autoUpdater } = require('electron-updater');
-const { commandsDB } = require('./utils/db/commandsDB');
 const { checkConfigDir } = require('./utils/config/checkConfigDir');
 const { randomRadio, isGTAGame } = require('./utils/gta/gtaCmds');
 const { loadSounds } = require('./utils/loadSounds');
 const { getRandomOwnedGame } = require('./utils/ownedGames');
-const { updateCommand } = require('./utils/updateCommand');
-const { updateBotSettings } = require('./utils/updateBotSettings');
 const { beatGame } = require('./utils/beatGame');
 const { getMultiLink } = require('./utils/multiLink');
 const { isMod } = require('./utils/isMod');
 const { getSpreadsheetInfo } = require('./utils/getSpreadsheetInfo');
-const versionNumber = require('./package.json').version;
-
 const { getBotSettings } = require('./utils/config/getBotSettings');
 const { setBotSettings } = require('./utils/config/setBotSettings');
 const { getChannelPointsSounds } = require('./utils/config/getChannelPointsSounds');
 const { setChannelPointsSounds } = require('./utils/config/setChannelPointsSounds');
+const versionNumber = require('./package.json').version;
+
+
 
 const { ipcMain, app, BrowserWindow } = require('electron');
 // const ipcMain = ipcMain;
@@ -405,26 +403,26 @@ ipcMain.handle('newSoundsSettings', async (event, args) => {
 ipcMain.handle('botSettingsFromForm', async (event, args) => {
     // TO DO - change names to match and run this through a loop - skip any blank values
     if(args.botUsername.length > 1 && args.botUsername !== undefined) {
-        await updateBotSettings('username', args.botUsername);
+        // await updateBotSettings('username', args.botUsername);
         await setBotSettings(botSettingsFilePath,'username', args.botUsername);
     }
     if(args.botToken.length > 1 && args.botToken !== undefined) {
-        await updateBotSettings('token', args.botToken);
+        // await updateBotSettings('token', args.botToken);
         await setBotSettings(botSettingsFilePath,'token', args.botToken);
     }
     if(args.clientId.length > 1 && args.clientId !== undefined) {        
-        await updateBotSettings('clientId', args.clientId);
+        // await updateBotSettings('clientId', args.clientId);
         await setBotSettings(botSettingsFilePath,'clientId', args.clientId);
     }
     if(args.channel.length > 1 && args.channel !== undefined) {        
-        await updateBotSettings('channel', args.channel);
+        // await updateBotSettings('channel', args.channel);
         await setBotSettings(botSettingsFilePath,'channel', args.channel);
     }
     if(args.beatSpreadSheetUrl !== undefined && args.beatSpreadSheetUrl.length > 1) {  
         try {
             let beatSheetInfo = getSpreadsheetInfo(args.beatSpreadSheetUrl);
             // await updateBotSettings('beatSheetID', beatSheetInfo.worksheetId);
-            await updateBotSettings('beatSpreadSheetID', beatSheetInfo.spreadsheetId);
+            // await updateBotSettings('beatSpreadSheetID', beatSheetInfo.spreadsheetId);
             await setBotSettings(botSettingsFilePath,'beatSpreadSheetID', beatSheetInfo.spreadsheetId);
         }
         catch(error) {
@@ -432,7 +430,7 @@ ipcMain.handle('botSettingsFromForm', async (event, args) => {
         }
     }
     if(args.beatGameSound.length > 1) {
-        await updateBotSettings('beatGameSound', args.beatGameSound);
+        // await updateBotSettings('beatGameSound', args.beatGameSound);
         await setBotSettings(botSettingsFilePath,'beatGameSound', args.beatGameSound);
     }
     let updateMsg = `Settings updated. You will need to restart if your token was added or changed.`;
@@ -470,8 +468,6 @@ ipcMain.handle('getAbout', async (event, args) => {
 ipcMain.handle('updateCmdSettings', async (event, args) => {
     let newCmdSettings = args;
     for(key in newCmdSettings) {
-        // await updateCommand(newCmdSettings[key].name, 'enabled', newCmdSettings[key].enabled); 
-        // await setCommand(commandsFilePath, newCmdSettings[key].name, 'enabled', newCmdSettings[key].enabled);
         await setBotSettings(botSettingsFilePath, newCmdSettings[key].name, newCmdSettings[key].enabled);        
     }
 });
