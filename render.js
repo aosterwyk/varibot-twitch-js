@@ -105,7 +105,7 @@ async function updateSoundsList() {
                 soundsHTML += `</tr><tr>`;
             }
             let soundName = sounds[s].replace('.mp3','');
-            soundsHTML += `<td><button type="button" class="btn btn-secondary" style="height: 100%; width:100%;" onclick="playSound('${sounds[s]}')">${soundName}</button></td>`;
+            soundsHTML += `<td><button type="button" class="btn btn-secondary" style="height: 100%; width: 100%;" onclick="playSound('${sounds[s]}')">${soundName}</button></td>`;
             buttonRowCount++;
         }
     }
