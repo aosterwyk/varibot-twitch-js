@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 _No unreleased changes_
 
 ## [1.2.4] - 2021-06-06
+### Added
+- Added function to save configs to files for upcoming 2.0 changes
+
 ### Security
 - Updated google-spreadsheet to 3.1.15 for CVE-2020-28168 (axios)
 - Updated ws to 7.4.6 for CVE-2021-32640
