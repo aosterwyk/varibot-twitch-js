@@ -39,8 +39,8 @@ checkConfigDir(soundsDir);
 
 let googleCredsExist = false;
 const googleCredsFilePath = `${app.getPath('appData')}\\varibot\\googleCreds.json`;
-const botSettingsFilePath = `${app.getPath('appData')}\\varibot\\configs\\botSettings.conf`;
-const soundsSettingsFilePath = `${app.getPath('appData')}\\varibot\\configs\\soundsSettings.conf`;
+const botSettingsFilePath = `${app.getPath('appData')}\\varibot\\configs\\botSettings.json`;
+const soundsSettingsFilePath = `${app.getPath('appData')}\\varibot\\configs\\soundsSettings.json`;
 
 let lastRunTimestamp = new Date(); // hacky cooldown
 
