@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 _No unreleased changes_
 
+## [1.2.4] - 2021-06-06
+### Security
+- Updated google-spreadsheet to 3.1.15 for CVE-2020-28168 (axios)
+- Updated ws to 7.4.6 for CVE-2021-32640
+- Updated electron to 10.2.0 for CVE-2020-26272
+
 ## [1.2.3] - 2020-11-04
 ### Security
 - Updated electron to 9.3.1 for [CVE-2020-15215](https://github.com/advisories/GHSA-56pc-6jqp-xqj8) 
@@ -93,6 +99,7 @@ _No unreleased changes_
 ## [1.0.0] - 2020-06-25
 ### Initial Release
 
+[1.2.4]: https://github.com/VariXx/varibot-twitch-js/tree/v1.2.4
 [1.2.3]: https://github.com/VariXx/varibot-twitch-js/tree/v1.2.3
 [1.2.2]: https://github.com/VariXx/varibot-twitch-js/tree/v1.2.2
 [1.2.1]: https://github.com/VariXx/varibot-twitch-js/tree/v1.2.1
