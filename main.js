@@ -379,6 +379,7 @@ async function startBot() {
         win.webContents.executeJavaScript(`showPage('settings')`);
         win.webContents.executeJavaScript(`alertMsg(true, 'error', 'Invalid bot settings. Please update settings and restart bot.')`);        
     }
+    await saveToConfigFiles();
 }
 
 // electron start
@@ -448,7 +449,63 @@ ipcMain.handle('createStreamMarker', async (event) => {
     }
 });
 
+async function saveToConfigFiles() {
+    // bot settings
+    await botSettingsDB.sync();
+    let dbSettings = await botSettingsDB.findOrCreate({where: {id: 1}}); 
+    if(dbSettings[0] !== undefined) {
+        // let result = {
+        //     username: dbSettings[0].username,
+        //     token: dbSettings[0].token,
+        //     clientId: dbSettings[0].clientId,
+        //     channel: dbSettings[0].channel,
+        //     cooldown: dbSettings[0].cooldown,
+        //     soundsDir: soundsDir,
+        //     googleSheetsClientEmail: dbSettings[0].googleSheetsClientEmail,
+        //     googleSheetsPrivateKey: dbSettings[0].googleSheetsPrivateKey,
+        //     beatSheetID: dbSettings[0].beatSheetID,
+        //     beatSpreadSheetID: dbSettings[0].beatSpreadSheetID,
+        //     beatGameSound: dbSettings[0].beatGameSound,
+        //     ownedGamesSpreadSheetID: dbSettings[0].ownedGamesSpreadSheetID
+        // }
+        // await setBotSettings(botSettingsFilePath,'username', args.botUsername);        
+        if(dbSettings[0].username !== undefined) {
+            await setBotSettings(botSettingsFilePath,'username', dbSettings[0].username);
+        }
+        if(dbSettings[0].token !== undefined) {        
+            await setBotSettings(botSettingsFilePath,'token', dbSettings[0].token);
+        }
+        if(dbSettings[0].clientId !== undefined) {
+            await setBotSettings(botSettingsFilePath,'clientId', dbSettings[0].clientId);
+        }
+        if(dbSettings[0].channel !== undefined) {
+            await setBotSettings(botSettingsFilePath,'channel', dbSettings[0].channel);
+        }
+        if(dbSettings[0].beatSheetID !== undefined) {
+            await setBotSettings(botSettingsFilePath,'beatSheetID', dbSettings[0].beatSheetID);
+        }
+        if(dbSettings[0].beatSpreadSheetID !== undefined) {
+            await setBotSettings(botSettingsFilePath,'beatSpreadSheetID', dbSettings[0].beatSpreadSheetID);
+        }
+        if(dbSettings[0].beatGameSound !== undefined) {
+            await setBotSettings(botSettingsFilePath,'beatGameSound', dbSettings[0].beatGameSound);
+        }
+        if(dbSettings[0].ownedGamesSpreadSheetID !== undefined) {
+            await setBotSettings(botSettingsFilePath,'ownedGamesSpreadSheetID', dbSettings[0].ownedGamesSpreadSheetID);
+        }
+    }    
+
+    // sounds setttings
+    let newChannelPointsSounds = {};
+    for(let key in channelPointsSounds) {
+        newChannelPointsSounds[channelPointsSounds[key].name] = channelPointsSounds[key].filename;
+    }
+    await setChannelPointsSounds(soundsSettingsFilePath, newChannelPointsSounds);
+}
+
 ipcMain.handle('newSoundsSettings', async (event, args) => {
+    await saveChannelPointsSoundsFile();
+    // start DB version
     await channelPointsSoundsDB.sync(); // sync channel points sounds   
     await channelPointsSoundsDB.findAll().then(result => {
         for(x = 0; x < result.length; x++) {
@@ -468,6 +525,7 @@ ipcMain.handle('newSoundsSettings', async (event, args) => {
         randomSounds = []; // clear random sounds array
         randomSounds = await loadSounds(soundsDir, channelPointsFilenames); // rebuild random sounds array
     }
+    // end DB version
 });
 
 ipcMain.handle('botSettingsFromForm', async (event, args) => {
@@ -504,6 +562,7 @@ ipcMain.handle('botSettingsFromForm', async (event, args) => {
         await setBotSettings(botSettingsFilePath,'beatGameSound', args.beatGameSound);
     }
     await botSettingsDB.sync();
+    await saveToConfigFiles();
     let updateMsg = `Settings updated. You will need to restart if your token was added or changed.`;
     statusMsg(`success`, updateMsg);
     updateRecentEvents(updateMsg);
