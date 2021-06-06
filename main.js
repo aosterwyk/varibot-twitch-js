@@ -379,7 +379,7 @@ async function startBot() {
         win.webContents.executeJavaScript(`showPage('settings')`);
         win.webContents.executeJavaScript(`alertMsg(true, 'error', 'Invalid bot settings. Please update settings and restart bot.')`);        
     }
-    await saveToConfigFiles();
+    await saveToConfigFiles(); // save settings to config files for 2.0
 }
 
 // electron start
@@ -454,21 +454,6 @@ async function saveToConfigFiles() {
     await botSettingsDB.sync();
     let dbSettings = await botSettingsDB.findOrCreate({where: {id: 1}}); 
     if(dbSettings[0] !== undefined) {
-        // let result = {
-        //     username: dbSettings[0].username,
-        //     token: dbSettings[0].token,
-        //     clientId: dbSettings[0].clientId,
-        //     channel: dbSettings[0].channel,
-        //     cooldown: dbSettings[0].cooldown,
-        //     soundsDir: soundsDir,
-        //     googleSheetsClientEmail: dbSettings[0].googleSheetsClientEmail,
-        //     googleSheetsPrivateKey: dbSettings[0].googleSheetsPrivateKey,
-        //     beatSheetID: dbSettings[0].beatSheetID,
-        //     beatSpreadSheetID: dbSettings[0].beatSpreadSheetID,
-        //     beatGameSound: dbSettings[0].beatGameSound,
-        //     ownedGamesSpreadSheetID: dbSettings[0].ownedGamesSpreadSheetID
-        // }
-        // await setBotSettings(botSettingsFilePath,'username', args.botUsername);        
         if(dbSettings[0].username !== undefined) {
             await setBotSettings(botSettingsFilePath,'username', dbSettings[0].username);
         }
@@ -504,8 +489,6 @@ async function saveToConfigFiles() {
 }
 
 ipcMain.handle('newSoundsSettings', async (event, args) => {
-    await saveChannelPointsSoundsFile();
-    // start DB version
     await channelPointsSoundsDB.sync(); // sync channel points sounds   
     await channelPointsSoundsDB.findAll().then(result => {
         for(x = 0; x < result.length; x++) {
@@ -525,7 +508,8 @@ ipcMain.handle('newSoundsSettings', async (event, args) => {
         randomSounds = []; // clear random sounds array
         randomSounds = await loadSounds(soundsDir, channelPointsFilenames); // rebuild random sounds array
     }
-    // end DB version
+
+    await saveToConfigFiles(); // save settings to config files for 2.0
 });
 
 ipcMain.handle('botSettingsFromForm', async (event, args) => {
@@ -562,7 +546,7 @@ ipcMain.handle('botSettingsFromForm', async (event, args) => {
         await setBotSettings(botSettingsFilePath,'beatGameSound', args.beatGameSound);
     }
     await botSettingsDB.sync();
-    await saveToConfigFiles();
+    await saveToConfigFiles(); // save settings to config files for 2.0
     let updateMsg = `Settings updated. You will need to restart if your token was added or changed.`;
     statusMsg(`success`, updateMsg);
     updateRecentEvents(updateMsg);
