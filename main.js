@@ -26,17 +26,16 @@ const { setBotSettings } = require('./utils/config/setBotSettings');
 const { getChannelPointsSounds } = require('./utils/config/getChannelPointsSounds');
 const { setChannelPointsSounds } = require('./utils/config/setChannelPointsSounds');
 
-const botSettingsFilePath = `${app.getPath('appData')}\\varibot\\configs\\botSettings.json`;
-const soundsSettingsFilePath = `${app.getPath('appData')}\\varibot\\configs\\soundsSettings.json`;
-
-const configsDir = `${app.getPath('appData')}\\varibot\\configs`;
-checkConfigDir(configsDir);
-
 // file based configs end 
 
 const { ipcMain, app, BrowserWindow } = require('electron');
 // const ipcMain = ipcMain;
 var win = null;
+
+const botSettingsFilePath = `${app.getPath('appData')}\\varibot\\configs\\botSettings.json`;
+const soundsSettingsFilePath = `${app.getPath('appData')}\\varibot\\configs\\soundsSettings.json`;
+const configsDir = `${app.getPath('appData')}\\varibot\\configs`;
+checkConfigDir(configsDir);
 
 // TO DO - change to globals? 
 let client = null;
