@@ -12,9 +12,9 @@ _No unreleased changes_
 - Added function to save configs to files for upcoming 2.0 changes
 
 ### Security
-- Updated google-spreadsheet to 3.1.15 for CVE-2020-28168 (axios)
-- Updated ws to 7.4.6 for CVE-2021-32640
-- Updated electron to 10.2.0 for CVE-2020-26272
+- Updated google-spreadsheet to 3.1.15 for [CVE-2020-28168](https://github.com/advisories/GHSA-4w2v-q235-vp99) (axios)
+- Updated ws to 7.4.6 for [CVE-2021-32640](https://github.com/advisories/GHSA-6fc8-4gx4-v693)
+- Updated electron to 10.2.0 for [CVE-2020-26272](https://github.com/advisories/GHSA-hvf8-h2qh-37m9)
 
 ## [1.2.3] - 2020-11-04
 ### Security
