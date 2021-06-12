@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 _No unreleased changes_
 
-## [1.2.4] - 2021-06-06
+## [1.2.4] - 2021-06-12
 ### Added
 - Added function to save configs to files for upcoming 2.0 changes
 
