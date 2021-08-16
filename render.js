@@ -95,22 +95,28 @@ async function updateSoundsList() {
     let sounds = await ipc.invoke('loadSounds');
     let soundsHTML = ` `;
     if(sounds.length > 0){
-        let buttonRowCount = 0;
-        let buttonRows = 1;
-        soundsHTML += `<table class="mx-auto">`;
-        for(let s = 0; s < sounds.length; s++) {
-            if(buttonRowCount == 3) {
-                buttonRows++;
-                buttonRowCount = 0;
-                soundsHTML += `</tr><tr>`;
-            }
-            let soundName = sounds[s].replace('.mp3','');
-            soundsHTML += `<td><button type="button" class="btn btn-secondary" style="height: 100%; width: 100%;" onclick="playSound('${sounds[s]}')">${soundName}</button></td>`;
-            buttonRowCount++;
+        for(let s = 0; s < sounds.length; s++) {  
+            let soundName = sounds[s].replace('.mp3','');                  
+            soundsHTML += `<button type="button" class="btn btn-secondary m-1 onclick="playSound('${sounds[s]}')">${sounds[s]}</button>`;
         }
     }
-    soundsHTML += `</tr></table>`;
-    document.getElementById('soundsList').innerHTML = soundsHTML;
+    // if(sounds.length > 0){
+    //     let buttonRowCount = 0;
+    //     let buttonRows = 1;
+    //     soundsHTML += `<table class="mx-auto">`;
+    //     for(let s = 0; s < sounds.length; s++) {
+    //         if(buttonRowCount == 3) {
+    //             buttonRows++;
+    //             buttonRowCount = 0;
+    //             soundsHTML += `</tr><tr>`;
+    //         }
+    //         let soundName = sounds[s].replace('.mp3','');
+    //         soundsHTML += `<td><button type="button" class="btn btn-secondary" style="height: 100%; width: 100%;" onclick="playSound('${sounds[s]}')">${soundName}</button></td>`;
+    //         buttonRowCount++;
+    //     }
+    // }
+    // soundsHTML += `</tr></table>`;
+    document.getElementById('soundboard').innerHTML = soundsHTML;
 }
 
 function playRandomSound() {
@@ -120,6 +126,7 @@ function playRandomSound() {
 async function playSound(sound) {
     let result = await ipc.invoke('getCurrentSettings');
     if(result !== undefined) {
+        console.log(`Playing ${sound}`);
         let audio = new Audio(`${result.soundsDir}\\${sound}`);
         try { audio.play(); }
         catch(err) { console.log(err); }
@@ -174,15 +181,16 @@ function updateElement() {
 }
 
 function changeActiveTab(activeTab) { 
-    let navbar = document.getElementById('navBar-left');
-    let navList = navbar.getElementsByTagName('li');
-    for(let x = 0; x < navList.length; x++) {
-        if(navList[x].classList.contains('active')) {
-            navList[x].classList.remove('active');
-        }
-    }
-    let newActive = document.getElementById(`${activeTab}Nav`);
-    newActive.classList.add('active');
+    // let navbar = document.getElementById('navBar-left');
+    // let navList = navbar.getElementsByTagName('li');
+    // for(let x = 0; x < navList.length; x++) {
+    //     if(navList[x].classList.contains('active')) {
+    //         navList[x].classList.remove('active');
+    //     }
+    // }
+    // let newActive = document.getElementById(`${activeTab}Nav`);
+    // newActive.classList.add('active');
+    console.log(`Changed to ${activeTab}`);
 }
 
 async function populateSettings(settingsPage) {
@@ -420,7 +428,7 @@ async function saveSoundsForm() {
 }
 
 async function showPage(page) {
-    let pages = ['home','settings','sounds','cmds', 'about'];
+    let pages = ['home','settings','sounds','about'];
     let showPage;
     for(let p = 0; p < pages.length; p++) { 
         if(pages[p] == page.toLowerCase()) {
