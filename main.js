@@ -258,19 +258,19 @@ async function startBot() {
             channels: [botSettings.channel]
         }; 
         client = new tmi.client(options);    
-        // client.connect()
-        // .catch((error) => {
-        //     if(error.includes('Login authentication failed')) {
-        //         let errorString = `Invalid token. Please get a new token and update bot settings.`;
-        //         statusMsg('error', errorString);
-        //         // win.webContents.executeJavaScript(`showPage('settings')`);
-        //         win.webContents.executeJavaScript(`alertMsg(true, 'error', '${errorString}')`);        
-        //     }
-        //     else {
-        //         statusMsg('error', `Error connecting: ${error}`);
-        //     }
-        //     return;
-        // });
+        client.connect()
+        .catch((error) => {
+            if(error.includes('Login authentication failed')) {
+                let errorString = `Invalid token. Please get a new token and update bot settings.`;
+                statusMsg('error', errorString);
+                // win.webContents.executeJavaScript(`showPage('settings')`);
+                win.webContents.executeJavaScript(`alertMsg(true, 'error', '${errorString}')`);        
+            }
+            else {
+                statusMsg('error', `Error connecting: ${error}`);
+            }
+            return;
+        });
         client.on('connected', (address, port) => {
             console.log(`Chatbot (${options.identity.username}) connected to ${address}:${port}`);
         });
@@ -290,33 +290,33 @@ async function startBot() {
             }
         });    
 
-        // pubsubSocket.onopen = async function(e) {
-        //     botSettings = await getBotSettings(botSettingsFilePath);            
-        //     if(botSettings !== undefined) {
-        //         try {
-        //             let channelId = await twitchAPI.getChannelID(botSettings.channel, botSettings.clientId, botSettings.token);
-        //             let connectMsg =  {
-        //                 type: "LISTEN",
-        //                 nonce: "44h1k13746815ab1r2",
-        //                 data:  {
-        //                 topics: ["channel-points-channel-v1." + channelId],
-        //                 auth_token: botSettings.token
-        //                 }
-        //             };
-        //             pubsubSocket.send(JSON.stringify(connectMsg));
-        //             console.log(`Pubsub connected. Listed topics: ${connectMsg.data.topics}`);
-        //             pubsubPings();
-        //         }
-        //         catch(error) {console.log(error);}
-        //     }
-        // };
+        pubsubSocket.onopen = async function(e) {
+            botSettings = await getBotSettings(botSettingsFilePath);            
+            if(botSettings !== undefined) {
+                try {
+                    let channelId = await twitchAPI.getChannelID(botSettings.channel, botSettings.clientId, botSettings.token);
+                    let connectMsg =  {
+                        type: "LISTEN",
+                        nonce: "44h1k13746815ab1r2",
+                        data:  {
+                        topics: ["channel-points-channel-v1." + channelId],
+                        auth_token: botSettings.token
+                        }
+                    };
+                    pubsubSocket.send(JSON.stringify(connectMsg));
+                    console.log(`Pubsub connected. Listed topics: ${connectMsg.data.topics}`);
+                    pubsubPings();
+                }
+                catch(error) {console.log(error);}
+            }
+        };
         
         win.webContents.executeJavaScript(`updateSoundsList()`);
         win.webContents.executeJavaScript(`showPage('home')`);        
     }
     else {
-        win.webContents.executeJavaScript(`showPage('settings')`);
-        win.webContents.executeJavaScript(`alertMsg(true, 'error', 'Invalid bot settings. Please update settings and restart bot.')`);        
+        // win.webContents.executeJavaScript(`showPage('settings')`);
+        // win.webContents.executeJavaScript(`alertMsg(true, 'error', 'Invalid bot settings. Please update settings and restart bot.')`);        
     }
 }
 
@@ -324,8 +324,10 @@ async function startBot() {
 
 function createWindow() {
     win = new BrowserWindow({
-        width: 1200,
-        height: 800,
+        // width: 1200,
+        // height: 800,
+        width: 1500,
+        height: 1000,
         webPreferences: {
             nodeIntegration: true
         }

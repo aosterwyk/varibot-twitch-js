@@ -6,7 +6,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
         <meta name="description" content="" />
         <meta name="author" content="" />
-        <title>Dashboard - SB Admin</title>
+        <title>VariBot</title>
         <link href="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/style.css" rel="stylesheet" />
         <link href="css/styles.css" rel="stylesheet" />
         <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/js/all.min.js" crossorigin="anonymous"></script>
@@ -72,7 +72,7 @@
                                 </div>          
                                 Sounds
                             </a>
-                            <a class="nav-link" onclick="showPage('about.html')">
+                            <a class="nav-link" onclick="showPage('about')">
                                 <div class="sb-nav-link-icon">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-question-lg" viewBox="0 0 16 16">
                                         <path d="M3 4.075a.423.423 0 0 0 .43.44H4.9c.247 0 .442-.2.475-.445.159-1.17.962-2.022 2.393-2.022 1.222 0 2.342.611 2.342 2.082 0 1.132-.668 1.652-1.72 2.444-1.2.872-2.15 1.89-2.082 3.542l.005.386c.003.244.202.44.446.44h1.445c.247 0 .446-.2.446-.446v-.188c0-1.278.487-1.652 1.8-2.647 1.086-.826 2.217-1.743 2.217-3.667C12.667 1.301 10.393 0 7.903 0 5.645 0 3.17 1.053 3.001 4.075zm2.776 10.273c0 .95.758 1.652 1.8 1.652 1.085 0 1.832-.702 1.832-1.652 0-.985-.747-1.675-1.833-1.675-1.04 0-1.799.69-1.799 1.675z"/>
@@ -178,8 +178,8 @@ question
                             <br /><button type="button" class="close" data-dismiss="alert" onclick="alertMsg(false,'','',)">
                               <span aria-hidden="true">&times;</span>
                             </button>
-                          </div>      
-                          <div id="home">    
+                        </div>      
+                        <div id="home">    
                             <div class="card my-4">
                                 <div class="card-header">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-volume-up-fill" viewBox="0 0 18 18">
@@ -216,9 +216,35 @@ question
                                     </ul>                                
                                 </div>
                             </div>
-                            <div id="settings"></div>
-                            <div id="sounds"></div>
-                            <div id="about"></div>
+                        </div>
+                        <div id="settings">hi</div>
+                        <div id="sounds">hi</div>
+                        <div id="about">
+                            <div class="card my-4">
+                                <div class="card-header">About</div>
+                                <div class="card-body">
+                                    <ul class="list-unstyled" id="aboutText">
+                                        <li id="aboutBotVersion">VariBot</li>
+                                        <hr />
+                                        <li id="aboutSoundsLoaded">Random sounds loaded:</li>
+                                        <li id="aboutChannelRewardsLoaded">Channel reward sounds loaded:</li>
+                                        <li id="aboutGoogleCredsLoaded">Google creds file loaded:</li>
+                                        <hr />
+                                        <li id="aboutChatBotStatus">Chat bot status:</li>
+                                        <li id="aboutPubsubStatus">Pubsub status:</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="card my-4">
+                                <div class="card-header">Status</div>
+                                <div class="card-body" id="status">
+    
+                                </div>
+                            </div>                        
+                            <div class="text-muted">
+                                <small>Theme based on <a class="text-decoration-none" href="https://startbootstrap.com/template/sb-admin" target="_blank" rel="noreferrer">SB Admin by StartBootstrap</a></small><br />
+                                <small>Twitch chat uses tmi.js <a class="text-decoration-none" href="https://github.com/tmijs" target="_blank" rel="noreferrer">tmi.js</a></small>    
+                            </span>                    
                         </div>
                     </div>
                 </main>

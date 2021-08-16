@@ -194,6 +194,9 @@ function changeActiveTab(activeTab) {
 }
 
 async function populateSettings(settingsPage) {
+
+    // TO DO - settings and sounds load but they're the old versions 
+
     if(settingsPage.toLowerCase() == 'home') { 
         // no settings 
     }
@@ -338,14 +341,12 @@ async function populateSettings(settingsPage) {
     }
     if(settingsPage.toLowerCase() == 'about') {
         let result = await ipc.invoke('getAbout');
-        let aboutPageHTML = `<div class="card"><div class="card-header">About</div>`;
-        aboutPageHTML += `<div class="card-body text-muted">
-        <p>VariBot v${result.versionNumber}</p>
-        <p>Random sounds loaded: ${result.randomSoundsCount}</p>
-        <p>Channel reward sounds loaded: ${result.channelPointsSoundsCount}</p>
-        <p>Google creds file loaded: ${result.googleCredsExist}</p>
-        </div></div>`;
-        document.getElementById('about').innerHTML = aboutPageHTML;
+        document.getElementById('aboutBotVersion').innerHTML = `VariBot v${result.versionNumber}`;
+        document.getElementById('aboutSoundsLoaded').innerHTML = `Random sounds loaded: ${result.randomSoundsCount}`;
+        document.getElementById('aboutChannelRewardsLoaded').innerHTML = `Channel reward sounds loaded: ${result.channelPointsSoundsCount}`;
+        document.getElementById('aboutGoogleCredsLoaded').innerHTML = `Google creds file loaded: ${result.googleCredsExist}`;
+        // <li id="aboutChatBotStatus">Chat bot status: Connecting...</li>
+        // <li id="aboutPubsubStatus">Pubsub status: Connecting...</li>
     }
 }
 
@@ -437,7 +438,7 @@ async function showPage(page) {
         document.getElementById(pages[p]).style.display = 'none';
     }
     await populateSettings(showPage);
-    changeActiveTab(showPage);
+    // changeActiveTab(showPage);
     document.getElementById(showPage).style.display = 'block';
 }
 
