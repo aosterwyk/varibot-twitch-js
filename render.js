@@ -37,7 +37,8 @@ async function loadGoogleCredsFile() {
 
 function updateRecentEvents(msg) {
     let recentList = document.getElementById('recentList');
-    recentList.innerHTML = `<li class="list-group-item text-muted">${msg}</li> ${recentList.innerHTML}`;
+    // recentList.innerHTML = `<li class="list-group-item text-muted">${msg}</li> ${recentList.innerHTML}`;
+    recentList.innerHTML = `<li class="list-group-item"><small>${msg}</small></li>${recentList.innerHTML}`;
 }
 
 function updateStatus(msgType, msg) {
