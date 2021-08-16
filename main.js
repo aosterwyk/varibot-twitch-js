@@ -274,8 +274,10 @@ async function startBot() {
             return;
         });
         client.on('connected', (address, port) => {
-            console.log(`Chatbot (${options.identity.username}) connected to ${address}:${port}`);
-            win.webContents.executeJavaScript(`setConnectionStatus('chatBot', 'connected', 'none')`);            
+            let chatbotConnectedMessage = `Chatbot (${options.identity.username}) connected to ${address}:${port}`;
+            console.log(chatbotConnectedMessage);
+            win.webContents.executeJavaScript(`setConnectionStatus('chatBot', 'connected', 'none')`);      
+            statusMsg('info', chatbotConnectedMessage);
         });
 
         client.on('message', async (target, context, msg, self) => {
@@ -313,7 +315,9 @@ async function startBot() {
                         }
                     };
                     pubsubSocket.send(JSON.stringify(connectMsg));
-                    console.log(`Pubsub connected. Listed topics: ${connectMsg.data.topics}`);
+                    let pubsubConnectedMessage = `Pubsub connected. Listed topics: ${connectMsg.data.topics}`;
+                    console.log(pubsubConnectedMessage);
+                    statusMsg('info', pubsubConnectedMessage);
                     win.webContents.executeJavaScript(`setConnectionStatus('pubsub', 'connected', 'none')`);                                
                     pubsubPings();
                 }

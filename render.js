@@ -52,7 +52,7 @@ function updateStatus(msgType, msg) {
         msgColor = `text-success`;
     }
     else if(msgType == 'info') {
-        msgColor = `text-white-75`;
+        msgColor = `text-white`;
     }    
     else if(msgType == 'special') {
         msgColor = `text-info`;
@@ -61,10 +61,10 @@ function updateStatus(msgType, msg) {
         msgColor = `text-info`;
     }
     else {
-        msgColor = `text-white-75`;
+        msgColor = `text-white`;
     }
-    
-    let statusBox = document.getElementById('status')
+    console.log(`New status message: ${msg}`);
+    let statusBox = document.getElementById('statusBox')
     statusBox.innerHTML += `<span class="${msgColor}">${msg}</span><br>`;
     statusBox.scrollTop = statusBox.scrollHeight;
 }
@@ -134,10 +134,19 @@ function setConnectionStatus(service, status, message) {
 async function updateSoundsList() { 
     let sounds = await ipc.invoke('loadSounds');
     let soundsHTML = ` `;
+    let randomColorMode = false;
+    let buttonColors = ['btn-primary', 'btn-secondary', 'btn-success', 'btn-danger', 'btn-warning', 'btn-info', 'btn-light'];
     if(sounds.length > 0){
         for(let s = 0; s < sounds.length; s++) {  
-            let soundName = sounds[s].replace('.mp3','');                  
-            soundsHTML += `<button type="button" class="btn btn-secondary m-1" onclick="playSound('${sounds[s]}')">${soundName}</button>`;
+            let soundName = sounds[s].replace('.mp3','');
+            if(randomColorMode) {
+                let buttonColor = Math.floor(Math.random() * ((buttonColors.length - 1) - 0 + 1) + 0);            
+                soundsHTML += `<button type="button" class="btn ${buttonColors[buttonColor]} m-1" onclick="playSound('${sounds[s]}')">${soundName}</button>`; // lol
+                
+            }
+            else {
+                soundsHTML += `<button type="button" class="btn btn-secondary m-1" onclick="playSound('${sounds[s]}')">${soundName}</button>`;
+            }
         }
     }
     // if(sounds.length > 0){
@@ -166,7 +175,6 @@ function playRandomSound() {
 async function playSound(sound) {
     let result = await ipc.invoke('getCurrentSettings');
     if(result !== undefined) {
-        console.log(`Playing ${sound}`);
         let audio = new Audio(`${result.soundsDir}\\${sound}`);
         try { audio.play(); }
         catch(err) { console.log(err); }
@@ -385,8 +393,6 @@ async function populateSettings(settingsPage) {
         document.getElementById('aboutSoundsLoaded').innerHTML = `Random sounds loaded: ${result.randomSoundsCount}`;
         document.getElementById('aboutChannelRewardsLoaded').innerHTML = `Channel reward sounds loaded: ${result.channelPointsSoundsCount}`;
         document.getElementById('aboutGoogleCredsLoaded').innerHTML = `Google creds file loaded: ${result.googleCredsExist}`;
-        // <li id="aboutChatBotStatus">Chat bot status: Connecting...</li>
-        // <li id="aboutPubsubStatus">Pubsub status: Connecting...</li>
     }
 }
 
