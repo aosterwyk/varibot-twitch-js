@@ -298,6 +298,7 @@ async function startBot() {
         client.on("disconnected", (reason) => {
             statusMsg('error', `Chatbot disconnected: ${reason}`);
             win.webContents.executeJavaScript(`setConnectionStatus('chatBot', 'error', 'Disconnected: ${reason}')`);                
+            win.webContents.executeJavaScript(`alertMsg(true, 'error', 'Chatbot disconnected: ${reason}')`);            
         });
 
 
@@ -321,7 +322,11 @@ async function startBot() {
                     win.webContents.executeJavaScript(`setConnectionStatus('pubsub', 'connected', 'none')`);                                
                     pubsubPings();
                 }
-                catch(error) {console.log(error);}
+                catch(error) {
+                    console.log(error);
+                    statusMsg('error', `Pubsub connection error: ${error}`);
+                    win.webContents.executeJavaScript(`setConnectionStatus('pubsub', 'error', '${error}')`);                                                      
+                }
             }
         };
         

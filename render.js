@@ -63,7 +63,6 @@ function updateStatus(msgType, msg) {
     else {
         msgColor = `text-white`;
     }
-    console.log(`New status message: ${msg}`);
     let statusBox = document.getElementById('statusBox')
     statusBox.innerHTML += `<span class="${msgColor}">${msg}</span><br>`;
     statusBox.scrollTop = statusBox.scrollHeight;
