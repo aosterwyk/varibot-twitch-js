@@ -205,7 +205,18 @@ question
                                     <input type="text" class="form-control" id="channel" placeholder="Enter channel">
                                     <small id="channelHelp" class="form-text text-muted">Channel for the bot to join. Do not include #. (ex: varixx)</small>
                                 </div>      
+                                <button class="btn btn-primary btn-sm" onclick="saveSettingsFromForm()">Save</button>
                             </div>  
+                        </div>
+                        <div class="card my-4">
+                            <div class="card-header">Commands</div>
+                            <div class="card-body">
+                                <ul class="list-unstyled">
+                                    <li class="my-1"><input class="mx-2" type="checkbox" checked id="cmdStatus">Command</li>
+                                    <li class="my-1"><input class="mx-2" type="checkbox" id="cmdStatus">Command</li>
+                                </ul>
+                                <button class="btn btn-primary btn-sm" onclick="saveSettingsFromForm()">Save</button>                            
+                            </div>
                         </div>
                         <div class="card my-4">
                             <div class="card-header">Google Spreadsheets Settings</div>              
