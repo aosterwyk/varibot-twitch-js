@@ -351,6 +351,8 @@ textarea {
   font-family: inherit;
   font-size: inherit;
   line-height: inherit;
+  /* background-color: var(--bs-body-bg);
+  color:var(--bs-body-color); */
 }
 
 button,
@@ -1968,9 +1970,11 @@ progress {
   --bs-table-hover-bg: rgba(0, 0, 0, 0.075);
   width: 100%;
   margin-bottom: 1rem;
-  color: #212529;
+  /* color: #212529; */
+  color: var(--bs-body-color);
   vertical-align: top;
-  border-color: #dee2e6;
+  /* border-color: #dee2e6; */
+  border-color: var(--bs-gray-800);
 }
 .table > :not(caption) > * > *, .dataTable-table > :not(caption) > * > * {
   padding: 0.5rem 0.5rem;
