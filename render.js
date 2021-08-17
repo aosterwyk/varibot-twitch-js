@@ -327,6 +327,72 @@ async function populateSettings(settingsPage) {
         // if(result.clientId === null) {
         //     document.getElementById('clientId').value = `rq2a841j8f63fndu5lnbwzwmbzamoy`;
         // }
+
+        // new settings page
+        let result = await ipc.invoke('getCurrentSettings');
+        if(result !== undefined) {
+            if(result.username !== undefined) {
+                document.getElementById('botUsername').value = result.username;
+            }
+            if(result.token !== undefined) {
+                document.getElementById('botToken').value = result.token;
+            }
+            if(result.clientId !== undefined) {
+                document.getElementById('clientId').value = result.clientId;
+            }
+            if(result.channel !== undefined) {
+                document.getElementById('channel').value = result.channel;
+            }
+            if(result.beatSpreadSheetID !== undefined && result.beatSpreadSheetID.length ) {
+                let spreadSheetUrl = `https://docs.google.com/spreadsheets/d/${result.beatSpreadSheetID}`;
+                document.getElementById('beatSpreadSheetUrl').value = spreadSheetUrl; 
+            }
+            if(result.beatGameSound !== undefined) {
+                document.getElementById('beatGameSound').value = result.beatGameSound;
+            }
+        }        
+
+        // old commands page
+        // let result = await ipc.invoke('getCurrentCommands');
+        // let cmdPageHTML = `<div class="card"><div class="card-header">Commands</div>`;
+        // if(result !== undefined) {
+        //     cmdPageHTML += `<div class="card-body" id="cmdsBody">`;            
+        //     if(Object.keys(result)) {                
+        //         cmdPageHTML += `<form id="cmdForm"><table class="table table-hover" style="table-layout:auto;"><tbody>`;
+        //         for(let cmd in result) { 
+        //             cmdPageHTML += `<tr id="${result[cmd].name}"><td style="width: 5px; text-align: center;">`;
+        //             if(result[cmd].enabled) {
+        //                 cmdPageHTML += `<input type="checkbox" checked id="cmdStatus">`;
+        //             }
+        //             else {
+        //                 cmdPageHTML += `<input type="checkbox" id="cmdStatus">`;
+        //             }
+        //             cmdPageHTML += `</td><td id="cmdName">${result[cmd].name}</td></tr>`;
+        //         }
+        //         cmdPageHTML += `</tbody></table></form><button type="submit" class="btn btn-primary btn-sm mt-2" onclick="saveCmdForm()">Save</button>`;
+                
+        //     }
+        //     cmdPageHTML += `</div>`;
+        // }
+        // document.getElementById('cmds').innerHTML = cmdPageHTML;
+
+        // new commands page
+        let cmdsResult = await ipc.invoke('getCurrentCommands');
+        let cmdSettingsList = document.getElementById('commandsSettingsList');
+        let newCmdSettingsList = ``;
+        if(cmdsResult !== undefined) {
+            if(Object.keys(cmdsResult)) {                
+                for(let cmd in cmdsResult) { 
+                    if(cmdsResult[cmd].enabled) {                    
+                        newCmdSettingsList += `<li class="my-1"><input class="mx-2" type="checkbox" checked id="${cmdsResult[cmd].name}">${cmdsResult[cmd].name}</li>`;
+                    }
+                    else {
+                        newCmdSettingsList += `<li class="my-1"><input class="mx-2" type="checkbox" id="${cmdsResult[cmd].name}">${cmdsResult[cmd].name}</li>`;
+                    }
+                }
+            }
+        }
+        cmdSettingsList.innerHTML = newCmdSettingsList;
     }
     if(settingsPage.toLowerCase() == 'sounds') {
         await ipc.invoke('loadSounds');        
@@ -366,30 +432,30 @@ async function populateSettings(settingsPage) {
         soundsPageHTML += `</div></div>`;
         document.getElementById('sounds').innerHTML = soundsPageHTML;
     }
-    if(settingsPage.toLowerCase() == 'cmds') {
-        let result = await ipc.invoke('getCurrentCommands');
-        let cmdPageHTML = `<div class="card"><div class="card-header">Commands</div>`;
-        if(result !== undefined) {
-            cmdPageHTML += `<div class="card-body" id="cmdsBody">`;            
-            if(Object.keys(result)) {                
-                cmdPageHTML += `<form id="cmdForm"><table class="table table-hover" style="table-layout:auto;"><tbody>`;
-                for(let cmd in result) { 
-                    cmdPageHTML += `<tr id="${result[cmd].name}"><td style="width: 5px; text-align: center;">`;
-                    if(result[cmd].enabled) {
-                        cmdPageHTML += `<input type="checkbox" checked id="cmdStatus">`;
-                    }
-                    else {
-                        cmdPageHTML += `<input type="checkbox" id="cmdStatus">`;
-                    }
-                    cmdPageHTML += `</td><td id="cmdName">${result[cmd].name}</td></tr>`;
-                }
-                cmdPageHTML += `</tbody></table></form><button type="submit" class="btn btn-primary btn-sm mt-2" onclick="saveCmdForm()">Save</button>`;
+    // if(settingsPage.toLowerCase() == 'cmds') {
+    //     let result = await ipc.invoke('getCurrentCommands');
+    //     let cmdPageHTML = `<div class="card"><div class="card-header">Commands</div>`;
+    //     if(result !== undefined) {
+    //         cmdPageHTML += `<div class="card-body" id="cmdsBody">`;            
+    //         if(Object.keys(result)) {                
+    //             cmdPageHTML += `<form id="cmdForm"><table class="table table-hover" style="table-layout:auto;"><tbody>`;
+    //             for(let cmd in result) { 
+    //                 cmdPageHTML += `<tr id="${result[cmd].name}"><td style="width: 5px; text-align: center;">`;
+    //                 if(result[cmd].enabled) {
+    //                     cmdPageHTML += `<input type="checkbox" checked id="cmdStatus">`;
+    //                 }
+    //                 else {
+    //                     cmdPageHTML += `<input type="checkbox" id="cmdStatus">`;
+    //                 }
+    //                 cmdPageHTML += `</td><td id="cmdName">${result[cmd].name}</td></tr>`;
+    //             }
+    //             cmdPageHTML += `</tbody></table></form><button type="submit" class="btn btn-primary btn-sm mt-2" onclick="saveCmdForm()">Save</button>`;
                 
-            }
-            cmdPageHTML += `</div>`;
-        }
-        document.getElementById('cmds').innerHTML = cmdPageHTML;
-    }
+    //         }
+    //         cmdPageHTML += `</div>`;
+    //     }
+    //     document.getElementById('cmds').innerHTML = cmdPageHTML;
+    // }
     if(settingsPage.toLowerCase() == 'about') {
         let result = await ipc.invoke('getAbout');
         document.getElementById('aboutBotVersion').innerHTML = `VariBot v${result.versionNumber}`;
