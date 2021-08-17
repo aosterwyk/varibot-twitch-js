@@ -40,6 +40,7 @@ checkConfigDir(soundsDir);
 let googleCredsExist = false;
 const googleCredsFilePath = `${app.getPath('appData')}\\varibot\\googleCreds.json`;
 const botSettingsFilePath = `${app.getPath('appData')}\\varibot\\configs\\botSettings.json`;
+const windowSettingsFilePath = `${app.getPath('appData')}\\varibot\\configs\\windowSettings.json`;
 const soundsSettingsFilePath = `${app.getPath('appData')}\\varibot\\configs\\soundsSettings.json`;
 
 let lastRunTimestamp = new Date(); // hacky cooldown
@@ -341,12 +342,23 @@ async function startBot() {
 
 // electron start
 
-function createWindow() {
+async function createWindow() {
+    let newWindowSettings = await getBotSettings(windowSettingsFilePath);
+    if(!newWindowSettings.successful) {
+        newWindowSettings.window = {
+            width: 1200,
+            height: 800
+        };
+    }
     win = new BrowserWindow({
         // width: 1200,
         // height: 800,
-        width: 1500,
-        height: 1000,
+        // width: 1500,
+        // height: 1000,
+        width: newWindowSettings.window.width,
+        height: newWindowSettings.window.height,
+        x: newWindowSettings.window.x,
+        y: newWindowSettings.window.y,
         webPreferences: {
             nodeIntegration: true
         }
@@ -595,8 +607,14 @@ function pubsubHandle(msg) {
 
 function pubsubPings() {
     pubsubSocket.send(JSON.stringify({type:"PING"}));
+    saveWindowPosition(); // save window position, nothing specific to pubsub just using the timer here.
     setTimeout(pubsubPings,120000); // 2 minutes
 }
+
+function saveWindowPosition() {
+    setBotSettings(windowSettingsFilePath, 'window', win.getBounds());
+}
+
 
 // pubsubSocket.onopen = async function(e) {
 //     await botSettingsDB.sync();
