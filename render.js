@@ -249,9 +249,7 @@ async function populateSettings(settingsPage) {
         // no settings 
     }
     if(settingsPage.toLowerCase() == 'settings') {
-
-        // TO DO - write for new settings page
-
+        // old settings page
     //     let settingsPageHTML = `<div class="card my-4">
     //     <div class="card-header">General Settings</div>              
     //     <div class="card-body">
@@ -324,9 +322,6 @@ async function populateSettings(settingsPage) {
     //             document.getElementById('beatGameSound').value = result.beatGameSound;
     //         }
     //     }
-        // if(result.clientId === null) {
-        //     document.getElementById('clientId').value = `rq2a841j8f63fndu5lnbwzwmbzamoy`;
-        // }
 
         // new settings page
         let result = await ipc.invoke('getCurrentSettings');
@@ -378,21 +373,20 @@ async function populateSettings(settingsPage) {
 
         // new commands page
         let cmdsResult = await ipc.invoke('getCurrentCommands');
-        let cmdSettingsList = document.getElementById('commandsSettingsList');
         let newCmdSettingsList = ``;
         if(cmdsResult !== undefined) {
             if(Object.keys(cmdsResult)) {                
                 for(let cmd in cmdsResult) { 
                     if(cmdsResult[cmd].enabled) {                    
-                        newCmdSettingsList += `<li class="my-1"><input class="mx-2" type="checkbox" checked id="${cmdsResult[cmd].name}">${cmdsResult[cmd].name}</li>`;
+                        newCmdSettingsList += `<li class="my-1"><input class="mx-2" type="checkbox" name="cmdSettingCheckbox" id="${cmdsResult[cmd].name}" checked>${cmdsResult[cmd].name}</li>`;
                     }
                     else {
-                        newCmdSettingsList += `<li class="my-1"><input class="mx-2" type="checkbox" id="${cmdsResult[cmd].name}">${cmdsResult[cmd].name}</li>`;
+                        newCmdSettingsList += `<li class="my-1"><input class="mx-2" type="checkbox" name="cmdSettingCheckbox" id="${cmdsResult[cmd].name}">${cmdsResult[cmd].name}</li>`;
                     }
                 }
             }
         }
-        cmdSettingsList.innerHTML = newCmdSettingsList;
+        document.getElementById('commandsSettingsList').innerHTML = newCmdSettingsList;
     }
     if(settingsPage.toLowerCase() == 'sounds') {
         await ipc.invoke('loadSounds');        
@@ -465,22 +459,22 @@ async function populateSettings(settingsPage) {
     }
 }
 
-async function saveCmdForm() {
-    let cmdForm = document.getElementById('cmdForm');
-    let cmdTRs = cmdForm.getElementsByTagName('tr');
-    let cmdChanges = {};
-    for(let x = 0; x < cmdTRs.length; x++) { 
-        let cmdName = cmdTRs[x].getElementsByTagName('td')['cmdName'].innerText.trim();
-        let cmdStatus = cmdTRs[x].getElementsByTagName('input')['cmdStatus'].checked;
-        cmdChanges[cmdName] = {
-            name: cmdName,
-            enabled: cmdStatus
-        }
-    }
-    await ipc.invoke('updateCmdSettings', cmdChanges);
-    alertMsg(true, 'success', 'Commands updated');
-    showPage('cmds');
-}
+// async function saveCmdForm() {
+//     let cmdForm = document.getElementById('cmdForm');
+//     let cmdTRs = cmdForm.getElementsByTagName('tr');
+//     let cmdChanges = {};
+//     for(let x = 0; x < cmdTRs.length; x++) { 
+//         let cmdName = cmdTRs[x].getElementsByTagName('td')['cmdName'].innerText.trim();
+//         let cmdStatus = cmdTRs[x].getElementsByTagName('input')['cmdStatus'].checked;
+//         cmdChanges[cmdName] = {
+//             name: cmdName,
+//             enabled: cmdStatus
+//         }
+//     }
+//     await ipc.invoke('updateCmdSettings', cmdChanges);
+//     alertMsg(true, 'success', 'Commands updated');
+//     showPage('cmds');
+// }
 
 function alertMsg(status, eventType, msg) {
     let alertBox = document.getElementById('alertBox');
@@ -557,15 +551,52 @@ async function showPage(page) {
     document.getElementById(showPage).style.display = 'block';
 }
 
-function saveSettingsFromForm() {
-    let settingsForm = document.getElementById('settingsForm');
+async function saveSettingsFromForm() {
+    // old save settings   
+    // let settingsForm = document.getElementById('settingsForm');
+    // let botSettingsFromForm = {
+    //     botUsername: botUsername.value,
+    //     botToken: botToken.value,
+    //     clientId: clientId.value,
+    //     channel: channel.value,
+    //     beatGameSound: beatGameSound.value
+    // }
+    // if(beatSpreadSheetUrl.value !== undefined && beatSpreadSheetUrl.value.length > 1) {
+    //     let checkSpreadSheetUrl = beatSpreadSheetUrl.value.search(`https://docs.google.com/spreadsheets/d/`);
+    //     if(checkSpreadSheetUrl !== -1) {
+    //         botSettingsFromForm.beatSpreadSheetUrl = beatSpreadSheetUrl.value;
+    //     }
+    //     else {
+    //         updateStatus('error', 'Invalid Google Spreadsheet URL');
+    //     }
+    // }    
+    // let result = ipc.invoke('botSettingsFromForm', botSettingsFromForm);
+    // showPage('home');
+
+    // new settings page
     let botSettingsFromForm = {
-        botUsername: botUsername.value,
-        botToken: botToken.value,
-        clientId: clientId.value,
-        channel: channel.value,
-        beatGameSound: beatGameSound.value
+        botUsername: document.getElementById('botUsername').value,
+        botToken: document.getElementById('botToken').value,
+        clientId: document.getElementById('clientId').value,
+        channel: document.getElementById('channel').value,
+        beatGameSound: document.getElementById('beatGameSound').value
     }
+    // console.log(botSettingsFromForm);
+
+    let cmdList = document.getElementsByName('cmdSettingCheckbox');
+    let cmdChanges = {};    
+    for(let c = 0; c < cmdList.length; c++) {
+        let cmdName = cmdList[c].id.trim();
+        let cmdStatus = cmdList[c].checked;
+        // console.log(`${cmdList[c].id}: ${cmdList[c].checked}`);
+        cmdChanges[cmdName] = {
+            name: cmdName,
+            enabled: cmdStatus
+        }
+    }
+    await ipc.invoke('updateCmdSettings', cmdChanges);
+
+    let beatSpreadSheetUrl = document.getElementById('beatSpreadSheetUrl');
     if(beatSpreadSheetUrl.value !== undefined && beatSpreadSheetUrl.value.length > 1) {
         let checkSpreadSheetUrl = beatSpreadSheetUrl.value.search(`https://docs.google.com/spreadsheets/d/`);
         if(checkSpreadSheetUrl !== -1) {
@@ -575,8 +606,9 @@ function saveSettingsFromForm() {
             updateStatus('error', 'Invalid Google Spreadsheet URL');
         }
     }    
+    
     let result = ipc.invoke('botSettingsFromForm', botSettingsFromForm);
-    showPage('home');
+    showPage('home');    
 }
 
 function closeBot() {

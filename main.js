@@ -470,6 +470,7 @@ ipcMain.handle('botSettingsFromForm', async (event, args) => {
     statusMsg(`success`, updateMsg);
     updateRecentEvents(updateMsg);
     win.webContents.executeJavaScript(`alertMsg('true','success', '${updateMsg}')`);
+    saveWindowPosition();
     return true;
 });
 
