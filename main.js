@@ -20,7 +20,7 @@ const versionNumber = require('./package.json').version;
 
 
 
-const { ipcMain, app, BrowserWindow } = require('electron');
+const { ipcMain, app, dialog, BrowserWindow } = require('electron');
 // const ipcMain = ipcMain;
 var win = null;
 
@@ -537,19 +537,30 @@ ipcMain.handle('playRandomSound', (event) => {
     updateRecentEvents(`You played random sound ${soundName}`);
 });
 
-ipcMain.handle('saveGoogleCredsFile', (event, args) => {
-    try {
-        fs.copyFileSync(args, googleCredsFilePath);
-        statusMsg('success', 'Google creds file saved.');
-        win.webContents.executeJavaScript(`alertMsg(true, 'success', 'Google creds file saved.')`);
-        checkGoogleCreds();
-        return true;
+ipcMain.handle('loadGoogleCredsFile', async () => {
+    let openOptions = {
+        title: "Open Google Creds File",
+        buttonLabel: "Open",
+        filters: [{name: "JSON", extensions: ['json']}]
+    };
+    let selectedFile = dialog.showOpenDialogSync(win, openOptions);
+    if(selectedFile !== undefined) {
+        try {
+            fs.copyFileSync(selectedFile[0], googleCredsFilePath);
+            statusMsg('success', 'Google creds file saved.');
+            checkGoogleCreds();        
+            win.webContents.executeJavaScript(`loadedGoogleCredsFile(true)`);            
+        }
+        catch(error) {
+            statusMsg('error', `Error saving google creds file: ${error}`);
+            checkGoogleCreds();        
+            win.webContents.executeJavaScript(`loadedGoogleCredsFile(false)`);            
+        }
     }
-    catch(error) {
-        statusMsg('error', `Error saved google creds file: ${error}`);
-        win.webContents.executeJavaScript(`alertMsg(true, 'error', 'Error saving Google creds file. See status box for details.')`);
+    else {
+        statusMsg('error', `Error saving google creds file: No file selected`);
         checkGoogleCreds();
-        return false;
+        win.webContents.executeJavaScript(`loadedGoogleCredsFile(false)`);
     }
 });
 

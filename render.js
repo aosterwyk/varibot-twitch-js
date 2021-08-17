@@ -10,29 +10,25 @@ ipc.on('updateRecentEvents', (event, msg) => {
     updateRecentEvents(msg);
 });
 
-async function loadGoogleCredsFile() {
-    let win = remote.getCurrentWindow();
-    let openOptions = {
-        title: "Open Google Creds File",
-        buttonLabel: "Open",
-        filters: [{name: "JSON", extensions: ['json']}]
-    };
-    let selectedFile = await remote.dialog.showOpenDialogSync(win, openOptions);
-    // console.log(selectedFile);
-    let savedResult = await ipc.invoke('saveGoogleCredsFile', selectedFile[0]);
-    console.log(savedResult);
+function loadedGoogleCredsFile(savedResult) {
     if(savedResult) {
+        alertMsg(true, 'success', 'Google creds file saved.')        
         let googleCredsUploadButton = document.getElementById('googleCredsUploadButton'); 
         googleCredsUploadButton.innerHTML = `Google Creds File Saved &#10003;`
         googleCredsUploadButton.classList.add('btn-success');
         googleCredsUploadButton.classList.add('btn-secondary');
     }
     else {
+        alertMsg(true, 'error', 'Error saving Google creds file. See status box for details.')
         let googleCredsUploadButton = document.getElementById('googleCredsUploadButton'); 
         googleCredsUploadButton.innerHTML = `Error saving file &#10007;`
         googleCredsUploadButton.classList.add('btn-danger');
         googleCredsUploadButton.classList.add('btn-secondary');
     }
+}
+
+function openGoogleCredsFile() {
+    ipc.invoke('loadGoogleCredsFile');
 }
 
 function updateRecentEvents(msg) {
