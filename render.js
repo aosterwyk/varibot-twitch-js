@@ -438,26 +438,26 @@ async function populateSettings(settingsPage) {
                 if(channelRewards[reward].image !== null){
                     rewardImage = channelRewards[reward].image.url_1x;
                 }
-                channelRewardsTableHTML += `<tr><td><img src="${rewardImage}"></td><td>${channelRewards[reward].title}</td></li></ul></td><td><select class="custom-select custom-select-sm w-100">`;
+                channelRewardsTableHTML += `<tr id="${channelRewards[reward].title}"><td><img src="${rewardImage}"></td><td name="channelRewardName">${channelRewards[reward].title}</td></li></ul></td><td><select class="custom-select custom-select-sm w-100" id="${channelRewards[reward].title}" name="channelRewardSound">`;
                 let foundRewardSound = false; 
                 for(let s in soundsList.rewards) {
                     if(channelRewards[reward].title.toLowerCase() == soundsList.rewards[s].name.toLowerCase()) {
-                        channelRewardsTableHTML += `<option selected>`;
+                        channelRewardsTableHTML += `<option value="${soundsList.rewards[s].filename}" selected>`;
                         foundRewardSound = true;
                     }
                     else{
-                        channelRewardsTableHTML += `<option>`;
+                        channelRewardsTableHTML += `<option value="${soundsList.rewards[s].filename}">`;
                     }   
                     channelRewardsTableHTML += `${soundsList.rewards[s].filename}</option>`;
                 }
                 for(let snd = 0; snd < soundsList.random.length; snd++) {
-                    channelRewardsTableHTML += `<option>${soundsList.random[snd]}</option>`;
+                    channelRewardsTableHTML += `<option value="${soundsList.random[snd]}">${soundsList.random[snd]}</option>`;
                 }
                 if(foundRewardSound) {
-                    channelRewardsTableHTML += `<option>none</option></td></tr>`;
+                    channelRewardsTableHTML += `<option value="none">none</option></td></tr>`;
                 }
                 else {
-                    channelRewardsTableHTML += `<option selected>none</option></td></tr>`;
+                    channelRewardsTableHTML += `<option value="none" selected>none</option></td></tr>`;
                 }
             }
         }
@@ -585,28 +585,48 @@ function alertMsg(status, eventType, msg) {
 }
 
 async function saveSoundsForm() {
-    let soundsForm = document.getElementById('soundsForm');
-    let soundsTRs = soundsForm.getElementsByTagName('tr');
+    // old (yes, I'm finally cleaning up this hacky mess)
+    // let soundsForm = document.getElementById('soundsForm');
+    // let soundsTRs = soundsForm.getElementsByTagName('tr');
+    // let newChannelPointsSounds = {};
+    // let newRandomSounds = [];
+    // for(let x = 1; x < soundsTRs.length; x++) { // skip 0, it's the header
+    //     let filename = (soundsTRs[x].childNodes[0].innerText).trim();
+    //     let rewardName = (soundsTRs[x].childNodes[1].childNodes[0].childNodes[3].value).trim();
+    //     let rewardEnabled = soundsTRs[x].childNodes[1].childNodes[0].childNodes[1].childNodes[0].childNodes[0].checked;
+    //     if(rewardEnabled) {
+    //         newChannelPointsSounds[rewardName] = {
+    //             name: rewardName,
+    //             filename: filename
+    //         }
+    //     }
+    //     else {
+    //         newRandomSounds.push(filename);
+    //     }    
+    // }
+    // let newSoundsSettings = [newChannelPointsSounds, newRandomSounds];
+    // await ipc.invoke('newSoundsSettings', newSoundsSettings);
+    // alertMsg(true, 'success', 'Sounds updated');
+    // showPage('sounds');
+
+
+    // new
+    let newChannelRewards = document.getElementsByName('channelRewardSound');
     let newChannelPointsSounds = {};
-    let newRandomSounds = [];
-    for(let x = 1; x < soundsTRs.length; x++) { // skip 0, it's the header
-        let filename = (soundsTRs[x].childNodes[0].innerText).trim();
-        let rewardName = (soundsTRs[x].childNodes[1].childNodes[0].childNodes[3].value).trim();
-        let rewardEnabled = soundsTRs[x].childNodes[1].childNodes[0].childNodes[1].childNodes[0].childNodes[0].checked;
-        if(rewardEnabled) {
-            newChannelPointsSounds[rewardName] = {
-                name: rewardName,
-                filename: filename
+    let newRandomSounds = {};
+    for(let cr = 0; cr < newChannelRewards.length; cr++) {
+        // console.log(`Name: ${newChannelRewards[cr].id} Value: ${newChannelRewards[cr].value}`);
+        if(newChannelRewards[cr].value != 'none') {
+            newChannelPointsSounds[newChannelRewards[cr].id] = {
+                name: newChannelRewards[cr].id,
+                filename: newChannelRewards[cr].value
             }
         }
-        else {
-            newRandomSounds.push(filename);
-        }    
     }
-    let newSoundsSettings = [newChannelPointsSounds, newRandomSounds];
-    await ipc.invoke('newSoundsSettings', newSoundsSettings);
+
+    await ipc.invoke('newSoundsSettings', newChannelPointsSounds);
     alertMsg(true, 'success', 'Sounds updated');
-    showPage('sounds');
+    showPage('channelPoints');
 }
 
 async function showPage(page) {

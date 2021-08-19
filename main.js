@@ -427,16 +427,27 @@ ipcMain.handle('createStreamMarker', async (event) => {
 });
 
 ipcMain.handle('newSoundsSettings', async (event, args) => {
+    // old
+    // let newChannelPointsSounds = {};
+    // for(let key in args[0]) {
+    //     newChannelPointsSounds[args[0][key].name] = args[0][key].filename;
+    // }
+    // // await setChannelPointsSounds(soundsSettingsFilePath, newChannelPointsSounds);
+    // // await loadChannelPointsSounds(); // load channel points sounds     
+    // // if(soundsDir.length > 1) {
+    // //     randomSounds = []; // clear random sounds array
+    // //     randomSounds = await loadSounds(soundsDir, channelPointsFilenames); // rebuild random sounds array
+    // // }
     let newChannelPointsSounds = {};
-    for(let key in args[0]) {
-        newChannelPointsSounds[args[0][key].name] = args[0][key].filename;
+    for(let key in args) {
+        newChannelPointsSounds[args[key].name] = args[key].filename;
     }
     await setChannelPointsSounds(soundsSettingsFilePath, newChannelPointsSounds);
     await loadChannelPointsSounds(); // load channel points sounds     
     if(soundsDir.length > 1) {
         randomSounds = []; // clear random sounds array
         randomSounds = await loadSounds(soundsDir, channelPointsFilenames); // rebuild random sounds array
-    }
+    }    
 });
 
 ipcMain.handle('botSettingsFromForm', async (event, args) => {
