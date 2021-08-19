@@ -114,6 +114,12 @@ async function runAd(channelId, clientId, token, adLength) {
     return returnResult;
 }   
 
+async function getTwitchUserInfo(userId, clientId, token) {
+    let url = `https://api.twitch.tv/helix/users?id=${userId}`;
+    const result = await twitchAPI(url, clientId, token);
+    return result.data;
+}
+
 async function getChannelRewards(channelName, clientId, token) {
     let channelId = await getChannelID(channelName, clientId, token);
     let url = `https://api.twitch.tv/helix/channel_points/custom_rewards?broadcaster_id=${channelId}`;
@@ -127,3 +133,4 @@ module.exports.getStreamTitle = getStreamTitle;
 module.exports.createStreamMarker = createStreamMarker;
 module.exports.runAd = runAd;
 module.exports.getChannelRewards = getChannelRewards;
+module.exports.getTwitchUserInfo = getTwitchUserInfo;

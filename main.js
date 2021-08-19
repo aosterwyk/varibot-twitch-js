@@ -115,7 +115,7 @@ async function runCommand(targetChannel, fromMod, context, inputCmd, args) {
                     .catch(error => {console.log(error);});
                     client.say(targetChannel, beatMsg);
                     statusMsg('success', beatMsg);
-                    updateRecentEvents(beatMsg);
+                    // updateRecentEvents(beatMsg);
                     win.webContents.executeJavaScript(`playSound('${botSettings.beatGameSound}')`);
                 }
                 else{
@@ -259,21 +259,21 @@ async function startBot() {
             channels: [botSettings.channel]
         }; 
         client = new tmi.client(options);    
-        // client.connect()
-        // .catch((error) => {
-        //     if(error.includes('Login authentication failed')) {
-        //         let errorString = `Invalid token. Please get a new token and update bot settings.`;
-        //         statusMsg('error', errorString);
-        //         // win.webContents.executeJavaScript(`showPage('settings')`); TO DO - UNCOMMENT AFTER FIXING SETTINGS PAGE
-        //         win.webContents.executeJavaScript(`alertMsg(true, 'error', '${errorString}')`);        
-        //         win.webContents.executeJavaScript(`setConnectionStatus('chatBot', 'error', 'Invalid token. Please get a new token and update bot settings.')`);           
-        //     }
-        //     else {
-        //         statusMsg('error', `Error connecting: ${error}`);
-        //         win.webContents.executeJavaScript(`setConnectionStatus('chatBot', 'error', '${error}')`);                
-        //     }
-        //     return;
-        // });
+        client.connect()
+        .catch((error) => {
+            if(error.includes('Login authentication failed')) {
+                let errorString = `Invalid token. Please get a new token and update bot settings.`;
+                statusMsg('error', errorString);
+                // win.webContents.executeJavaScript(`showPage('settings')`); TO DO - UNCOMMENT AFTER FIXING SETTINGS PAGE
+                win.webContents.executeJavaScript(`alertMsg(true, 'error', '${errorString}')`);        
+                win.webContents.executeJavaScript(`setConnectionStatus('chatBot', 'error', 'Invalid token. Please get a new token and update bot settings.')`);           
+            }
+            else {
+                statusMsg('error', `Error connecting: ${error}`);
+                win.webContents.executeJavaScript(`setConnectionStatus('chatBot', 'error', '${error}')`);                
+            }
+            return;
+        });
         client.on('connected', (address, port) => {
             let chatbotConnectedMessage = `Chatbot (${options.identity.username}) connected to ${address}:${port}`;
             // console.log(chatbotConnectedMessage);
@@ -303,41 +303,41 @@ async function startBot() {
         });
 
 
-        // pubsubSocket.onopen = async function(e) {
-        //     botSettings = await getBotSettings(botSettingsFilePath);            
-        //     if(botSettings !== undefined) {
-        //         try {
-        //             let channelId = await twitchAPI.getChannelID(botSettings.channel, botSettings.clientId, botSettings.token);
-        //             let connectMsg =  {
-        //                 type: "LISTEN",
-        //                 nonce: "44h1k13746815ab1r2",
-        //                 data:  {
-        //                 topics: ["channel-points-channel-v1." + channelId],
-        //                 auth_token: botSettings.token
-        //                 }
-        //             };
-        //             pubsubSocket.send(JSON.stringify(connectMsg));
-        //             let pubsubConnectedMessage = `Pubsub connected. Listed topics: ${connectMsg.data.topics}`;
-        //             // console.log(pubsubConnectedMessage);
-        //             statusMsg('info', pubsubConnectedMessage);
-        //             win.webContents.executeJavaScript(`setConnectionStatus('pubsub', 'connected', 'none')`);                                
-        //             pubsubPings();
-        //         }
-        //         catch(error) {
-        //             console.log(error);
-        //             statusMsg('error', `Pubsub connection error: ${error}`);
-        //             win.webContents.executeJavaScript(`setConnectionStatus('pubsub', 'error', '${error}')`);                                                      
-        //         }
-        //     }
-        // };
+        pubsubSocket.onopen = async function(e) {
+            botSettings = await getBotSettings(botSettingsFilePath);            
+            if(botSettings !== undefined) {
+                try {
+                    let channelId = await twitchAPI.getChannelID(botSettings.channel, botSettings.clientId, botSettings.token);
+                    let connectMsg =  {
+                        type: "LISTEN",
+                        nonce: "44h1k13746815ab1r2",
+                        data:  {
+                        topics: ["channel-points-channel-v1." + channelId],
+                        auth_token: botSettings.token
+                        }
+                    };
+                    pubsubSocket.send(JSON.stringify(connectMsg));
+                    let pubsubConnectedMessage = `Pubsub connected. Listed topics: ${connectMsg.data.topics}`;
+                    // console.log(pubsubConnectedMessage);
+                    statusMsg('info', pubsubConnectedMessage);
+                    win.webContents.executeJavaScript(`setConnectionStatus('pubsub', 'connected', 'none')`);                                
+                    pubsubPings();
+                }
+                catch(error) {
+                    console.log(error);
+                    statusMsg('error', `Pubsub connection error: ${error}`);
+                    win.webContents.executeJavaScript(`setConnectionStatus('pubsub', 'error', '${error}')`);                                                      
+                }
+            }
+        };
         
         win.webContents.executeJavaScript(`updateSoundsList()`);
         win.webContents.executeJavaScript(`showPage('home')`);        
 
     }
     else {
-        // win.webContents.executeJavaScript(`showPage('settings')`);
-        // win.webContents.executeJavaScript(`alertMsg(true, 'error', 'Invalid bot settings. Please update settings and restart bot.')`);        
+        win.webContents.executeJavaScript(`showPage('settings')`);
+        win.webContents.executeJavaScript(`alertMsg(true, 'error', 'Invalid bot settings. Please update settings and restart bot.')`);        
     }
 }
 
@@ -396,14 +396,16 @@ ipcMain.handle('runAd', async (event) => {
         // console.log(adResult);
         if(adResult.result) {
             statusMsg(`success`, `Running a ${adResult.adLength} second ad`);
-            updateRecentEvents(`You ran a ${adResult.adLength} second ad. Next ad can run in ${adResult.retry_after} seconds.`);            
+            // updateRecentEvents(`You ran a ${adResult.adLength} second ad. Next ad can run in ${adResult.retry_after} seconds.`);            
+            updateRecentEvents('you', 'you', `ran a ${adResult.adLength} second ad. Next ad can run in ${adResult.retry_after} seconds.`);
         }
         else {
             statusMsg(`error`, `Error running ad: ${adResult.message}`);
             if((adResult.message).search(`Missing scope`) !== -1) { 
                 statusMsg(`error`, `Missing scope for command. Please create a new token by clicking Get Token in the settings page. DO NOT DO THIS WHILE LIVE!`);
             }
-            updateRecentEvents(`Error running ad. Check status box below for details`);
+            // updateRecentEvents(`Error running ad. Check status box below for details`);
+            updateRecentEvents('system', 'system', `Error running ad. Check status box below for details`);
         }
     }
 });
@@ -414,14 +416,16 @@ ipcMain.handle('createStreamMarker', async (event) => {
         const markerResult = await twitchAPI.createStreamMarker(channelId, botSettings.clientId, botSettings.token, `Created from VariBot quick actions`)
         if(markerResult.result) { 
             statusMsg(`success`, `Created stream marker (ID: ${markerResult.id}) at ${markerResult.position_seconds} seconds`);
-            updateRecentEvents(`You created a stream marker`);
+            // updateRecentEvents(`You created a stream marker`);
+            updateRecentEvents('you', 'you', `You created a stream marker`);
         }
         else {
             statusMsg(`error`, `Error creating stream marker: ${markerResult.message}`);
             if((markerResult.message).search(`Missing scope`) !== -1) { 
                 statusMsg(`error`, `Missing scope for command. Please create a new token by clicking Get Token in the settings page. DO NOT DO THIS WHILE LIVE!`);
             }            
-            updateRecentEvents(`Error creating stream marker. Check status box below for details`);
+            // updateRecentEvents(`Error creating stream marker. Check status box below for details`);
+            updateRecentEvents('system', 'system', `Error creating stream marker. Check status box below for details`);
         }
     }
 });
@@ -485,7 +489,8 @@ ipcMain.handle('botSettingsFromForm', async (event, args) => {
     }
     let updateMsg = `Settings updated. You will need to restart if your token was added or changed.`;
     statusMsg(`success`, updateMsg);
-    updateRecentEvents(updateMsg);
+    // updateRecentEvents(updateMsg);
+    updateRecentEvents('system', 'system', updateMsg);
     win.webContents.executeJavaScript(`alertMsg('true','success', '${updateMsg}')`);
     saveWindowPosition();
     return true;
@@ -551,7 +556,8 @@ ipcMain.handle('getSoundsSettings', async (event, args) => {
 
 ipcMain.handle('playRandomSound', (event) => {
     let soundName = playRandomSound();
-    updateRecentEvents(`You played random sound ${soundName}`);
+    // updateRecentEvents(`You played random sound ${soundName}`);
+    updateRecentEvents('you','you',`You played random sound ${soundName}`);
 });
 
 ipcMain.handle('loadGoogleCredsFile', async () => {
@@ -590,8 +596,17 @@ function statusMsg(msgType, msg) {
     console.log(msg);
 }
 
-function updateRecentEvents(msg) {
-    win.webContents.send('updateRecentEvents', msg);
+// function updateRecentEvents(msg) {
+//     win.webContents.send('updateRecentEvents', msg);
+// }
+
+function updateRecentEvents(image, user, msg) {
+    let eventInfo = {
+        image: image,
+        user: user,
+        msg: msg
+    };
+    win.webContents.send('updateRecentEvents', eventInfo);
 }
 
 // electron end
@@ -606,26 +621,32 @@ function playRandomSound() {
     return randomSound;
 }
 
-function proecssReward(reward) {
+async function proecssReward(reward) {
     statusMsg(`reward`, 'Reward ' + reward.data.redemption.reward.title + ' was redeemed by ' + reward.data.redemption.user.display_name + ' for ' + reward.data.redemption.reward.cost + ' points');
     if(reward.data.redemption.reward.title.toLowerCase() == 'random sound') {
         // add a while loop to re-roll random if it picks the same sound twice or the beat game sound
         let soundName = playRandomSound();
-        updateRecentEvents(`${reward.data.redemption.user.display_name} played random sound ${soundName}`);
+        let userInfo = await twitchAPI.getTwitchUserInfo(reward.data.redemption.user.id, botSettings.clientId, botSettings.token);
+        let userImg = userInfo[0].profile_image_url;
+        updateRecentEvents(`${userImg}`,`${reward.data.redemption.user.display_name}`,`played random sound ${soundName}`);
+        // updateRecentEvents(`${reward.data.redemption.user.display_name} played random sound ${soundName}`);
     }
     else {
         for(let x in channelPointsSounds) {
             if(channelPointsSounds[x].name.toLowerCase() == reward.data.redemption.reward.title.toLowerCase()) {
                 win.webContents.executeJavaScript(`playSound('${channelPointsSounds[x].filename}')`);
                 statusMsg(`info`, `Playing sound ${channelPointsSounds[x].name} (${channelPointsSounds[x].filename})`);
-                updateRecentEvents(`${reward.data.redemption.user.display_name} played sound ${channelPointsSounds[x].filename}`);
+                let userInfo = await twitchAPI.getTwitchUserInfo(reward.data.redemption.user.id, botSettings.clientId, botSettings.token);
+                let userImg = userInfo[0].profile_image_url;                
+                updateRecentEvents(`${userImg}`,`${reward.data.redemption.user.display_name}`, `played sound ${channelPointsSounds[x].filename}`);
+                // updateRecentEvents(`${reward.data.redemption.user.display_name} played sound ${channelPointsSounds[x].filename}`);
                 break;
             }   
         }
     }
 }
 
-function pubsubHandle(msg) {
+async function pubsubHandle(msg) {
     if(msg.type == 'MESSAGE') {
         pubsubMessage = JSON.parse(msg.data.message);
         if(pubsubMessage.type == 'reward-redeemed') {
@@ -679,10 +700,13 @@ app.on('ready', () => {
 
 autoUpdater.on('update-available', () => {
     statusMsg(`info`, `Update available. Starting download.`);
+    updateRecentEvents(`system`,`system`, `Update available. Starting download.`);
 });
 
 autoUpdater.on('update-downloaded', () => {
-    updateRecentEvents(`Update downloaded. Update will be installed next time the bot is closed.`);
+    // updateRecentEvents(`Update downloaded. Update will be installed next time the bot is closed.`);
+    statusMsg(`info`, `Update downloaded. Update will be installed next time the bot is closed.`);
+    updateRecentEvents(`system`,`system`,`Update downloaded. Update will be installed next time the bot is closed.`);
 });
 
 startBot();
