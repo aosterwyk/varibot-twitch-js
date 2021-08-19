@@ -259,21 +259,21 @@ async function startBot() {
             channels: [botSettings.channel]
         }; 
         client = new tmi.client(options);    
-        client.connect()
-        .catch((error) => {
-            if(error.includes('Login authentication failed')) {
-                let errorString = `Invalid token. Please get a new token and update bot settings.`;
-                statusMsg('error', errorString);
-                // win.webContents.executeJavaScript(`showPage('settings')`); TO DO - UNCOMMENT AFTER FIXING SETTINGS PAGE
-                win.webContents.executeJavaScript(`alertMsg(true, 'error', '${errorString}')`);        
-                win.webContents.executeJavaScript(`setConnectionStatus('chatBot', 'error', 'Invalid token. Please get a new token and update bot settings.')`);           
-            }
-            else {
-                statusMsg('error', `Error connecting: ${error}`);
-                win.webContents.executeJavaScript(`setConnectionStatus('chatBot', 'error', '${error}')`);                
-            }
-            return;
-        });
+        // client.connect()
+        // .catch((error) => {
+        //     if(error.includes('Login authentication failed')) {
+        //         let errorString = `Invalid token. Please get a new token and update bot settings.`;
+        //         statusMsg('error', errorString);
+        //         // win.webContents.executeJavaScript(`showPage('settings')`); TO DO - UNCOMMENT AFTER FIXING SETTINGS PAGE
+        //         win.webContents.executeJavaScript(`alertMsg(true, 'error', '${errorString}')`);        
+        //         win.webContents.executeJavaScript(`setConnectionStatus('chatBot', 'error', 'Invalid token. Please get a new token and update bot settings.')`);           
+        //     }
+        //     else {
+        //         statusMsg('error', `Error connecting: ${error}`);
+        //         win.webContents.executeJavaScript(`setConnectionStatus('chatBot', 'error', '${error}')`);                
+        //     }
+        //     return;
+        // });
         client.on('connected', (address, port) => {
             let chatbotConnectedMessage = `Chatbot (${options.identity.username}) connected to ${address}:${port}`;
             // console.log(chatbotConnectedMessage);
@@ -303,36 +303,37 @@ async function startBot() {
         });
 
 
-        pubsubSocket.onopen = async function(e) {
-            botSettings = await getBotSettings(botSettingsFilePath);            
-            if(botSettings !== undefined) {
-                try {
-                    let channelId = await twitchAPI.getChannelID(botSettings.channel, botSettings.clientId, botSettings.token);
-                    let connectMsg =  {
-                        type: "LISTEN",
-                        nonce: "44h1k13746815ab1r2",
-                        data:  {
-                        topics: ["channel-points-channel-v1." + channelId],
-                        auth_token: botSettings.token
-                        }
-                    };
-                    pubsubSocket.send(JSON.stringify(connectMsg));
-                    let pubsubConnectedMessage = `Pubsub connected. Listed topics: ${connectMsg.data.topics}`;
-                    // console.log(pubsubConnectedMessage);
-                    statusMsg('info', pubsubConnectedMessage);
-                    win.webContents.executeJavaScript(`setConnectionStatus('pubsub', 'connected', 'none')`);                                
-                    pubsubPings();
-                }
-                catch(error) {
-                    console.log(error);
-                    statusMsg('error', `Pubsub connection error: ${error}`);
-                    win.webContents.executeJavaScript(`setConnectionStatus('pubsub', 'error', '${error}')`);                                                      
-                }
-            }
-        };
+        // pubsubSocket.onopen = async function(e) {
+        //     botSettings = await getBotSettings(botSettingsFilePath);            
+        //     if(botSettings !== undefined) {
+        //         try {
+        //             let channelId = await twitchAPI.getChannelID(botSettings.channel, botSettings.clientId, botSettings.token);
+        //             let connectMsg =  {
+        //                 type: "LISTEN",
+        //                 nonce: "44h1k13746815ab1r2",
+        //                 data:  {
+        //                 topics: ["channel-points-channel-v1." + channelId],
+        //                 auth_token: botSettings.token
+        //                 }
+        //             };
+        //             pubsubSocket.send(JSON.stringify(connectMsg));
+        //             let pubsubConnectedMessage = `Pubsub connected. Listed topics: ${connectMsg.data.topics}`;
+        //             // console.log(pubsubConnectedMessage);
+        //             statusMsg('info', pubsubConnectedMessage);
+        //             win.webContents.executeJavaScript(`setConnectionStatus('pubsub', 'connected', 'none')`);                                
+        //             pubsubPings();
+        //         }
+        //         catch(error) {
+        //             console.log(error);
+        //             statusMsg('error', `Pubsub connection error: ${error}`);
+        //             win.webContents.executeJavaScript(`setConnectionStatus('pubsub', 'error', '${error}')`);                                                      
+        //         }
+        //     }
+        // };
         
         win.webContents.executeJavaScript(`updateSoundsList()`);
         win.webContents.executeJavaScript(`showPage('home')`);        
+
     }
     else {
         // win.webContents.executeJavaScript(`showPage('settings')`);
@@ -381,6 +382,11 @@ app.on('activate', () => {
 if (BrowserWindow.getAllWindows().length === 0) {
     createWindow();
 }
+});
+
+ipcMain.handle('getChannelRewards', async () => {
+    let channelRewards = await twitchAPI.getChannelRewards(botSettings.channel, botSettings.clientId, botSettings.token);
+    return channelRewards;
 });
 
 ipcMain.handle('runAd', async (event) => {
