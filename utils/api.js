@@ -127,6 +127,14 @@ async function getChannelRewards(channelName, clientId, token) {
     return result;
 }
 
+async function updateChannelPointRedemption(redemptionId, channelId, rewardId, clientId, token, newStatus) {
+    let url = `https://api.twitch.tv/helix/channel_points/custom_rewards/redemptions?broadcaster_id=${channelId}&reward_id=${rewardId}&id=${redemptionId}`;
+    const result = await fetch(url, {method: 'PATCH', headers: {'Client-ID': clientId, 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json'},
+    body: `{"status":"${newStatus}"}`});   
+    // Can be either FULFILLED or CANCELED. Updating to CANCELED will refund the user their Channel Points.
+    return result;
+}
+
 module.exports.getChannelID = getChannelID;
 module.exports.getCurrentGame = getCurrentGame;
 module.exports.getStreamTitle = getStreamTitle;
@@ -134,3 +142,4 @@ module.exports.createStreamMarker = createStreamMarker;
 module.exports.runAd = runAd;
 module.exports.getChannelRewards = getChannelRewards;
 module.exports.getTwitchUserInfo = getTwitchUserInfo;
+module.exports.updateChannelPointRedemption = updateChannelPointRedemption;

@@ -213,7 +213,7 @@ function checkWin() {
 async function externalLink(destination) {
     let result = await ipc.invoke('getCurrentSettings');   
     if(destination == 'token') {
-        shell.openExternal(`https://id.twitch.tv/oauth2/authorize?client_id=rq2a841j8f63fndu5lnbwzwmbzamoy&redirect_uri=https://acceptdefaults.com/twitch-oauth-token-generator/&response_type=token&scope=bits:read+channel:read:redemptions+channel:moderate+chat:edit+chat:read+user:edit:broadcast+channel:edit:commercial`);
+        shell.openExternal(`https://id.twitch.tv/oauth2/authorize?client_id=rq2a841j8f63fndu5lnbwzwmbzamoy&redirect_uri=https://acceptdefaults.com/twitch-oauth-token-generator/&response_type=token&scope=bits:read+channel:read:redemptions+channel:manage:redemptions+channel:moderate+chat:edit+chat:read+user:edit:broadcast+channel:edit:commercial`);
     }
     else if(destination == 'manageRewards') {
         shell.openExternal(`https://dashboard.twitch.tv/u/${result.username.toLowerCase()}/community/channel-points/rewards`);

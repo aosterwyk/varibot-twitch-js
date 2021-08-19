@@ -623,11 +623,20 @@ function playRandomSound() {
 
 async function proecssReward(reward) {
     statusMsg(`reward`, 'Reward ' + reward.data.redemption.reward.title + ' was redeemed by ' + reward.data.redemption.user.display_name + ' for ' + reward.data.redemption.reward.cost + ' points');
+    // console.log(reward.data.redemption);
+    // console.log(`Redemption ID: ${reward.data.redemption.id}`);
+    // console.log(`Reward ID: ${reward.data.redemption.reward.id}`);
+    // console.log(`Channel ID: ${reward.data.redemption.reward.channel_id}`);        
+    let redemptionId = reward.data.redemption.id;  
+    let rewardId = reward.data.redemption.reward.id;
+    let rewardChannelId = reward.data.redemption.reward.channel_id;
+
     if(reward.data.redemption.reward.title.toLowerCase() == 'random sound') {
         // add a while loop to re-roll random if it picks the same sound twice or the beat game sound
         let soundName = playRandomSound();
         let userInfo = await twitchAPI.getTwitchUserInfo(reward.data.redemption.user.id, botSettings.clientId, botSettings.token);
         let userImg = userInfo[0].profile_image_url;
+        // updateChannelPointRedemption(redemptionId, rewardChannelId, rewardId, botSettings.clientId, botSettings.token, 'FULFILLED'); // maybe one day, the client ID used by the bot has to create the reward for this to work 
         updateRecentEvents(`${userImg}`,`${reward.data.redemption.user.display_name}`,`played random sound ${soundName}`);
         // updateRecentEvents(`${reward.data.redemption.user.display_name} played random sound ${soundName}`);
     }
@@ -637,7 +646,8 @@ async function proecssReward(reward) {
                 win.webContents.executeJavaScript(`playSound('${channelPointsSounds[x].filename}')`);
                 statusMsg(`info`, `Playing sound ${channelPointsSounds[x].name} (${channelPointsSounds[x].filename})`);
                 let userInfo = await twitchAPI.getTwitchUserInfo(reward.data.redemption.user.id, botSettings.clientId, botSettings.token);
-                let userImg = userInfo[0].profile_image_url;                
+                let userImg = userInfo[0].profile_image_url;     
+                // updateChannelPointRedemption(redemptionId, rewardChannelId, rewardId, botSettings.clientId, botSettings.token, 'FULFILLED');                           
                 updateRecentEvents(`${userImg}`,`${reward.data.redemption.user.display_name}`, `played sound ${channelPointsSounds[x].filename}`);
                 // updateRecentEvents(`${reward.data.redemption.user.display_name} played sound ${channelPointsSounds[x].filename}`);
                 break;
