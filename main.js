@@ -386,7 +386,7 @@ if (BrowserWindow.getAllWindows().length === 0) {
 
 ipcMain.handle('getChannelRewards', async () => {
     let channelRewards = await twitchAPI.getChannelRewards(botSettings.channel, botSettings.clientId, botSettings.token);
-    return channelRewards;
+    return channelRewards.data;
 });
 
 ipcMain.handle('runAd', async (event) => {

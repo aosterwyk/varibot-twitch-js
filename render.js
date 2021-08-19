@@ -241,10 +241,10 @@ async function populateSettings(settingsPage) {
 
     // TO DO - settings and sounds load but they're the old versions 
 
-    if(settingsPage.toLowerCase() == 'home') { 
+    if(settingsPage == 'home') { 
         // no settings 
     }
-    if(settingsPage.toLowerCase() == 'settings') {
+    if(settingsPage == 'settings') {
         // old settings page
     //     let settingsPageHTML = `<div class="card my-4">
     //     <div class="card-header">General Settings</div>              
@@ -384,7 +384,7 @@ async function populateSettings(settingsPage) {
         }
         document.getElementById('commandsSettingsList').innerHTML = newCmdSettingsList;
     }
-    if(settingsPage.toLowerCase() == 'sounds') {
+    if(settingsPage == 'channelPoints') {
         // old sounds page
         // await ipc.invoke('loadSounds');        
         // let result = await ipc.invoke('getSoundsSettings');
@@ -425,9 +425,44 @@ async function populateSettings(settingsPage) {
 
 
         await ipc.invoke('loadSounds');        
-        let soundsResult = await ipc.invoke('getSoundsSettings');
+        let soundsList = await ipc.invoke('getSoundsSettings');
         let channelRewards = await ipc.invoke('getChannelRewards');
-        console.log(channelRewards);
+        let channelRewardsTable = document.getElementById('channelRewardsTable');
+        let channelRewardsTableHTML = ``;
+        if(channelRewards !== undefined && channelRewards.length > 0) {
+            for(let reward = 0; reward < channelRewards.length; reward++) {
+                if(channelRewards[reward].title.toLowerCase() == 'random sound') {
+                    continue;
+                }
+                let rewardImage = channelRewards[reward].default_image.url_1x
+                if(channelRewards[reward].image !== null){
+                    rewardImage = channelRewards[reward].image.url_1x;
+                }
+                channelRewardsTableHTML += `<tr><td><img src="${rewardImage}"></td><td>${channelRewards[reward].title}</td></li></ul></td><td><select class="custom-select custom-select-sm w-100">`;
+                let foundRewardSound = false; 
+                for(let s in soundsList.rewards) {
+                    if(channelRewards[reward].title.toLowerCase() == soundsList.rewards[s].name.toLowerCase()) {
+                        channelRewardsTableHTML += `<option selected>`;
+                        foundRewardSound = true;
+                    }
+                    else{
+                        channelRewardsTableHTML += `<option>`;
+                    }   
+                    channelRewardsTableHTML += `${soundsList.rewards[s].filename}</option>`;
+                }
+                for(let snd = 0; snd < soundsList.random.length; snd++) {
+                    channelRewardsTableHTML += `<option>${soundsList.random[snd]}</option>`;
+                }
+                if(foundRewardSound) {
+                    channelRewardsTableHTML += `<option>none</option></td></tr>`;
+                }
+                else {
+                    channelRewardsTableHTML += `<option selected>none</option></td></tr>`;
+                }
+            }
+        }
+
+        channelRewardsTable.innerHTML = channelRewardsTableHTML;
         // // console.log(`render result: ${result}`);
         // let soundsPageHTML = `<div class="card"><div class="card-header">Sounds</div><div class="card-body">`;
         // if(result !== undefined) {
@@ -487,7 +522,7 @@ async function populateSettings(settingsPage) {
     //     }
     //     document.getElementById('cmds').innerHTML = cmdPageHTML;
     // }
-    if(settingsPage.toLowerCase() == 'about') {
+    if(settingsPage == 'about') {
         let result = await ipc.invoke('getAbout');
         document.getElementById('aboutBotVersion').innerHTML = `VariBot v${result.versionNumber}`;
         document.getElementById('aboutSoundsLoaded').innerHTML = `Random sounds loaded: ${result.randomSoundsCount}`;
@@ -575,10 +610,10 @@ async function saveSoundsForm() {
 }
 
 async function showPage(page) {
-    let pages = ['home','settings','sounds','about'];
+    let pages = ['home','settings','channelPoints','about'];
     let showPage;
     for(let p = 0; p < pages.length; p++) { 
-        if(pages[p] == page.toLowerCase()) {
+        if(pages[p] == page) {
             showPage = pages[p];
         }
         document.getElementById(pages[p]).style.display = 'none';
