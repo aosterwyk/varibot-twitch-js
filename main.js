@@ -264,7 +264,7 @@ async function startBot() {
             if(error.includes('Login authentication failed')) {
                 let errorString = `Invalid token. Please get a new token and update bot settings.`;
                 statusMsg('error', errorString);
-                // win.webContents.executeJavaScript(`showPage('settings')`); TO DO - UNCOMMENT AFTER FIXING SETTINGS PAGE
+                win.webContents.executeJavaScript(`showPage('settings')`);
                 win.webContents.executeJavaScript(`alertMsg(true, 'error', '${errorString}')`);        
                 win.webContents.executeJavaScript(`setConnectionStatus('chatBot', 'error', 'Invalid token. Please get a new token and update bot settings.')`);           
             }
