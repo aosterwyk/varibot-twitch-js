@@ -231,8 +231,6 @@ async function startBot() {
         }
 
         if(botSettings.token === undefined || botSettings.token.length < 1) { 
-            // console.log('Invalid auth token. Please use the link below to authorize the bot and get a token.');
-            // console.log(`https://id.twitch.tv/oauth2/authorize?client_id=${botSettings.clientId}&redirect_uri=https://acceptdefaults.com/twitch-oauth-token-generator/&response_type=token&scope=bits:read+channel:read:redemptions+channel:moderate+chat:edit+chat:read+user:edit:broadcast`);
             readyToConnect = false;
             statusMsg(`error`,`Invalid bot settings. Please run setup.`);        
         } 
