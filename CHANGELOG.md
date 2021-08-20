@@ -6,8 +6,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 _No unreleased changes_
+
+## [2.0.0] - 2021-08-
+### Added
+- Added ability to read custom channel rewards
+- Added user icon to recent events list
+- Added window settings config file to use last window size and position on startup 
+
 ### Changed 
 - Changed bot settings and channel points to use individual settings files (%appdata%\varbot\configs) instead of DB
+- Changed template for all pages
+- Changed how settings are read and saved from settings pages
+- Changed "Sounds" page to "Channel Points" 
+- Changed soundboard layout to dynamic sizes and amount of buttons 
+- Changed recent events layout
+- Changed google creds file load function to use main process instead of remote (deprecated)
+- Changed channel point rewards sounds setup. Rewards are now linked to sounds instead of sounds to rewards. Rewards auto-populate and no longer need to be typed in settings page. 
 
 ### Removed
 - Removed sequelize and sqlite3
@@ -97,6 +111,7 @@ _No unreleased changes_
 ## [1.0.0] - 2020-06-25
 ### Initial Release
 
+[2.0.0]: https://github.com/VariXx/varibot-twitch-js/tree/v2.0.0
 [1.2.1]: https://github.com/VariXx/varibot-twitch-js/tree/v1.2.1
 [1.2.0]: https://github.com/VariXx/varibot-twitch-js/tree/v1.2.0
 [1.1.1]: https://github.com/VariXx/varibot-twitch-js/tree/v1.1.1
