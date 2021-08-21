@@ -32,6 +32,22 @@ _No unreleased changes_
 - Updated electron to 10.2.0 for CVE-2020-26272
 - Updated ws to 7.4.6 for CVE-2021-32640
 
+## [1.2.4] - 2021-06-12
+### Added
+- Added function to save configs to files for upcoming 2.0 changes
+
+### Security
+- Updated google-spreadsheet to 3.1.15 for [CVE-2020-28168](https://github.com/advisories/GHSA-4w2v-q235-vp99) (axios)
+- Updated ws to 7.4.6 for [CVE-2021-32640](https://github.com/advisories/GHSA-6fc8-4gx4-v693)
+- Updated electron to 10.2.0 for [CVE-2020-26272](https://github.com/advisories/GHSA-hvf8-h2qh-37m9)
+
+## [1.2.3] - 2020-11-04
+### Security
+- Updated electron to 9.3.1 for [CVE-2020-15215](https://github.com/advisories/GHSA-56pc-6jqp-xqj8) 
+
+### Fixed 
+- Fixed settings page not populating when starting bot without settings
+
 ## [1.2.2] - 2020-09-18
 ### Security
 - Updated node-fetch to 2.6.1 for CVE-2020-15168
@@ -112,6 +128,9 @@ _No unreleased changes_
 ### Initial Release
 
 [2.0.0]: https://github.com/VariXx/varibot-twitch-js/tree/v2.0.0
+[1.2.4]: https://github.com/VariXx/varibot-twitch-js/tree/v1.2.4
+[1.2.3]: https://github.com/VariXx/varibot-twitch-js/tree/v1.2.3
+[1.2.2]: https://github.com/VariXx/varibot-twitch-js/tree/v1.2.2
 [1.2.1]: https://github.com/VariXx/varibot-twitch-js/tree/v1.2.1
 [1.2.0]: https://github.com/VariXx/varibot-twitch-js/tree/v1.2.0
 [1.1.1]: https://github.com/VariXx/varibot-twitch-js/tree/v1.1.1
