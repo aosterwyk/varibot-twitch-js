@@ -32,6 +32,10 @@ function openGoogleCredsFile() {
     ipc.invoke('loadGoogleCredsFile');
 }
 
+// function testButton() {
+//     updateRecentEvents('icon.png', '123456789012345678901234567890', 'long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text ');
+// }
+
 // function updateRecentEvents(msg) {
 function updateRecentEvents(image,user,msg) {
     let recentList = document.getElementById('recentList');
@@ -63,7 +67,7 @@ function updateRecentEvents(image,user,msg) {
             break;
         }
     }
-    recentList.innerHTML = `<tr><td>${userImg}</td><td class='text-primary'>${userDisplayName}</td><td> ${msg}</td></tr>${recentList.innerHTML}`;
+    recentList.innerHTML = `<tr><td>${userImg}</td><td><span class='text-primary'>${userDisplayName}</span> ${msg}</td></tr>${recentList.innerHTML}`;
 }
 
 function updateStatus(msgType, msg) {
