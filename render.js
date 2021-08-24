@@ -1,6 +1,7 @@
 const ipc = require('electron').ipcRenderer;
 const remote = require('electron').remote;
 const { shell } = require('electron');
+var currentPage = `None`;
 
 ipc.on('status', (event, msg) => {
     updateStatus(msg.type, msg.message);
@@ -615,6 +616,7 @@ async function showPage(page) {
         document.getElementById(pages[p]).style.display = 'none';
     }
     await populateSettings(showPage);
+    currentPage = showPage;
     // changeActiveTab(showPage);
     document.getElementById(showPage).style.display = 'block';
 }
