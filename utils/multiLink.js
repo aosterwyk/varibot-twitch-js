@@ -1,4 +1,4 @@
-const { getChannelID, getStreamTitle } = require('./api.js');
+const { getChannelID, getStreamInfo } = require('./api.js');
 
 async function getMultiLink(channel, clientId, token) {
     let channelId = await getChannelID(channel, clientId, token);
