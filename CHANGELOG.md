@@ -10,9 +10,11 @@ _No unreleased changes_
 ## [2.1.0] - 2021-09-
 ### Changed
 - Updated readme
+- Updated twitch API v5 functions to use v6
 
 ### Removed
 - Removed old bootstrap css file
+- Removed twitch API getGameName function 
 
 ## [2.0.0] - 2021-09-01
 ### Added
