@@ -32,7 +32,7 @@ See the [setup wiki page](https://github.com/VariXx/varibot-twitch-js/wiki/Setup
 
 ### Basic setup
 
-The DB file will not exist on first launch. If the DB file does not exist the bot will start on the settings page.
+The config file will not exist on first launch. If the config file does not exist the bot will start on the settings page.
 - Click the **Get Token** button on the top of the settings page. Log into twitch and authorize the bot if prompted. 
 - Copy the token on the next site. **Do not share this token with anyone**. This is a password used for the bot to login under your account. 
 - **Username:** Enter your username in the username field. 
