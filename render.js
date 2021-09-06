@@ -247,17 +247,15 @@ async function externalLink(destination) {
 //     shell.openExternal(`https://dashboard.twitch.tv/u/${result.username}/community/channel-points/rewards`);
 // }
 
-async function openSoundsDir() {
+async function openDir(dirToOpen) {
     let result = await ipc.invoke('getCurrentSettings');
     if(result !== undefined) {
-        shell.openPath(`${result.soundsDir}`);
-    }
-}
-
-async function openConfigsDir() {
-    let result = await ipc.invoke('getCurrentSettings');
-    if(result !== undefined) {
-        shell.openPath(`${result.configsDir}`);
+        if(dirToOpen == 'sounds') {               
+            shell.openPath(`${result.soundsDir}`);
+        }
+        if(dirToOpen == 'configs') {               
+            shell.openPath(`${result.configsDir}`);
+        }
     }
 }
 
