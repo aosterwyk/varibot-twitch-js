@@ -129,7 +129,8 @@ async function runCommand(targetChannel, fromMod, context, inputCmd, args) {
         else if(cmd == 'radio') {
             let lookupChannel = targetChannel.substr(1);
             let channelId = await twitchAPI.getChannelID(lookupChannel, botSettings.clientId, botSettings.token);
-            let currentGame = await twitchAPI.getCurrentGame(channelId, botSettings.clientId, botSettings.token);            
+            // let currentGame = await twitchAPI.getCurrentGame(channelId, botSettings.clientId, botSettings.token); //v5
+            let currentGame = await twitchAPI.getStreamInfo(channelId, botSettings.clientId, botSettings.token).game_name; //v6
             if(isGTAGame(currentGame)) {
                 try {
                     let radioResult = randomRadio(currentGame);
@@ -365,7 +366,7 @@ async function createWindow() {
 
     win.loadFile('index.html');
     win.setMenu(null);
-    // win.webContents.openDevTools(); // TO DO - comment out before commit 
+    win.webContents.openDevTools(); // TO DO - comment out before commit 
 }
 
 app.whenReady().then(createWindow);

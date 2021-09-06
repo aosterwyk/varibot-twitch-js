@@ -2,7 +2,8 @@ const { getChannelID, getStreamTitle } = require('./api.js');
 
 async function getMultiLink(channel, clientId, token) {
     let channelId = await getChannelID(channel, clientId, token);
-    let channelTitle = await getStreamTitle(channelId, clientId, token);
+    // let channelTitle = await getStreamTitle(channelId, clientId, token); //v5
+    let channelTitle = await getStreamInfo(channelId, clientId, token).title; //v6
     let multiLink = `https://multistre.am/${channel}/`
     if(channelTitle.includes('!multi') && channelTitle.includes('@')) { 
         let mentionLocation = channelTitle.search('@');

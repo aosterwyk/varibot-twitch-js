@@ -1,5 +1,5 @@
 const { GoogleSpreadsheet } = require('google-spreadsheet');
-const { getChannelID, getCurrentGame, createStreamMarker } = require('./api');
+const { getChannelID, getStreamInfo, createStreamMarker } = require('./api');
 
 async function beatGame(beatComments, beatChannel, beatSpreadSheetID, clientId, token, googleCredsFile) {        
     const doc = new GoogleSpreadsheet(beatSpreadSheetID);
@@ -11,7 +11,8 @@ async function beatGame(beatComments, beatChannel, beatSpreadSheetID, clientId, 
     let beatSheet = await doc.sheetsByIndex[0];
     let lookupChannel = beatChannel.substr(1);
     let channelID = await getChannelID(lookupChannel, clientId, token);
-    let gameName = await getCurrentGame(channelID, clientId, token);            
+    // let gameName = await getCurrentGame(channelID, clientId, token);
+    let gameName = await getStreamInfo(channelID, clientId, token).game_name;
     if(gameName) {
         let commentsString = '';        
         let beatMsg = '';

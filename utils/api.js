@@ -51,44 +51,56 @@ async function getChannelID(channelName, clientId, token) {
     }
 }
 
-async function getCurrentGame(channelID, clientId, token) {
-    // this uses API v5 because helix does not show game when stream is offline
-    let url = `https://api.twitch.tv/kraken/channels/${channelID}`;
-    let result = await fetch(url, {method: 'get', headers: {'Accept': 'application/vnd.twitchtv.v5+json', 'Client-ID': clientId, 'Authorization': `OAuth ${token}`}});
-    result = await result.json();
-    if('game' in result) {
-        return result.game;
-    }
-    else {
-        return false;
-    }
+async function getStreamInfo(channelName, clientId, token) {
+    let url = `https://api.twitch.tv/helix/streams?user_login=${channelName}`;
+    const result = await twitchAPI(url, clientId, token)
+    return result.data[0];
 }
 
-async function getStreamTitle(channelID, clientId, token) {
-    // this uses API v5 because helix does not show game when stream is offline
-    let url = `https://api.twitch.tv/kraken/channels/${channelID}`;
-    let result = await fetch(url, {method: 'get', headers: {'Accept': 'application/vnd.twitchtv.v5+json', 'Client-ID': clientId, 'Authorization': `OAuth ${token}`}});
-    result = await result.json();
-    if('status' in result) {
-        return result.status;
-    }
-    else {
-        return false;
-    }
-}
+// async function getCurrentGame(channelId, clientId, token) { //v6
+//     let url = `https://api.twitch.tv/helix/streams?user_id=${channelId}`;
+//     const result = await twitchAPI(url, clientId, token)
+//     return result.data[0].game_name;
+// }
 
-async function getGameName(findGameID) {
-    // you'll eventually need this for helix because it gives the game ID and not the game name 
-    let url = `https://api.twitch.tv/helix/games?id=${findGameID}`;
-    result = await twitchAPI(url)
-    .catch(error => {console.log(`Twitch API erorr: ${error}`);});
-    if(result.data.length > 0 && 'name' in result.data[0]) {
-        return result.data[0].name;
-    }
-    else {
-        return false;
-    }
-}
+// async function getCurrentGame(channelID, clientId, token) { //v5
+//     // this uses API v5 because helix does not show game when stream is offline
+//     let url = `https://api.twitch.tv/kraken/channels/${channelID}`;
+//     let result = await fetch(url, {method: 'get', headers: {'Accept': 'application/vnd.twitchtv.v5+json', 'Client-ID': clientId, 'Authorization': `OAuth ${token}`}});
+//     result = await result.json();
+//     if('game' in result) {
+//         return result.game;
+//     }
+//     else {
+//         return false;
+//     }
+// }
+
+// async function getStreamTitle(channelID, clientId, token) {
+//     // this uses API v5 because helix does not show game when stream is offline
+//     let url = `https://api.twitch.tv/kraken/channels/${channelID}`;
+//     let result = await fetch(url, {method: 'get', headers: {'Accept': 'application/vnd.twitchtv.v5+json', 'Client-ID': clientId, 'Authorization': `OAuth ${token}`}});
+//     result = await result.json();
+//     if('status' in result) {
+//         return result.status;
+//     }
+//     else {
+//         return false;
+//     }
+// }
+
+// async function getGameName(findGameID) {
+//     // you'll eventually need this for helix because it gives the game ID and not the game name 
+//     let url = `https://api.twitch.tv/helix/games?id=${findGameID}`;
+//     result = await twitchAPI(url)
+//     .catch(error => {console.log(`Twitch API erorr: ${error}`);});
+//     if(result.data.length > 0 && 'name' in result.data[0]) {
+//         return result.data[0].name;
+//     }
+//     else {
+//         return false;
+//     }
+// }
 
 async function runAd(channelId, clientId, token, adLength) {
     let url = 'https://api.twitch.tv/helix/channels/commercial';
@@ -136,10 +148,11 @@ async function updateChannelPointRedemption(redemptionId, channelId, rewardId, c
 }
 
 module.exports.getChannelID = getChannelID;
-module.exports.getCurrentGame = getCurrentGame;
-module.exports.getStreamTitle = getStreamTitle;
+// module.exports.getCurrentGame = getCurrentGame;
+// module.exports.getStreamTitle = getStreamTitle;
 module.exports.createStreamMarker = createStreamMarker;
 module.exports.runAd = runAd;
 module.exports.getChannelRewards = getChannelRewards;
 module.exports.getTwitchUserInfo = getTwitchUserInfo;
 module.exports.updateChannelPointRedemption = updateChannelPointRedemption;
+module.exports.getStreamInfo = getStreamInfo;
