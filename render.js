@@ -254,6 +254,13 @@ async function openSoundsDir() {
     }
 }
 
+async function openConfigsDir() {
+    let result = await ipc.invoke('getCurrentSettings');
+    if(result !== undefined) {
+        shell.openPath(`${result.configsDir}`);
+    }
+}
+
 function updateElement() { 
 
 }

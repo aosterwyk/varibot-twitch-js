@@ -531,6 +531,7 @@ ipcMain.handle('getCurrentSettings', async (event, args) => {
     let currentSettings = await getBotSettings(botSettingsFilePath);
     if(currentSettings.successful) {
         currentSettings['soundsDir'] = soundsDir;
+        currentSettings['configsDir'] = configsDir
         return currentSettings;
     }
     else {

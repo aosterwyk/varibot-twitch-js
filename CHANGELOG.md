@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 _No unreleased changes_
 
 ## [2.1.0] - 2021-09-
+### Added
+- Added open config dir button in settings page
+
 ### Changed
 - Updated readme
 - Updated twitch API v5 functions to use v6
