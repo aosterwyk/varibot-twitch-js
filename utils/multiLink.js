@@ -25,7 +25,7 @@ async function getMultiLink(channel, clientId, token) {
         }
     }
     catch(error) { 
-        console.log(`Error reading title. Is the channel streaming?`);
+        console.log(`Error reading title. Is the channel streaming?\n${error}`);
     }
 }
 module.exports.getMultiLink = getMultiLink; 
