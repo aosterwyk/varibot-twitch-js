@@ -259,9 +259,9 @@ async function openDir(dirToOpen) {
     }
 }
 
-function updateElement() { 
+// function updateElement() { 
 
-}
+// }
 
 function changeActiveTab(activeTab) { 
     // let navbar = document.getElementById('navBar-left');
