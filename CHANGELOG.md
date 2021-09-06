@@ -151,4 +151,4 @@ _No unreleased changes_
 [1.0.3]: https://github.com/VariXx/varibot-twitch-js/tree/v1.0.3
 [1.0.1]: https://github.com/VariXx/varibot-twitch-js/tree/v1.0.1
 [1.0.0]: https://github.com/VariXx/varibot-twitch-js/tree/v1.0.0
-[Unreleased]: https://github.com/VariXx/varibot-twitch-js/compare/master...develop
+[Unreleased]: https://github.com/VariXx/varibot-twitch-js/compare/master...dev
