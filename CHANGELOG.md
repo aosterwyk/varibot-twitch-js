@@ -9,7 +9,10 @@ _No unreleased changes_
 
 ## [2.1.0] - 2021-09-
 ### Changed
-- Update readme
+- Updated readme
+
+### Removed
+- Removed old bootstrap css file
 
 ## [2.0.0] - 2021-09-01
 ### Added
