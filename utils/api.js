@@ -51,9 +51,10 @@ async function getChannelID(channelName, clientId, token) {
     }
 }
 
-async function getStreamInfo(channelName, clientId, token) {
-    let url = `https://api.twitch.tv/helix/streams?user_login=${channelName}`;
+async function getStreamInfo(channelId, clientId, token) {
+    let url = `https://api.twitch.tv/helix/streams?user_id=${channelId}`;
     const result = await twitchAPI(url, clientId, token)
+    // console.log(result.data);
     return result.data[0];
 }
 

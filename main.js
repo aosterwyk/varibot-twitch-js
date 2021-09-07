@@ -130,7 +130,8 @@ async function runCommand(targetChannel, fromMod, context, inputCmd, args) {
             let lookupChannel = targetChannel.substr(1);
             let channelId = await twitchAPI.getChannelID(lookupChannel, botSettings.clientId, botSettings.token);
             // let currentGame = await twitchAPI.getCurrentGame(channelId, botSettings.clientId, botSettings.token); //v5
-            let currentGame = await twitchAPI.getStreamInfo(channelId, botSettings.clientId, botSettings.token).game_name; //v6
+            let channelInfo = await twitchAPI.getStreamInfo(channelId, botSettings.clientId, botSettings.token);
+            let currentGame = channelInfo.game_name; //v6
             if(isGTAGame(currentGame)) {
                 try {
                     let radioResult = randomRadio(currentGame);
