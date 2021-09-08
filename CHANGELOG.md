@@ -7,13 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 _No unreleased changes_
 
-## [2.1.0] - 2021-09-
+## [2.1.0] - 2021-09-08
 ### Added
 - Added open config dir button in settings page
 
 ### Changed
 - Updated readme
-- Updated twitch API v5 functions to use v6
+- Updated twitch API v5 (kraken) functions to use v6 (helix) 
 
 ### Removed
 - Removed old bootstrap css file
