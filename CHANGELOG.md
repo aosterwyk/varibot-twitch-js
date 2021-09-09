@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 _No unreleased changes_
 
+## [2.1.1] - 2021-09-09
+### Changed
+- Disabled dev tools 
+
 ## [2.1.0] - 2021-09-08
 ### Added
 - Added open config dir button in settings page
@@ -139,6 +143,7 @@ _No unreleased changes_
 ## [1.0.0] - 2020-06-25
 ### Initial Release
 
+[2.1.1]: https://github.com/VariXx/varibot-twitch-js/tree/v2.1.1
 [2.1.0]: https://github.com/VariXx/varibot-twitch-js/tree/v2.1.0
 [2.0.0]: https://github.com/VariXx/varibot-twitch-js/tree/v2.0.0
 [1.2.4]: https://github.com/VariXx/varibot-twitch-js/tree/v1.2.4
