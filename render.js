@@ -424,7 +424,7 @@ async function populateSettings(settingsPage) {
         }
         document.getElementById('commandsSettingsList').innerHTML = newCmdSettingsList;
     }
-    if(settingsPage == 'channelPoints') {
+    if(settingsPage == 'pointsSounds') {
         // old sounds page
         // await ipc.invoke('loadSounds');        
         // let result = await ipc.invoke('getSoundsSettings');
@@ -508,7 +508,7 @@ async function populateSettings(settingsPage) {
         let result = await ipc.invoke('getAbout');
         document.getElementById('aboutBotVersion').innerHTML = `VariBot v${result.versionNumber}`;
         document.getElementById('aboutSoundsLoaded').innerHTML = `Random sounds loaded: ${result.randomSoundsCount}`;
-        document.getElementById('aboutChannelRewardsLoaded').innerHTML = `Channel reward sounds loaded: ${result.channelPointsSoundsCount}`;
+        document.getElementById('aboutChannelRewardsLoaded').innerHTML = `Channel reward sounds loaded: ${result.pointsSoundsSoundsCount}`;
         document.getElementById('aboutGoogleCredsLoaded').innerHTML = `Google creds file loaded: ${result.googleCredsExist}`;
     }
 }
@@ -570,14 +570,14 @@ async function saveSoundsForm() {
     // old (yes, I'm finally cleaning up this hacky mess)
     // let soundsForm = document.getElementById('soundsForm');
     // let soundsTRs = soundsForm.getElementsByTagName('tr');
-    // let newChannelPointsSounds = {};
+    // let newpointsSoundsSounds = {};
     // let newRandomSounds = [];
     // for(let x = 1; x < soundsTRs.length; x++) { // skip 0, it's the header
     //     let filename = (soundsTRs[x].childNodes[0].innerText).trim();
     //     let rewardName = (soundsTRs[x].childNodes[1].childNodes[0].childNodes[3].value).trim();
     //     let rewardEnabled = soundsTRs[x].childNodes[1].childNodes[0].childNodes[1].childNodes[0].childNodes[0].checked;
     //     if(rewardEnabled) {
-    //         newChannelPointsSounds[rewardName] = {
+    //         newpointsSoundsSounds[rewardName] = {
     //             name: rewardName,
     //             filename: filename
     //         }
@@ -586,7 +586,7 @@ async function saveSoundsForm() {
     //         newRandomSounds.push(filename);
     //     }    
     // }
-    // let newSoundsSettings = [newChannelPointsSounds, newRandomSounds];
+    // let newSoundsSettings = [newpointsSoundsSounds, newRandomSounds];
     // await ipc.invoke('newSoundsSettings', newSoundsSettings);
     // alertMsg(true, 'success', 'Sounds updated');
     // showPage('sounds');
@@ -594,25 +594,25 @@ async function saveSoundsForm() {
 
     // new
     let newChannelRewards = document.getElementsByName('channelRewardSound');
-    let newChannelPointsSounds = {};
+    let newpointsSoundsSounds = {};
     let newRandomSounds = {};
     for(let cr = 0; cr < newChannelRewards.length; cr++) {
         // console.log(`Name: ${newChannelRewards[cr].id} Value: ${newChannelRewards[cr].value}`);
         if(newChannelRewards[cr].value != 'none') {
-            newChannelPointsSounds[newChannelRewards[cr].id] = {
+            newpointsSoundsSounds[newChannelRewards[cr].id] = {
                 name: newChannelRewards[cr].id,
                 filename: newChannelRewards[cr].value
             }
         }
     }
 
-    await ipc.invoke('newSoundsSettings', newChannelPointsSounds);
+    await ipc.invoke('newSoundsSettings', newpointsSoundsSounds);
     alertMsg(true, 'success', 'Sounds updated');
-    showPage('channelPoints');
+    showPage('pointsSounds');
 }
 
 async function showPage(page) {
-    let pages = ['home','settings','channelPoints','about'];
+    let pages = ['home','settings','pointsSounds','pointsHue','about'];
     let showPage;
     for(let p = 0; p < pages.length; p++) { 
         if(pages[p] == page) {
@@ -625,6 +625,16 @@ async function showPage(page) {
     // changeActiveTab(showPage);
     document.getElementById(showPage).style.display = 'block';
 }
+
+async function saveHueBridgeIP() {
+    let hueBridgeIP = document.getElementById('hueBridgeIP').value;
+    console.log(hueBridgeIP);
+}
+
+async function createHueBridgeUser() { 
+    console.log(`Create the user`);
+}
+
 
 async function saveSettingsFromForm() {
     // old save settings   
