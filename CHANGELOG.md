@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 _No unreleased changes_
 
+## [2.2.0] - 2020-09-
+### Changed
+- Changed nonce to use a randomized value on each launch
+
 ## [2.1.1] - 2021-09-09
 ### Changed
 - Disabled dev tools 

@@ -1,5 +1,6 @@
 const fs = require('fs');
 const tmi = require('tmi.js');
+const crypto = require('crypto');
 const WebSocket = require('ws');
 const twitchAPI = require('./utils/api');
 const pubsubSocket = new WebSocket('wss://pubsub-edge.twitch.tv');
@@ -28,6 +29,7 @@ var win = null;
 let client = null;
 let commands = {};
 let botSettings = {};
+var nonce;
 let randomSounds = [];
 let readyToConnect = true;
 let channelPointsSounds = {};
@@ -308,9 +310,12 @@ async function startBot() {
             if(botSettings !== undefined) {
                 try {
                     let channelId = await twitchAPI.getChannelID(botSettings.channel, botSettings.clientId, botSettings.token);
+                    nonce = crypto.randomBytes(32).toString('hex');
+                    console.log(nonce);
                     let connectMsg =  {
                         type: "LISTEN",
-                        nonce: "44h1k13746815ab1r2",
+                        // nonce: "44h1k13746815ab1r2",
+                        nonce: nonce,
                         data:  {
                         topics: ["channel-points-channel-v1." + channelId],
                         auth_token: botSettings.token
@@ -516,7 +521,8 @@ ipcMain.handle('getAbout', async (event, args) => {
         versionNumber: versionNumber,
         randomSoundsCount: randomSounds.length,
         channelPointsSoundsCount: channelPointsFilenames.length,
-        googleCredsExist: googleCredsExist
+        googleCredsExist: googleCredsExist,
+        nonce: nonce
     }
     return aboutInfo;
 });
