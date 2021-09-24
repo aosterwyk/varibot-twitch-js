@@ -147,6 +147,7 @@ _No unreleased changes_
 ## [1.0.0] - 2020-06-25
 ### Initial Release
 
+[2.2.0]: https://github.com/VariXx/varibot-twitch-js/tree/v2.2.0
 [2.1.1]: https://github.com/VariXx/varibot-twitch-js/tree/v2.1.1
 [2.1.0]: https://github.com/VariXx/varibot-twitch-js/tree/v2.1.0
 [2.0.0]: https://github.com/VariXx/varibot-twitch-js/tree/v2.0.0
