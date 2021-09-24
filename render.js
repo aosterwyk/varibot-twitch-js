@@ -635,6 +635,15 @@ async function createHueBridgeUser() {
     console.log(`Create the user`);
 }
 
+async function lightHelpList(state) {
+    let lightHelpList = document.getElementById('lightHelpList');
+    if(state == 'show') {
+        lightHelpList.style.display = 'block';
+    }
+    else {
+        lightHelpList.style.display = 'none';    
+    }
+}
 
 async function saveSettingsFromForm() {
     // old save settings   
