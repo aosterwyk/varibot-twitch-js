@@ -18,13 +18,9 @@ const { setBotSettings } = require('./utils/config/setBotSettings');
 const { getChannelPointsSounds } = require('./utils/config/getChannelPointsSounds');
 const { setChannelPointsSounds } = require('./utils/config/setChannelPointsSounds');
 const versionNumber = require('./package.json').version;
-
-
-
 const { ipcMain, app, dialog, BrowserWindow } = require('electron');
-// const ipcMain = ipcMain;
-var win = null;
 
+var win = null;
 // TO DO - change to globals? 
 let client = null;
 let commands = {};
@@ -278,7 +274,6 @@ async function startBot() {
         });
         client.on('connected', (address, port) => {
             let chatbotConnectedMessage = `Chatbot (${options.identity.username}) connected to ${address}:${port}`;
-            // console.log(chatbotConnectedMessage);
             win.webContents.executeJavaScript(`setConnectionStatus('chatBot', 'connected', 'none')`);      
             statusMsg('info', chatbotConnectedMessage);
         });
@@ -323,7 +318,6 @@ async function startBot() {
                     };
                     pubsubSocket.send(JSON.stringify(connectMsg));
                     let pubsubConnectedMessage = `Pubsub connected. Listed topics: ${connectMsg.data.topics}`;
-                    // console.log(pubsubConnectedMessage);
                     statusMsg('info', pubsubConnectedMessage);
                     win.webContents.executeJavaScript(`setConnectionStatus('pubsub', 'connected', 'none')`);                                
                     pubsubPings();
@@ -346,8 +340,6 @@ async function startBot() {
     }
 }
 
-// electron start
-
 async function createWindow() {
     let newWindowSettings = await getBotSettings(windowSettingsFilePath);
     if(!newWindowSettings.successful) {
@@ -357,10 +349,6 @@ async function createWindow() {
         };
     }
     win = new BrowserWindow({
-        // width: 1200,
-        // height: 800,
-        // width: 1500,
-        // height: 1000,
         width: newWindowSettings.window.width,
         height: newWindowSettings.window.height,
         x: newWindowSettings.window.x,
@@ -436,17 +424,6 @@ ipcMain.handle('createStreamMarker', async (event) => {
 });
 
 ipcMain.handle('newSoundsSettings', async (event, args) => {
-    // old
-    // let newChannelPointsSounds = {};
-    // for(let key in args[0]) {
-    //     newChannelPointsSounds[args[0][key].name] = args[0][key].filename;
-    // }
-    // // await setChannelPointsSounds(soundsSettingsFilePath, newChannelPointsSounds);
-    // // await loadChannelPointsSounds(); // load channel points sounds     
-    // // if(soundsDir.length > 1) {
-    // //     randomSounds = []; // clear random sounds array
-    // //     randomSounds = await loadSounds(soundsDir, channelPointsFilenames); // rebuild random sounds array
-    // // }
     let newChannelPointsSounds = {};
     for(let key in args) {
         newChannelPointsSounds[args[key].name] = args[key].filename;
@@ -603,10 +580,6 @@ function statusMsg(msgType, msg) {
     console.log(msg);
 }
 
-// function updateRecentEvents(msg) {
-//     win.webContents.send('updateRecentEvents', msg);
-// }
-
 function updateRecentEvents(image, user, msg) {
     let eventInfo = {
         image: image,
@@ -615,10 +588,6 @@ function updateRecentEvents(image, user, msg) {
     };
     win.webContents.send('updateRecentEvents', eventInfo);
 }
-
-// electron end
-
-// pubsub start
 
 function playRandomSound() { 
     let randomIndex = Math.floor(Math.random() * Math.floor(randomSounds.length));
@@ -682,34 +651,10 @@ function saveWindowPosition() {
     setBotSettings(windowSettingsFilePath, 'window', win.getBounds());
 }
 
-
-// pubsubSocket.onopen = async function(e) {
-//     await botSettingsDB.sync();
-//     let botset = await botSettingsDB.findOrCreate({where: {id: 1}}); 
-//     botSettings = botset[0];  
-//     // TO DO - move bot settings to a command or load it all before starting these 
-//     if(botSettings !== undefined) {
-//         let channelId = await twitchAPI.getChannelID(botSettings.channel, botSettings.clientId, botSettings.token);
-//         let connectMsg =  {
-//             type: "LISTEN",
-//             nonce: "44h1k13746815ab1r2",
-//             data:  {
-//             topics: ["channel-points-channel-v1." + channelId],
-//             auth_token: botSettings.token
-//             }
-//         };
-//         pubsubSocket.send(JSON.stringify(connectMsg));
-//         console.log(`Pubsub connected. Listed topics: ${connectMsg.data.topics}`);
-//         pubsubPings();
-//     }
-// };
-
 pubsubSocket.onmessage = function(event)  {
     pubsubResonse = JSON.parse(event.data);
     pubsubHandle(pubsubResonse);
 };
-
-// pubsub end
 
 app.on('ready', () => {
     autoUpdater.checkForUpdatesAndNotify();
@@ -721,7 +666,6 @@ autoUpdater.on('update-available', () => {
 });
 
 autoUpdater.on('update-downloaded', () => {
-    // updateRecentEvents(`Update downloaded. Update will be installed next time the bot is closed.`);
     statusMsg(`info`, `Update downloaded. Update will be installed next time the bot is closed.`);
     updateRecentEvents(`system`,`system`,`Update downloaded. Update will be installed next time the bot is closed.`);
 });
