@@ -20,6 +20,18 @@ const { setChannelPointsSounds } = require('./utils/config/setChannelPointsSound
 const versionNumber = require('./package.json').version;
 const { ipcMain, app, dialog, BrowserWindow } = require('electron');
 
+// hue
+const { colorLoop } = require('./utils/hue/colorLoop');
+const { getHueSettings } = require('./utils/hue/getHueSettings');
+const { getLight } = require('./utils/hue/getLight');
+const { createBridgeUser } = require('./utils/hue/createBridgeUser');
+const { setLightColor } = require('./utils/hue/setLightColor');
+const { flashLight } = require('./utils/hue/flashLight');
+const { getAllLights } = require('./utils/hue/getAllLights');
+const hueColors = require('./utils/hue/hueColors.json');
+const { setHueSettings } = require('./utils/hue/setHueSettings');
+
+
 var win = null;
 // TO DO - change to globals? 
 let client = null;
@@ -30,8 +42,14 @@ let randomSounds = [];
 let readyToConnect = true;
 let channelPointsSounds = {};
 let channelPointsFilenames = []; // add beat game sound to this
+var hueSettings = {};
+var hueBitsAlertsSettings = {};
+var hueSubsAlertsSettings = {};
+var hueChannelPointsAlertsSettings = {};
 const configsDir = `${app.getPath('appData')}\\varibot\\configs`;
 checkConfigDir(configsDir);
+const hueConfigsDir = `${app.getPath('appData')}\\varibot\\configs\\hue`;
+checkConfigDir(hueConfigsDir);
 const soundsDir = `${app.getPath('appData')}\\varibot\\sounds`;
 checkConfigDir(soundsDir);
 
@@ -40,6 +58,10 @@ const googleCredsFilePath = `${app.getPath('appData')}\\varibot\\googleCreds.jso
 const botSettingsFilePath = `${app.getPath('appData')}\\varibot\\configs\\botSettings.json`;
 const windowSettingsFilePath = `${app.getPath('appData')}\\varibot\\configs\\windowSettings.json`;
 const soundsSettingsFilePath = `${app.getPath('appData')}\\varibot\\configs\\soundsSettings.json`;
+const hueSettingsFilePath = `${app.getPath('appData')}\\varibot\\configs\\hue\\hueSettings.json`;
+const hueBitsAlertsSettingsFilePath = `${app.getPath('appData')}\\varibot\\configs\\hue\\hueBitsAlertsSettings.json`;
+const hueSubsAlertsSettingsFilePath = `${app.getPath('appData')}\\varibot\\configs\\hue\\hueSubsAlertsSettings.json`;
+const hueChannelPointsAlertsSettingsFilePath = `${app.getPath('appData')}\\varibot\\configs\\hue\\hueChannelPointsAlertsSettings.json`;
 
 let lastRunTimestamp = new Date(); // hacky cooldown
 
@@ -181,6 +203,10 @@ async function loadChannelPointsSounds() {
     }
 }
 
+async function loadHueSettings() {
+
+}
+
 async function loadCommands() {
     console.log(`Loading commands...`);
     botSettings = await getBotSettings(botSettingsFilePath);
@@ -213,6 +239,7 @@ async function startBot() {
     let botSettings = await getBotSettings(botSettingsFilePath);
 
     checkGoogleCreds();
+    await reloadHueSettings();    
     if(googleCredsExist) {
         botSettings.googleSheetsClientEmail = googleCreds.client_email;
         botSettings.googleSheetsPrivateKey = googleCreds.private_key;
@@ -362,6 +389,127 @@ async function createWindow() {
     win.setMenu(null);
     win.webContents.openDevTools(); // TO DO - comment out before commit 
 }
+
+// hue
+async function reloadHueSettings() {
+    hueSettings = {};
+    hueBitsAlertsSettings = {};
+    hueSubsAlertsSettings = {};
+    hueChannelPointsAlertsSettings = {};    
+
+    hueSettings = await getHueSettings(hueSettingsFilePath);
+    hueBitsAlertsSettings = await getHueSettings(hueBitsAlertsSettingsFilePath);
+    hueSubsAlertsSettings = await getHueSettings(hueSubsAlertsSettingsFilePath);
+    hueChannelPointsAlertsSettings = await getHueSettings(hueChannelPointsAlertsSettingsFilePath);
+}
+
+ipcMain.handle('setHueAlertsSettings', async(event, args) => {
+    let settingsFileToChange = null;
+    let newSettings = args.newSettings;
+    if(args.type == 'bits') {
+        settingsFileToChange = hueBitsAlertsSettingsFile;
+    }
+    else if(args.type == 'subs') {
+        settingsFileToChange = hueSubsAlertsSettingsFile;
+    }
+    else if(args.type == 'channelPoints') {
+        settingsFileToChange = hueChannelPointsAlertsSettingsFile;
+    }
+    if(settingsFileToChange !== null) {
+        for(x in newSettings) {
+            await setHueSettings(settingsFileToChange, x, newSettings[x]);
+        }
+    }
+});
+
+ipcMain.handle('getHueAlertsSettings', async(event, args) => {
+    let settingsFileToRead = null;
+    if(args == 'bits') {
+        settingsFileToRead = hueBitsAlertsSettingsFile;
+    }
+    else if(args == 'subs') {
+        settingsFileToRead = hueSubsAlertsSettingsFile;
+    }
+    else if(args == 'channelPoints') {
+        settingsFileToRead = hueChannelPointsAlertsSettingsFile;
+    }    
+    if(settingsFileToRead !== undefined || settingsFileToRead !== null) {
+        let hueBitsAlertsSettings = await getHueSettings(settingsFileToRead);
+        return hueBitsAlertsSettings;
+    }
+});
+
+ipcMain.handle('getAllLights', async(event) => {
+    await reloadHueSettings();
+    let lights = await getAllLights(hueSettings.bridgeIP, hueSettings.username);
+    let returnResult = {};
+    if(lights !== undefined) {
+        returnResult = {
+            success: true,
+            hueLights: lights
+        };
+    }
+    else {
+        returnResult = { success: false };
+    }
+    return returnResult;
+});
+
+ipcMain.handle('hueSettings', async (event, args) => {
+    let returnResult = {};
+    await reloadHueSettings();
+    if(hueSettings === undefined && args.command != 'setHueSetting') {
+        returnResult.success = false;
+        returnResult.message = 'HUE settings file does not exist. Please set an IP and create a bridge user.';
+        return returnResult;
+    }
+    if(args.command == 'setHueSetting') {
+        console.log(`Saving to ${hueSettingsFilePath}`);
+        let result = await setHueSettings(hueSettingsFilePath, args.setting, args.newValue);
+        await reloadHueSettings();
+        if(result) {
+            returnResult.success = true;
+            console.log(result);
+        }   
+        else {
+            returnResult.success = false;
+        }
+    }    
+    if(args.command == 'getHueSettings') {
+        await reloadHueSettings();
+        // console.log(hueSettings);
+        if(hueSettings !== undefined) {
+            returnResult.success = true,
+            returnResult.hueSettings = hueSettings
+        }
+        else {
+            returnResult.success = false
+        }
+    }
+    else if(args.command == 'createUser') {
+        let newHueUser = await createBridgeUser(hueSettings.bridgeIP, `VariBot`); 
+        if(newHueUser.created) {
+            hueSettings.username = newHueUser.username;
+            // console.log(`Created hue username ${hueSettings.username}`);
+            await setHueSettings(hueSettingsFilePath, 'username', hueSettings.username);
+            await reloadHueSettings();
+            returnResult.success = true;
+            returnResult.hueSettings = hueSettings;
+        }
+        else {
+            returnResult.success = false;
+            returnResult.message = newHueUser.message;
+        }
+    }
+    return returnResult;
+});
+
+ipcMain.handle('hueControls', async (event, args) => {
+
+    if(args.command == 'colorLoop') {
+        await colorLoop(args.bridgeIP, args.username, args.light, args.enabled);
+    }
+});
 
 app.whenReady().then(createWindow);
 
@@ -630,6 +778,75 @@ async function proecssReward(reward) {
             }   
         }
     }
+    if(reward.data.redemption.reward.title.toLowerCase() == 'test reward') {    
+        await reloadHueSettings();
+        await colorLoop(hueSettings.bridgeIP, hueSettings.username, 9, true);
+        await flashLight(hueSettings.bridgeIP, hueSettings.username, 9, 2);
+        await colorLoop(hueSettings.bridgeIP, hueSettings.username, 9, false);
+    }
+    if(reward.data.redemption.reward.title.toLowerCase() == 'color loop') {
+        await reloadHueSettings();
+        for(light in hueChannelPointsAlertsSettings) {
+            if(light != 'mode' && hueChannelPointsAlertsSettings[light]) {
+                await colorLoop(hueSettings.bridgeIP, hueSettings.username, light, true);
+                statusMsg('info', `Enabled color loop on light ${light}`);                
+                setTimeout((x) => {
+                    statusMsg('info', `Disabled color loop on light ${x}`);
+                    colorLoop(hueSettings.bridgeIP, hueSettings.username, x, false);
+                }, 300000, light);
+            }
+        }
+    }
+    if(reward.data.redemption.reward.title.toLowerCase() == 'light color') {
+        if(reward.data.redemption.user_input !== undefined) {            
+            let userColor = reward.data.redemption.user_input.toLowerCase();
+            console.log(`Searching for ${userColor}`);
+            let colorMatches = [];
+            let colorMatchesCount = 0;
+            for(let searchColor in hueColors) {
+                if(searchColor.toLowerCase().includes(userColor)) {
+                    // console.log(`Match: ${searchColor} (${hueColors[searchColor]})`);
+                    colorMatchesCount++;
+                    colorMatches.push(hueColors[searchColor]);
+                }
+            }
+            // console.log(colorMatches);
+            if(colorMatchesCount > 0) {
+                newColor = colorMatches[randomNumber(0, (colorMatches.length - 1))];
+            }
+            else { 
+                console.log(`Can't find color ${userColor}, picking a random color instead.`);
+                let allColors = [];
+                for(let searchColor in hueColors) {
+                    allColors.push(hueColors[searchColor]);
+                }
+                newColor = allColors[randomNumber(0, (allColors.length -1))];                
+            }
+        }
+        else {
+            // no text so pick a random color - reward should require text. you should not get here. 
+            let allColors = [];
+            for(let searchColor in hueColors) {
+                allColors.push(hueColors[searchColor]);
+            }
+            newColor = allColors[randomNumber(0, (allColors.length -1))];                
+        }
+        // console.log(`Picked color ${newColor}`);        
+        await reloadHueSettings();
+        for(light in hueChannelPointsAlertsSettings) {
+            if(light != 'mode' && hueChannelPointsAlertsSettings[light]) {
+                let oldLightInfo = await getLight(hueSettings.bridgeIP, hueSettings.username, light);
+                let oldLightColor = oldLightInfo.state.xy;
+                // console.log(`Old light color: ${oldLightColor}`);
+                statusMsg('info', `Changing light ${light} color to ${newColor}`);
+                await setLightColor(hueSettings.bridgeIP, hueSettings.username, newColor, light);
+                setTimeout((light, oldLightColor) => {
+                    statusMsg('info', `Resetting light ${light} to ${oldLightColor}`);
+                    setLightColor(hueSettings.bridgeIP, hueSettings.username, oldLightColor, light);
+                }, 300000, light, oldLightColor);             
+            }
+        }
+    }    
 }
 
 async function pubsubHandle(msg) {
