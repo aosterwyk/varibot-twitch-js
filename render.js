@@ -269,6 +269,8 @@ async function populateSettings(settingsPage) {
                         }
                         hueLightsTable.innerHTML = hueLightsTableHTML;
                         let channelRewards = await ipc.invoke('getChannelRewards');
+                        let hueRewardsList = await getHueAlertsSettings('channelPointsRewards');
+                        console.log(hueRewardsList);
                         let hueChannelRewardsTable = document.getElementById('hueRewardsTable');
                         let hueChannelRewardsTableHTML = ``;
                         // TO DO - this does not fill in exisiting settings
@@ -283,20 +285,32 @@ async function populateSettings(settingsPage) {
                                 }
                                 hueChannelRewardsTableHTML += `<tr id="${channelRewards[reward].title}"><td><img src="${rewardImage}"></td><td name="hueChannelRewardName">${channelRewards[reward].title}</td>`;
                                 hueChannelRewardsTableHTML += `<td><select class="custom-select" onchange="checkLightRewards()" id="${channelRewards[reward].title}" name="hueRewards">
-                                     <option name="rewardEffects" id="${channelRewards[reward].title}rewardEffect" value="none" selected>None</option>
-                                     <option name="rewardEffects" id="${channelRewards[reward].title}rewardEffect" value="staticColor">Static color</option>
-                                     <option name="rewardEffects" id="${channelRewards[reward].title}rewardEffect" value="userColor">User color</option>                                     
-                                     <option name="rewardEffects" id="${channelRewards[reward].title}rewardEffect" value="flash">Flash lights</option>
-                                     <option name="rewardEffects" id="${channelRewards[reward].title}rewardEffect" value="fadeColors">Fade random colors</option>
-                                     <option name="rewardEffects" id="${channelRewards[reward].title}rewardEffect" value="randomColor">Random color</option>
-                                     <option name="rewardEffects" id="${channelRewards[reward].title}rewardEffect" value="colorLoop">Color loop</option>
-                                     
-                                 </select></td>
-                                 <td><input type="text" id="${channelRewards[reward].title}rewardEffectlightStaticColor" placeholder="Color" style="display:none;"></td>
-                                 </tr>`;
+                                <option name="rewardEffects" id="${channelRewards[reward].title}rewardEffect" value="none" selected>None</option>
+                                <option name="rewardEffects" id="${channelRewards[reward].title}rewardEffect" value="staticColor">Static color</option>
+                                <option name="rewardEffects" id="${channelRewards[reward].title}rewardEffect" value="userColor">User color</option>                                     
+                                <option name="rewardEffects" id="${channelRewards[reward].title}rewardEffect" value="flash">Flash lights</option>
+                                <option name="rewardEffects" id="${channelRewards[reward].title}rewardEffect" value="fadeColors">Fade random colors</option>
+                                <option name="rewardEffects" id="${channelRewards[reward].title}rewardEffect" value="randomColor">Random color</option>
+                                <option name="rewardEffects" id="${channelRewards[reward].title}rewardEffect" value="colorLoop">Color loop</option>
+                                </select></td>
+                                <td><input type="text" id="${channelRewards[reward].title}rewardEffectlightStaticColor" placeholder="Color" style="display:none;"></td>
+                                </tr>`;
                             }
+                            hueChannelRewardsTable.innerHTML = hueChannelRewardsTableHTML;
+                            
+                            // select loaded options
+                            try {
+                                let hueRewards = document.getElementsByName('hueRewards');
+                                console.log(hueRewards);
+                                for(let r in hueRewards) { 
+                                    if(hueRewards[r].id in hueRewardsList) {
+                                        console.log(`Found ${hueRewards[r].id}`);
+                                    }
+                                }
+                            }
+                            catch(error) { console.log(error) }                            
                         }
-                        hueChannelRewardsTable.innerHTML = hueChannelRewardsTableHTML;
+                        
                     }
                 }
             }
