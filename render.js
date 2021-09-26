@@ -256,13 +256,22 @@ async function populateSettings(settingsPage) {
                     document.getElementById('hueBridgeRewardSettings').style.display = 'block';
                     let hueLights = await getAllLights();
                     if(hueLights !== undefined) {
+                        let hueLightSettings = await getHueAlertsSettings('channelPointsLights');
+                        // console.log(hueLightSettings);
                         let hueLightsTable = document.getElementById('hueLightsTable');
+                        let hueLightsTableHTML = '';
                         for(lightID in hueLights) {
-                            hueLightsTable.innerHTML += `<tr><td>${hueLights[lightID].name}</td><td><input type="checkbox" id="${lightID}"></td></tr>`;
+                            hueLightsTableHTML += `<tr><td>${hueLights[lightID].name}</td><td><input name="lightRewardEnabled" type="checkbox" id="${lightID}"`;;
+                            if(hueLightSettings[lightID]) {
+                                hueLightsTableHTML += ` checked `;
+                            }
+                            hueLightsTableHTML += `></td></tr>`;
                         }
+                        hueLightsTable.innerHTML = hueLightsTableHTML;
                         let channelRewards = await ipc.invoke('getChannelRewards');
                         let hueChannelRewardsTable = document.getElementById('hueRewardsTable');
                         let hueChannelRewardsTableHTML = ``;
+                        // TO DO - this does not fill in exisiting settings
                         if(channelRewards !== undefined && channelRewards.length > 0) {
                             for(let reward = 0; reward < channelRewards.length; reward++) {
                                 if(channelRewards[reward].title.toLowerCase() == 'random sound') {
@@ -273,49 +282,18 @@ async function populateSettings(settingsPage) {
                                     rewardImage = channelRewards[reward].image.url_1x;
                                 }
                                 hueChannelRewardsTableHTML += `<tr id="${channelRewards[reward].title}"><td><img src="${rewardImage}"></td><td name="hueChannelRewardName">${channelRewards[reward].title}</td>`;
-                                hueChannelRewardsTableHTML += `<td><select class="custom-select">
-                                     <option value="none" selected>None</option>
-                                     <option value="staticColor">Static color</option>
-                                     <option value="flash">Flash lights</option>
-                                     <option value="fadeColors">Fade random colors</option>
-                                     <option value="randomColor">Random color</option>
+                                hueChannelRewardsTableHTML += `<td><select class="custom-select" onchange="checkLightRewards()" id="${channelRewards[reward].title}" name="hueRewards">
+                                     <option name="rewardEffects" id="${channelRewards[reward].title}rewardEffect" value="none" selected>None</option>
+                                     <option name="rewardEffects" id="${channelRewards[reward].title}rewardEffect" value="staticColor">Static color</option>
+                                     <option name="rewardEffects" id="${channelRewards[reward].title}rewardEffect" value="flash">Flash lights</option>
+                                     <option name="rewardEffects" id="${channelRewards[reward].title}rewardEffect" value="fadeColors">Fade random colors</option>
+                                     <option name="rewardEffects" id="${channelRewards[reward].title}rewardEffect" value="randomColor">Random color</option>
                                  </select></td>
-                                 <td><input type="text" id="lightStaticColor" placeholder="Static color (hide unless static color is selected)"></td>
+                                 <td><input type="text" id="${channelRewards[reward].title}rewardEffectlightStaticColor" placeholder="Color" style="display:none;"></td>
                                  </tr>`;
-                                
-                                // for(let s in soundsList.rewards) {
-                                //     if(channelRewards[reward].title.toLowerCase() == soundsList.rewards[s].name.toLowerCase()) {
-                                //         hueChannelRewardsTableHTML += `<option value="${soundsList.rewards[s].filename}" selected>`;
-                                //         foundRewardSound = true;
-                                //     }
-                                //     else{
-                                //         hueChannelRewardsTableHTML += `<option value="${soundsList.rewards[s].filename}">`;
-                                //     }   
-                                //     hueChannelRewardsTableHTML += `${soundsList.rewards[s].filename}</option>`;
-                                // }
-                                // for(let snd = 0; snd < soundsList.random.length; snd++) {
-                                //     hueChannelRewardsTableHTML += `<option value="${soundsList.random[snd]}">${soundsList.random[snd]}</option>`;
-                                // }
-                                // if(foundRewardSound) {
-                                //     hueChannelRewardsTableHTML += `<option value="none">none</option></td></tr>`;
-                                // }
-                                // else {
-                                //     hueChannelRewardsTableHTML += `<option value="none" selected>none</option></td></tr>`;
-                                // }
                             }
                         }
                         hueChannelRewardsTable.innerHTML = hueChannelRewardsTableHTML;
-                        
-                    //     <tr><td>reward picture</td><td>Test reward</td><td><select class="custom-select">
-                    //     <option value="none" selected>None</option>
-                    //     <option value="staticColor">Static color</option>
-                    //     <option value="flash">Flash lights</option>
-                    //     <option value="fadeColors">Fade random colors</option>
-                    //     <option value="randomColor">Random color</option>
-                    // </select></td>
-                    // <td><input type="text" id="lightStaticColor" placeholder="Static color (hide unless static color is selected)"></td>
-                    // </tr>
-
                     }
                 }
             }
@@ -531,6 +509,35 @@ function closeBot() {
     botWindow.close();
 }
 
+function toggleElement(ele,status) {
+    try {
+        let changeThis = document.getElementById(ele);
+        if(status) {
+            changeThis.style.display = 'block';
+        }
+        else {
+            changeThis.style.display = 'none';
+        }
+    }
+    catch(error) {
+        console.log(error);
+    }
+}
+
+function checkLightRewards() { 
+    let rewardEffects = document.getElementsByName('rewardEffects');
+    for(let effect in rewardEffects) {
+        if(rewardEffects[effect].selected) {
+            if(rewardEffects[effect].value == "staticColor") {
+                toggleElement(`${rewardEffects[effect].id}lightStaticColor`, true);    
+            }
+            else {
+                toggleElement(`${rewardEffects[effect].id}lightStaticColor`, false);    
+            }
+        }
+    }
+}
+
 // hue
 async function hueControls(lightID, command, enabled) {
     const hueSettings = await getHueSettings;
@@ -609,55 +616,43 @@ async function getHueAlertsSettings(alertType) {
 }
 
 async function saveHueSettings() {
-    
-    let bitsAlertSettings = {};
-    let bitsAlerts = document.getElementsByName('bitsAlertEnabled');
-    for(let x = 0; x < bitsAlerts.length; x++) {
-        let lightID = (bitsAlerts[x].id).replace('bitsAlertsEnabled', '');
-        if(bitsAlerts[x].checked) {            
-            bitsAlertSettings[lightID] = true;
-        }
-        else {
-            bitsAlertSettings[lightID] = false;
-        }
-    }
-    let bitsAlertsMode = document.getElementById('bitsAlertsMode').value;
-    bitsAlertSettings.mode = bitsAlertsMode;
-    console.log(bitsAlertSettings);
-    updateHueAlertsSettings('bits', bitsAlertSettings);
-
-    let subsAlertSettings = {};
-    let subsAlerts = document.getElementsByName('subsAlertEnabled');
-    for(let x = 0; x < subsAlerts.length; x++) {
-        let lightID = (subsAlerts[x].id).replace('subsAlertsEnabled', '');
-        if(subsAlerts[x].checked) {            
-            subsAlertSettings[lightID] = true;
-        }
-        else {
-            subsAlertSettings[lightID] = false;
-        }
-    }
-    let subsAlertsMode = document.getElementById('subsAlertsMode').value;
-    subsAlertSettings.mode = subsAlertsMode;
-    console.log(subsAlertSettings);
-    updateHueAlertsSettings('subs', subsAlertSettings);
-
+    // read lights
+    let lightsEnabled = document.getElementsByName('lightRewardEnabled');
     let channelPointsAlertSettings = {};
-    let channelPointsAlerts = document.getElementsByName('channelPointsAlertEnabled');
-    for(let x = 0; x < channelPointsAlerts.length; x++) {
-        let lightID = (channelPointsAlerts[x].id).replace('channelPointsAlertsEnabled', '');
-        if(channelPointsAlerts[x].checked) {            
+    console.log(lightsEnabled);
+    for(let x = 0; x < lightsEnabled.length; x++) {
+        let lightID = lightsEnabled[x].id;
+        if(lightsEnabled[x].checked) {
             channelPointsAlertSettings[lightID] = true;
+            // console.log(`Light ID ${lightID} enabled`);
         }
         else {
             channelPointsAlertSettings[lightID] = false;
+            // console.log(`Light ID ${lightID} disabled`);
         }
     }
-    let channelPointsAlertsMode = document.getElementById('channelPointsAlertsMode').value;
-    channelPointsAlertSettings.mode = channelPointsAlertsMode;
     console.log(channelPointsAlertSettings);
-    updateHueAlertsSettings('channelPoints', channelPointsAlertSettings);
-
-    // create functions commented out above to save alert settings in main and render 
-
+    await updateHueAlertsSettings('channelPointsLights', channelPointsAlertSettings);    
+    
+    // read rewards
+    let lightRewards = document.getElementsByName('hueRewards');
+    let channelPointsLightRewards = {};
+    // console.log(lightRewards);    
+    for(let y = 0; y < lightRewards.length; y++) {
+        if(lightRewards[y].value.toLowerCase() != 'none') {
+            let rewardName = lightRewards[y].id;
+            channelPointsLightRewards[rewardName] = {
+                name: rewardName,
+                effect: lightRewards[y].value
+            }
+            if(lightRewards[y].value == 'staticColor') {
+                let staticColorSetting = document.getElementById(`${rewardName}rewardEffectlightStaticColor`).value;
+                channelPointsLightRewards[rewardName].color = staticColorSetting;
+            }
+        }
+    }
+    console.log(channelPointsLightRewards);
+    await updateHueAlertsSettings('channelPointsRewards', channelPointsLightRewards);
+    alertMsg(true, 'success', 'Hue settings updated');
+    showPage('pointsHue');
 }

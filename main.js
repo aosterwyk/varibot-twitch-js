@@ -17,6 +17,8 @@ const { getBotSettings } = require('./utils/config/getBotSettings');
 const { setBotSettings } = require('./utils/config/setBotSettings');
 const { getChannelPointsSounds } = require('./utils/config/getChannelPointsSounds');
 const { setChannelPointsSounds } = require('./utils/config/setChannelPointsSounds');
+const { getLightChannelPointRewards } = require('./utils/hue/getLightChannelPointRewards');
+const { setLightChannelPointRewards } = require('./utils/hue/setLightChannelPointRewards');
 const versionNumber = require('./package.json').version;
 const { ipcMain, app, dialog, BrowserWindow } = require('electron');
 
@@ -45,7 +47,7 @@ let channelPointsFilenames = []; // add beat game sound to this
 var hueSettings = {};
 var hueBitsAlertsSettings = {};
 var hueSubsAlertsSettings = {};
-var hueChannelPointsAlertsSettings = {};
+var hueChannelPointsLightsSettings = {};
 const configsDir = `${app.getPath('appData')}\\varibot\\configs`;
 checkConfigDir(configsDir);
 const hueConfigsDir = `${app.getPath('appData')}\\varibot\\configs\\hue`;
@@ -61,7 +63,8 @@ const soundsSettingsFilePath = `${app.getPath('appData')}\\varibot\\configs\\sou
 const hueSettingsFilePath = `${app.getPath('appData')}\\varibot\\configs\\hue\\hueSettings.json`;
 const hueBitsAlertsSettingsFilePath = `${app.getPath('appData')}\\varibot\\configs\\hue\\hueBitsAlertsSettings.json`;
 const hueSubsAlertsSettingsFilePath = `${app.getPath('appData')}\\varibot\\configs\\hue\\hueSubsAlertsSettings.json`;
-const hueChannelPointsAlertsSettingsFilePath = `${app.getPath('appData')}\\varibot\\configs\\hue\\hueChannelPointsAlertsSettings.json`;
+const hueChannelPointsLightsSettingsFilePath = `${app.getPath('appData')}\\varibot\\configs\\hue\\hueChannelPointsLightsSettings.json`;
+const hueChannelPointsRewardsSettingsFilePath = `${app.getPath('appData')}\\varibot\\configs\\hue\\hueChannelPointsRewardsSettings.json`;
 
 let lastRunTimestamp = new Date(); // hacky cooldown
 
@@ -395,44 +398,63 @@ async function reloadHueSettings() {
     hueSettings = {};
     hueBitsAlertsSettings = {};
     hueSubsAlertsSettings = {};
-    hueChannelPointsAlertsSettings = {};    
+    hueChannelPointsLightsSettings = {};    
+    hueChannelPointsRewardsSettings = {};
 
     hueSettings = await getHueSettings(hueSettingsFilePath);
     hueBitsAlertsSettings = await getHueSettings(hueBitsAlertsSettingsFilePath);
     hueSubsAlertsSettings = await getHueSettings(hueSubsAlertsSettingsFilePath);
-    hueChannelPointsAlertsSettings = await getHueSettings(hueChannelPointsAlertsSettingsFilePath);
+    hueChannelPointsLightsSettings = await getHueSettings(hueChannelPointsLightsSettingsFilePath);
+    hueChannelPointsRewardsSettings = await getHueSettings(hueChannelPointsRewardsSettingsFilePath);
 }
 
 ipcMain.handle('setHueAlertsSettings', async(event, args) => {
     let settingsFileToChange = null;
     let newSettings = args.newSettings;
     if(args.type == 'bits') {
-        settingsFileToChange = hueBitsAlertsSettingsFile;
+        settingsFileToChange = hueBitsAlertsSettingsFilePath;
     }
     else if(args.type == 'subs') {
-        settingsFileToChange = hueSubsAlertsSettingsFile;
+        settingsFileToChange = hueSubsAlertsSettingsFilePath;
     }
-    else if(args.type == 'channelPoints') {
-        settingsFileToChange = hueChannelPointsAlertsSettingsFile;
+    else if(args.type == 'channelPointsLights') {
+        settingsFileToChange = hueChannelPointsLightsSettingsFilePath;
     }
     if(settingsFileToChange !== null) {
         for(x in newSettings) {
             await setHueSettings(settingsFileToChange, x, newSettings[x]);
         }
     }
+    if(args.type == 'channelPointsRewards') {
+        hueChannelPointsRewardsSettings = {};
+        for(x in newSettings) {
+            hueChannelPointsRewardsSettings[newSettings[x].name] = {
+                name: newSettings[x].name,
+                effect: newSettings[x].effect
+            }
+            if(newSettings[x].color !== undefined && newSettings[x].color.length > 1) {
+                hueChannelPointsRewardsSettings[newSettings[x].name].color = newSettings[x].color;
+            }
+        }
+        await setLightChannelPointRewards(hueChannelPointsRewardsSettingsFilePath, hueChannelPointsRewardsSettings);        
+    }
+    await reloadHueSettings();
 });
 
 ipcMain.handle('getHueAlertsSettings', async(event, args) => {
     let settingsFileToRead = null;
     if(args == 'bits') {
-        settingsFileToRead = hueBitsAlertsSettingsFile;
+        settingsFileToRead = hueBitsAlertsSettingsFilePath;
     }
     else if(args == 'subs') {
-        settingsFileToRead = hueSubsAlertsSettingsFile;
+        settingsFileToRead = hueSubsAlertsSettingsFilePath;
     }
-    else if(args == 'channelPoints') {
-        settingsFileToRead = hueChannelPointsAlertsSettingsFile;
+    else if(args == 'channelPointsLights') {
+        settingsFileToRead = hueChannelPointsLightsSettingsFilePath;
     }    
+    else if(args == 'channelPointsRewards') {
+        settingsFileToRead = hueChannelPointsRewardsSettingsFilePath;
+    }
     if(settingsFileToRead !== undefined || settingsFileToRead !== null) {
         let hueBitsAlertsSettings = await getHueSettings(settingsFileToRead);
         return hueBitsAlertsSettings;
@@ -786,8 +808,8 @@ async function proecssReward(reward) {
     }
     if(reward.data.redemption.reward.title.toLowerCase() == 'color loop') {
         await reloadHueSettings();
-        for(light in hueChannelPointsAlertsSettings) {
-            if(light != 'mode' && hueChannelPointsAlertsSettings[light]) {
+        for(light in hueChannelPointsLightsSettings) {
+            if(light != 'mode' && hueChannelPointsLightsSettings[light]) {
                 await colorLoop(hueSettings.bridgeIP, hueSettings.username, light, true);
                 statusMsg('info', `Enabled color loop on light ${light}`);                
                 setTimeout((x) => {
@@ -833,8 +855,8 @@ async function proecssReward(reward) {
         }
         // console.log(`Picked color ${newColor}`);        
         await reloadHueSettings();
-        for(light in hueChannelPointsAlertsSettings) {
-            if(light != 'mode' && hueChannelPointsAlertsSettings[light]) {
+        for(light in hueChannelPointsLightsSettings) {
+            if(light != 'mode' && hueChannelPointsLightsSettings[light]) {
                 let oldLightInfo = await getLight(hueSettings.bridgeIP, hueSettings.username, light);
                 let oldLightColor = oldLightInfo.state.xy;
                 // console.log(`Old light color: ${oldLightColor}`);
