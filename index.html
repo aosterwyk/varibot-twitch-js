@@ -338,15 +338,18 @@
                                 <div class="card-body">
                                     <p>Select the reward to use with the lights enabled below. <a class="text-decoration-none" onclick="lightHelpList('show')">Click here</a> for info on reward types</p>
                                     <span class="my-2" id="lightHelpList" style="display:none;">
+                                        <strong class="text-info">None</strong> Disabled<br>
                                         <strong class="text-info">Static color</strong> Changes lights to a color. Enter the color in the text box that appears when selecting this option.<br>
+                                        <strong class="text-info">User color</strong> Changes light to a color set by user. ("Require Viewer to Enter Text" must be enabled on edit custom rewards page)<br>
                                         <strong class="text-info">Flash lights</strong> Flashes lights random colors.<br>
                                         <strong class="text-info">Fade random colors</strong> Fades between random colors.<br>
                                         <strong class="text-info">Random color</strong> Changes lights random colors.<br>
+                                        <strong class="text-info">Color loop</strong> Loops colors<br>
                                     </span>
                                     <table class="table table-striped table-dark my-2">
                                         <theader><tr><td colspan="2">Reward Name</td><td colspan="2">Effect</td></tr></theader>
                                         <tbody id="hueRewardsTable">
-                                            <tr><td>reward picture</td><td>Test reward</td><td><select class="custom-select">
+                                            <!-- <tr><td>reward picture</td><td>Test reward</td><td><select class="custom-select">
                                                 <option value="none" selected>None</option>
                                                 <option value="staticColor">Static color</option>
                                                 <option value="flash">Flash lights</option>
@@ -372,7 +375,7 @@
                                                 <option value="randomColor">Random color</option>
                                             </select></td>
                                             <td></td>
-                                            </tr>
+                                            </tr> -->
                                         </tbody>
                                     </table>                                       
                                 </div>

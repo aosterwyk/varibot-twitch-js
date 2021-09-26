@@ -285,9 +285,12 @@ async function populateSettings(settingsPage) {
                                 hueChannelRewardsTableHTML += `<td><select class="custom-select" onchange="checkLightRewards()" id="${channelRewards[reward].title}" name="hueRewards">
                                      <option name="rewardEffects" id="${channelRewards[reward].title}rewardEffect" value="none" selected>None</option>
                                      <option name="rewardEffects" id="${channelRewards[reward].title}rewardEffect" value="staticColor">Static color</option>
+                                     <option name="rewardEffects" id="${channelRewards[reward].title}rewardEffect" value="userColor">User color</option>                                     
                                      <option name="rewardEffects" id="${channelRewards[reward].title}rewardEffect" value="flash">Flash lights</option>
                                      <option name="rewardEffects" id="${channelRewards[reward].title}rewardEffect" value="fadeColors">Fade random colors</option>
                                      <option name="rewardEffects" id="${channelRewards[reward].title}rewardEffect" value="randomColor">Random color</option>
+                                     <option name="rewardEffects" id="${channelRewards[reward].title}rewardEffect" value="colorLoop">Color loop</option>
+                                     
                                  </select></td>
                                  <td><input type="text" id="${channelRewards[reward].title}rewardEffectlightStaticColor" placeholder="Color" style="display:none;"></td>
                                  </tr>`;
