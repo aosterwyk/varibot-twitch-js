@@ -9,6 +9,7 @@ const { checkConfigDir } = require('./utils/config/checkConfigDir');
 const { randomRadio, isGTAGame } = require('./utils/gta/gtaCmds');
 const { loadSounds } = require('./utils/loadSounds');
 const { getRandomOwnedGame } = require('./utils/ownedGames');
+const { randomNumber } = require('./utils/randomNumber');
 const { beatGame } = require('./utils/beatGame');
 const { getMultiLink } = require('./utils/multiLink');
 const { isMod } = require('./utils/isMod');
@@ -48,6 +49,7 @@ var hueSettings = {};
 var hueBitsAlertsSettings = {};
 var hueSubsAlertsSettings = {};
 var hueChannelPointsLightsSettings = {};
+var hueChannelPointsRewardsSettings = {};
 const configsDir = `${app.getPath('appData')}\\varibot\\configs`;
 checkConfigDir(configsDir);
 const hueConfigsDir = `${app.getPath('appData')}\\varibot\\configs\\hue`;
@@ -800,25 +802,92 @@ async function proecssReward(reward) {
             }   
         }
     }
-    if(reward.data.redemption.reward.title.toLowerCase() == 'test reward') {    
-        await reloadHueSettings();
-        await colorLoop(hueSettings.bridgeIP, hueSettings.username, 9, true);
-        await flashLight(hueSettings.bridgeIP, hueSettings.username, 9, 2);
-        await colorLoop(hueSettings.bridgeIP, hueSettings.username, 9, false);
-    }
-    if(reward.data.redemption.reward.title.toLowerCase() == 'color loop') {
-        await reloadHueSettings();
-        for(light in hueChannelPointsLightsSettings) {
-            if(light != 'mode' && hueChannelPointsLightsSettings[light]) {
-                await colorLoop(hueSettings.bridgeIP, hueSettings.username, light, true);
-                statusMsg('info', `Enabled color loop on light ${light}`);                
-                setTimeout((x) => {
-                    statusMsg('info', `Disabled color loop on light ${x}`);
-                    colorLoop(hueSettings.bridgeIP, hueSettings.username, x, false);
-                }, 300000, light);
+
+    // hue rewards
+    for(let h in hueChannelPointsRewardsSettings) {
+        if(hueChannelPointsRewardsSettings[h].name.toLowerCase() == reward.data.redemption.reward.title.toLowerCase()) {
+            // console.log(`${hueChannelPointsRewardsSettings[h].name} ${hueChannelPointsRewardsSettings[h].effect}`);
+            await reloadHueSettings();
+            // TO DO - get old colors before running anything and reset after command
+            switch(hueChannelPointsRewardsSettings[h].effect) {
+                case 'staticColor': {
+                    console.log(`This doesn't work yet. No refunds!`);
+                    break;
+                }
+                case 'userColor': {
+                    break;
+                }
+                case 'flash': {
+                    for(light in hueChannelPointsLightsSettings) {
+                        if(light != 'mode' && hueChannelPointsLightsSettings[light]) {
+                            flashLight(hueSettings.bridgeIP, hueSettings.username, light, 4);
+                        }
+                    }     
+                    break;               
+                }
+                case 'randomColor': {
+                    for(light in hueChannelPointsLightsSettings) {
+                        if(light != 'mode' && hueChannelPointsLightsSettings[light]) {
+                            let allColors = [];
+                            for(let searchColor in hueColors) {
+                                allColors.push(hueColors[searchColor]);
+                            }
+                            let newColor = allColors[randomNumber(0, (allColors.length -1))];                
+                            let oldState = await getLight(hueSettings.bridgeIP, hueSettings.username, light); // get old color
+                            let oldColor = oldState.state.xy;
+                            await setLightColor(hueSettings.bridgeIP, hueSettings.username, newColor, light);
+                            setTimeout((x,oldColor) => { // reset to old color
+                                statusMsg('info', `Reset light color ${x}`);
+                                setLightColor(hueSettings.bridgeIP, hueSettings.username, oldColor, x);
+                            }, 60000,light,oldColor);
+                        }
+                    }
+                    break;
+                }
+                case 'colorLoop': {
+                    for(light in hueChannelPointsLightsSettings) {
+                        if(light != 'mode' && hueChannelPointsLightsSettings[light]) {
+                            await colorLoop(hueSettings.bridgeIP, hueSettings.username, light, true);
+                            statusMsg('info', `Enabled color loop on light ${light}`);                
+                            setTimeout((x) => {
+                                statusMsg('info', `Disabled color loop on light ${x}`);
+                                colorLoop(hueSettings.bridgeIP, hueSettings.username, x, false);
+                            }, 60000, light);
+                        }
+                    }
+                    break;
+                }
             }
+            
+            // staticColor
+            // userColor
+            // flash
+            // randomColor
+            // colorLoop
+            
         }
     }
+    
+    // old hue
+    // if(reward.data.redemption.reward.title.toLowerCase() == 'test reward') {    
+    //     await reloadHueSettings();
+    //     await colorLoop(hueSettings.bridgeIP, hueSettings.username, 9, true);
+    //     await flashLight(hueSettings.bridgeIP, hueSettings.username, 9, 2);
+    //     await colorLoop(hueSettings.bridgeIP, hueSettings.username, 9, false);
+    // }
+    // if(reward.data.redemption.reward.title.toLowerCase() == 'color loop') {
+    //     await reloadHueSettings();
+    //     for(light in hueChannelPointsLightsSettings) {
+    //         if(light != 'mode' && hueChannelPointsLightsSettings[light]) {
+    //             await colorLoop(hueSettings.bridgeIP, hueSettings.username, light, true);
+    //             statusMsg('info', `Enabled color loop on light ${light}`);                
+    //             setTimeout((x) => {
+    //                 statusMsg('info', `Disabled color loop on light ${x}`);
+    //                 colorLoop(hueSettings.bridgeIP, hueSettings.username, x, false);
+    //             }, 300000, light);
+    //         }
+    //     }
+    // }
     if(reward.data.redemption.reward.title.toLowerCase() == 'light color') {
         if(reward.data.redemption.user_input !== undefined) {            
             let userColor = reward.data.redemption.user_input.toLowerCase();

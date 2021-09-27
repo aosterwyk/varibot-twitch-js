@@ -269,16 +269,15 @@ async function populateSettings(settingsPage) {
                         }
                         hueLightsTable.innerHTML = hueLightsTableHTML;
                         let channelRewards = await ipc.invoke('getChannelRewards');
-                        let hueRewardsList = await getHueAlertsSettings('channelPointsRewards');
-                        console.log(hueRewardsList);
+                        let loadedHueRewardsList = await getHueAlertsSettings('channelPointsRewards');
+                        // console.log(loadedHueRewardsList);
                         let hueChannelRewardsTable = document.getElementById('hueRewardsTable');
                         let hueChannelRewardsTableHTML = ``;
-                        // TO DO - this does not fill in exisiting settings
                         if(channelRewards !== undefined && channelRewards.length > 0) {
                             for(let reward = 0; reward < channelRewards.length; reward++) {
-                                if(channelRewards[reward].title.toLowerCase() == 'random sound') {
-                                    continue;
-                                }
+                                // if(channelRewards[reward].title.toLowerCase() == 'random sound') {
+                                //     continue;
+                                // }
                                 let rewardImage = channelRewards[reward].default_image.url_1x
                                 if(channelRewards[reward].image !== null){
                                     rewardImage = channelRewards[reward].image.url_1x;
@@ -289,7 +288,6 @@ async function populateSettings(settingsPage) {
                                 <option name="rewardEffects" id="${channelRewards[reward].title}rewardEffect" value="staticColor">Static color</option>
                                 <option name="rewardEffects" id="${channelRewards[reward].title}rewardEffect" value="userColor">User color</option>                                     
                                 <option name="rewardEffects" id="${channelRewards[reward].title}rewardEffect" value="flash">Flash lights</option>
-                                <option name="rewardEffects" id="${channelRewards[reward].title}rewardEffect" value="fadeColors">Fade random colors</option>
                                 <option name="rewardEffects" id="${channelRewards[reward].title}rewardEffect" value="randomColor">Random color</option>
                                 <option name="rewardEffects" id="${channelRewards[reward].title}rewardEffect" value="colorLoop">Color loop</option>
                                 </select></td>
@@ -301,10 +299,24 @@ async function populateSettings(settingsPage) {
                             // select loaded options
                             try {
                                 let hueRewards = document.getElementsByName('hueRewards');
-                                console.log(hueRewards);
+                                // console.log(hueRewards);
                                 for(let r in hueRewards) { 
-                                    if(hueRewards[r].id in hueRewardsList) {
-                                        console.log(`Found ${hueRewards[r].id}`);
+                                    if(hueRewards[r].id in loadedHueRewardsList) {
+                                        let foundHueRewardName = hueRewards[r].id; 
+                                        // console.log(`Found ${hueRewards[r].id}`);
+                                        // console.log(loadedHueRewardsList[foundHueRewardName].effect);
+                                        // console.log(hueRewards[r]);
+                                        let hueRewardsOptions = hueRewards[r].getElementsByTagName('option');
+                                        for(let rewardOption = 0; rewardOption < hueRewardsOptions.length; rewardOption++) {
+                                            if(hueRewardsOptions[rewardOption].value.toLowerCase() == loadedHueRewardsList[foundHueRewardName].effect.toLowerCase()) {
+                                                hueRewardsOptions[rewardOption].selected = true;
+                                                if(hueRewardsOptions[rewardOption].value.toLowerCase() == 'staticcolor') {
+                                                    checkLightRewards();
+                                                    // TO DO - fill in static color if set
+                                                }
+                                            }
+                                        }
+                                        // console.log(hueRewardsOptions);
                                     }
                                 }
                             }
@@ -636,7 +648,7 @@ async function saveHueSettings() {
     // read lights
     let lightsEnabled = document.getElementsByName('lightRewardEnabled');
     let channelPointsAlertSettings = {};
-    console.log(lightsEnabled);
+    // console.log(lightsEnabled);
     for(let x = 0; x < lightsEnabled.length; x++) {
         let lightID = lightsEnabled[x].id;
         if(lightsEnabled[x].checked) {
@@ -648,7 +660,7 @@ async function saveHueSettings() {
             // console.log(`Light ID ${lightID} disabled`);
         }
     }
-    console.log(channelPointsAlertSettings);
+    // console.log(channelPointsAlertSettings);
     await updateHueAlertsSettings('channelPointsLights', channelPointsAlertSettings);    
     
     // read rewards
@@ -668,7 +680,7 @@ async function saveHueSettings() {
             }
         }
     }
-    console.log(channelPointsLightRewards);
+    // console.log(channelPointsLightRewards);
     await updateHueAlertsSettings('channelPointsRewards', channelPointsLightRewards);
     alertMsg(true, 'success', 'Hue settings updated');
     showPage('pointsHue');
