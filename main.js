@@ -50,6 +50,7 @@ var hueBitsAlertsSettings = {};
 var hueSubsAlertsSettings = {};
 var hueChannelPointsLightsSettings = {};
 var hueChannelPointsRewardsSettings = {};
+var hueLightResetTime = 300000; // 300000 = 5 mins 60000 = 1 min
 const configsDir = `${app.getPath('appData')}\\varibot\\configs`;
 checkConfigDir(configsDir);
 const hueConfigsDir = `${app.getPath('appData')}\\varibot\\configs\\hue`;
@@ -804,6 +805,7 @@ async function proecssReward(reward) {
     }
 
     // hue rewards
+    // TO DO - add to recent events
     for(let h in hueChannelPointsRewardsSettings) {
         if(hueChannelPointsRewardsSettings[h].name.toLowerCase() == reward.data.redemption.reward.title.toLowerCase()) {
             // console.log(`${hueChannelPointsRewardsSettings[h].name} ${hueChannelPointsRewardsSettings[h].effect}`);
@@ -815,12 +817,62 @@ async function proecssReward(reward) {
                     break;
                 }
                 case 'userColor': {
+                    let newColor = ``;
+                    if(reward.data.redemption.user_input !== undefined) {            
+                        let userColor = reward.data.redemption.user_input.toLowerCase();
+                        console.log(`Searching for ${userColor}`);
+                        let colorMatches = [];
+                        let colorMatchesCount = 0;
+                        for(let searchColor in hueColors) {
+                            if(searchColor.toLowerCase().includes(userColor)) {
+                                colorMatchesCount++;
+                                console.log(`Found ${searchColor}`);
+                                colorMatches.push(hueColors[searchColor]);
+                            }
+                        }
+                        if(colorMatchesCount > 0) {
+                            newColor = colorMatches[randomNumber(0, (colorMatches.length - 1))];
+                        }
+                        else { 
+                            console.log(`Can't find color ${userColor}, picking a random color instead.`);
+                            let allColors = [];
+                            for(let searchColor in hueColors) {
+                                allColors.push(hueColors[searchColor]);
+                            }
+                            newColor = allColors[randomNumber(0, (allColors.length -1))];                
+                        }
+                    }
+                    else {
+                        // no text so pick a random color - reward should require text. you should not get here. 
+                        let allColors = [];
+                        for(let searchColor in hueColors) {
+                            allColors.push(hueColors[searchColor]);
+                        }
+                        newColor = allColors[randomNumber(0, (allColors.length -1))];                
+                    }
+                    for(light in hueChannelPointsLightsSettings) {
+                        if(light != 'mode' && hueChannelPointsLightsSettings[light]) {
+                            let oldState = await getLight(hueSettings.bridgeIP, hueSettings.username, light); // get old color
+                            let oldColor = oldState.state.xy;
+                            await setLightColor(hueSettings.bridgeIP, hueSettings.username, newColor, light);
+                            setTimeout((x,oldColor) => { // reset to old color
+                                statusMsg('info', `Reset color on light ID ${x}`);
+                                setLightColor(hueSettings.bridgeIP, hueSettings.username, oldColor, x);
+                            }, hueLightResetTime,light,oldColor);
+                            let userInfo = await twitchAPI.getTwitchUserInfo(reward.data.redemption.user.id, botSettings.clientId, botSettings.token);
+                            let userImg = userInfo[0].profile_image_url;     
+                            updateRecentEvents(`${userImg}`,`${reward.data.redemption.user.display_name}`, `changed color to ${newColor} on light ID ${light}`);  
+                        }
+                    }                    
                     break;
                 }
                 case 'flash': {
                     for(light in hueChannelPointsLightsSettings) {
                         if(light != 'mode' && hueChannelPointsLightsSettings[light]) {
                             flashLight(hueSettings.bridgeIP, hueSettings.username, light, 4);
+                            let userInfo = await twitchAPI.getTwitchUserInfo(reward.data.redemption.user.id, botSettings.clientId, botSettings.token);
+                            let userImg = userInfo[0].profile_image_url;     
+                            updateRecentEvents(`${userImg}`,`${reward.data.redemption.user.display_name}`, `flashed light ID ${light}`);                              
                         }
                     }     
                     break;               
@@ -839,7 +891,10 @@ async function proecssReward(reward) {
                             setTimeout((x,oldColor) => { // reset to old color
                                 statusMsg('info', `Reset light color ${x}`);
                                 setLightColor(hueSettings.bridgeIP, hueSettings.username, oldColor, x);
-                            }, 60000,light,oldColor);
+                            }, hueLightResetTime,light,oldColor);
+                            let userInfo = await twitchAPI.getTwitchUserInfo(reward.data.redemption.user.id, botSettings.clientId, botSettings.token);
+                            let userImg = userInfo[0].profile_image_url;     
+                            updateRecentEvents(`${userImg}`,`${reward.data.redemption.user.display_name}`, `changed color to ${newColor} on light ID ${light}`);  
                         }
                     }
                     break;
@@ -852,21 +907,18 @@ async function proecssReward(reward) {
                             setTimeout((x) => {
                                 statusMsg('info', `Disabled color loop on light ${x}`);
                                 colorLoop(hueSettings.bridgeIP, hueSettings.username, x, false);
-                            }, 60000, light);
+                            }, hueLightResetTime, light);
+                            let userInfo = await twitchAPI.getTwitchUserInfo(reward.data.redemption.user.id, botSettings.clientId, botSettings.token);
+                            let userImg = userInfo[0].profile_image_url;     
+                            updateRecentEvents(`${userImg}`,`${reward.data.redemption.user.display_name}`, `enabled color loop on light ID ${light}`);                              
                         }
                     }
                     break;
                 }
-            }
-            
-            // staticColor
-            // userColor
-            // flash
-            // randomColor
-            // colorLoop
-            
+            }   
         }
     }
+}
     
     // old hue
     // if(reward.data.redemption.reward.title.toLowerCase() == 'test reward') {    
@@ -888,57 +940,56 @@ async function proecssReward(reward) {
     //         }
     //     }
     // }
-    if(reward.data.redemption.reward.title.toLowerCase() == 'light color') {
-        if(reward.data.redemption.user_input !== undefined) {            
-            let userColor = reward.data.redemption.user_input.toLowerCase();
-            console.log(`Searching for ${userColor}`);
-            let colorMatches = [];
-            let colorMatchesCount = 0;
-            for(let searchColor in hueColors) {
-                if(searchColor.toLowerCase().includes(userColor)) {
-                    // console.log(`Match: ${searchColor} (${hueColors[searchColor]})`);
-                    colorMatchesCount++;
-                    colorMatches.push(hueColors[searchColor]);
-                }
-            }
-            // console.log(colorMatches);
-            if(colorMatchesCount > 0) {
-                newColor = colorMatches[randomNumber(0, (colorMatches.length - 1))];
-            }
-            else { 
-                console.log(`Can't find color ${userColor}, picking a random color instead.`);
-                let allColors = [];
-                for(let searchColor in hueColors) {
-                    allColors.push(hueColors[searchColor]);
-                }
-                newColor = allColors[randomNumber(0, (allColors.length -1))];                
-            }
-        }
-        else {
-            // no text so pick a random color - reward should require text. you should not get here. 
-            let allColors = [];
-            for(let searchColor in hueColors) {
-                allColors.push(hueColors[searchColor]);
-            }
-            newColor = allColors[randomNumber(0, (allColors.length -1))];                
-        }
-        // console.log(`Picked color ${newColor}`);        
-        await reloadHueSettings();
-        for(light in hueChannelPointsLightsSettings) {
-            if(light != 'mode' && hueChannelPointsLightsSettings[light]) {
-                let oldLightInfo = await getLight(hueSettings.bridgeIP, hueSettings.username, light);
-                let oldLightColor = oldLightInfo.state.xy;
-                // console.log(`Old light color: ${oldLightColor}`);
-                statusMsg('info', `Changing light ${light} color to ${newColor}`);
-                await setLightColor(hueSettings.bridgeIP, hueSettings.username, newColor, light);
-                setTimeout((light, oldLightColor) => {
-                    statusMsg('info', `Resetting light ${light} to ${oldLightColor}`);
-                    setLightColor(hueSettings.bridgeIP, hueSettings.username, oldLightColor, light);
-                }, 300000, light, oldLightColor);             
-            }
-        }
-    }    
-}
+    // if(reward.data.redemption.reward.title.toLowerCase() == 'light color') {
+    //     if(reward.data.redemption.user_input !== undefined) {            
+    //         let userColor = reward.data.redemption.user_input.toLowerCase();
+    //         console.log(`Searching for ${userColor}`);
+    //         let colorMatches = [];
+    //         let colorMatchesCount = 0;
+    //         for(let searchColor in hueColors) {
+    //             if(searchColor.toLowerCase().includes(userColor)) {
+    //                 // console.log(`Match: ${searchColor} (${hueColors[searchColor]})`);
+    //                 colorMatchesCount++;
+    //                 colorMatches.push(hueColors[searchColor]);
+    //             }
+    //         }
+    //         // console.log(colorMatches);
+    //         if(colorMatchesCount > 0) {
+    //             newColor = colorMatches[randomNumber(0, (colorMatches.length - 1))];
+    //         }
+    //         else { 
+    //             console.log(`Can't find color ${userColor}, picking a random color instead.`);
+    //             let allColors = [];
+    //             for(let searchColor in hueColors) {
+    //                 allColors.push(hueColors[searchColor]);
+    //             }
+    //             newColor = allColors[randomNumber(0, (allColors.length -1))];                
+    //         }
+    //     }
+    //     else {
+    //         // no text so pick a random color - reward should require text. you should not get here. 
+    //         let allColors = [];
+    //         for(let searchColor in hueColors) {
+    //             allColors.push(hueColors[searchColor]);
+    //         }
+    //         newColor = allColors[randomNumber(0, (allColors.length -1))];                
+    //     }
+    //     // console.log(`Picked color ${newColor}`);        
+    //     await reloadHueSettings();
+    //     for(light in hueChannelPointsLightsSettings) {
+    //         if(light != 'mode' && hueChannelPointsLightsSettings[light]) {
+    //             let oldLightInfo = await getLight(hueSettings.bridgeIP, hueSettings.username, light);
+    //             let oldLightColor = oldLightInfo.state.xy;
+    //             // console.log(`Old light color: ${oldLightColor}`);
+    //             statusMsg('info', `Changing light ${light} color to ${newColor}`);
+    //             await setLightColor(hueSettings.bridgeIP, hueSettings.username, newColor, light);
+    //             setTimeout((light, oldLightColor) => {
+    //                 statusMsg('info', `Resetting light ${light} to ${oldLightColor}`);
+    //                 setLightColor(hueSettings.bridgeIP, hueSettings.username, oldLightColor, light);
+    //             }, 300000, light, oldLightColor);             
+    //         }
+    //     }
+    // }    
 
 async function pubsubHandle(msg) {
     if(msg.type == 'MESSAGE') {
