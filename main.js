@@ -50,6 +50,7 @@ var hueBitsAlertsSettings = {};
 var hueSubsAlertsSettings = {};
 var hueChannelPointsLightsSettings = {};
 var hueChannelPointsRewardsSettings = {};
+var hueOldColors = {};
 var hueLightResetTime = 300000; // 300000 = 5 mins 60000 = 1 min
 const configsDir = `${app.getPath('appData')}\\varibot\\configs`;
 checkConfigDir(configsDir);
@@ -853,17 +854,21 @@ async function proecssReward(reward) {
                     for(light in hueChannelPointsLightsSettings) {
                         if(light != 'mode' && hueChannelPointsLightsSettings[light]) {
                             let oldState = await getLight(hueSettings.bridgeIP, hueSettings.username, light); // get old color
-                            let oldColor = oldState.state.xy;
+                            // let oldColor = oldState.state.xy;
+                            if(hueOldColors[light] === undefined || hueOldColors[light] === null) {
+                                hueOldColors[light] = oldState.state.xy;
+                                setTimeout((x) => { // reset to old color
+                                    statusMsg('info', `Reset color on light ID ${x}`);
+                                    setLightColor(hueSettings.bridgeIP, hueSettings.username, hueOldColors[x], x);
+                                    hueOldColors[x] = null;
+                                }, hueLightResetTime,light);                                    
+                            }
                             await setLightColor(hueSettings.bridgeIP, hueSettings.username, newColor, light);
-                            setTimeout((x,oldColor) => { // reset to old color
-                                statusMsg('info', `Reset color on light ID ${x}`);
-                                setLightColor(hueSettings.bridgeIP, hueSettings.username, oldColor, x);
-                            }, hueLightResetTime,light,oldColor);
-                            let userInfo = await twitchAPI.getTwitchUserInfo(reward.data.redemption.user.id, botSettings.clientId, botSettings.token);
-                            let userImg = userInfo[0].profile_image_url;     
-                            updateRecentEvents(`${userImg}`,`${reward.data.redemption.user.display_name}`, `changed color to ${newColor} on light ID ${light}`);  
                         }
                     }                    
+                    let userInfo = await twitchAPI.getTwitchUserInfo(reward.data.redemption.user.id, botSettings.clientId, botSettings.token);
+                    let userImg = userInfo[0].profile_image_url;     
+                    updateRecentEvents(`${userImg}`,`${reward.data.redemption.user.display_name}`, `changed light color to ${newColor}`);
                     break;
                 }
                 case 'flash': {
@@ -886,33 +891,41 @@ async function proecssReward(reward) {
                             }
                             let newColor = allColors[randomNumber(0, (allColors.length -1))];                
                             let oldState = await getLight(hueSettings.bridgeIP, hueSettings.username, light); // get old color
-                            let oldColor = oldState.state.xy;
+                            // let oldColor = oldState.state.xy;
+                            if(hueOldColors[light] === undefined || hueOldColors[light] === null) {
+                                hueOldColors[light] = oldState.state.xy;
+                                setTimeout((x) => { // reset to old color
+                                    statusMsg('info', `Reset color on light ID ${x}`);
+                                    setLightColor(hueSettings.bridgeIP, hueSettings.username, hueOldColors[x], x);
+                                    hueOldColors[x] = null;
+                                }, hueLightResetTime,light);                                    
+                            }
                             await setLightColor(hueSettings.bridgeIP, hueSettings.username, newColor, light);
-                            setTimeout((x,oldColor) => { // reset to old color
-                                statusMsg('info', `Reset light color ${x}`);
-                                setLightColor(hueSettings.bridgeIP, hueSettings.username, oldColor, x);
-                            }, hueLightResetTime,light,oldColor);
-                            let userInfo = await twitchAPI.getTwitchUserInfo(reward.data.redemption.user.id, botSettings.clientId, botSettings.token);
-                            let userImg = userInfo[0].profile_image_url;     
-                            updateRecentEvents(`${userImg}`,`${reward.data.redemption.user.display_name}`, `changed color to ${newColor} on light ID ${light}`);  
                         }
                     }
+                    let userInfo = await twitchAPI.getTwitchUserInfo(reward.data.redemption.user.id, botSettings.clientId, botSettings.token);
+                    let userImg = userInfo[0].profile_image_url;                         
+                    updateRecentEvents(`${userImg}`,`${reward.data.redemption.user.display_name}`, `changed lights random colors (${reward.data.redemption.reward.title}).`);                    
                     break;
                 }
                 case 'colorLoop': {
                     for(light in hueChannelPointsLightsSettings) {
                         if(light != 'mode' && hueChannelPointsLightsSettings[light]) {
+                            if(hueOldColors[light] === undefined || hueOldColors[light] === null) {
+                                hueOldColors[light] = oldState.state.xy;
+                                setTimeout((x) => { // reset to old color
+                                    statusMsg('info', `Reset color on light ID ${x}`);
+                                    setLightColor(hueSettings.bridgeIP, hueSettings.username, hueOldColors[x], x);
+                                    hueOldColors[x] = null;
+                                }, hueLightResetTime,light);                                    
+                            }
                             await colorLoop(hueSettings.bridgeIP, hueSettings.username, light, true);
                             statusMsg('info', `Enabled color loop on light ${light}`);                
-                            setTimeout((x) => {
-                                statusMsg('info', `Disabled color loop on light ${x}`);
-                                colorLoop(hueSettings.bridgeIP, hueSettings.username, x, false);
-                            }, hueLightResetTime, light);
-                            let userInfo = await twitchAPI.getTwitchUserInfo(reward.data.redemption.user.id, botSettings.clientId, botSettings.token);
-                            let userImg = userInfo[0].profile_image_url;     
-                            updateRecentEvents(`${userImg}`,`${reward.data.redemption.user.display_name}`, `enabled color loop on light ID ${light}`);                              
                         }
                     }
+                    let userInfo = await twitchAPI.getTwitchUserInfo(reward.data.redemption.user.id, botSettings.clientId, botSettings.token);
+                    let userImg = userInfo[0].profile_image_url;                         
+                    updateRecentEvents(`${userImg}`,`${reward.data.redemption.user.display_name}`, `enabled color loop (${reward.data.redemption.reward.title})`);                    
                     break;
                 }
             }   
