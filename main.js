@@ -875,11 +875,11 @@ async function proecssReward(reward) {
                     for(light in hueChannelPointsLightsSettings) {
                         if(light != 'mode' && hueChannelPointsLightsSettings[light]) {
                             flashLight(hueSettings.bridgeIP, hueSettings.username, light, 4);
-                            let userInfo = await twitchAPI.getTwitchUserInfo(reward.data.redemption.user.id, botSettings.clientId, botSettings.token);
-                            let userImg = userInfo[0].profile_image_url;     
-                            updateRecentEvents(`${userImg}`,`${reward.data.redemption.user.display_name}`, `flashed light ID ${light}`);                              
                         }
                     }     
+                    let userInfo = await twitchAPI.getTwitchUserInfo(reward.data.redemption.user.id, botSettings.clientId, botSettings.token);
+                    let userImg = userInfo[0].profile_image_url;     
+                    updateRecentEvents(`${userImg}`,`${reward.data.redemption.user.display_name}`, `flashed lights (${reward.data.redemption.reward.title})`);                                                  
                     break;               
                 }
                 case 'randomColor': {
