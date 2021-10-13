@@ -18,7 +18,7 @@ const { getBotSettings } = require('./utils/config/getBotSettings');
 const { setBotSettings } = require('./utils/config/setBotSettings');
 const { getChannelPointsSounds } = require('./utils/config/getChannelPointsSounds');
 const { setChannelPointsSounds } = require('./utils/config/setChannelPointsSounds');
-const { getLightChannelPointRewards } = require('./utils/hue/getLightChannelPointRewards');
+// const { getLightChannelPointRewards } = require('./utils/hue/getLightChannelPointRewards');
 const { setLightChannelPointRewards } = require('./utils/hue/setLightChannelPointRewards');
 const versionNumber = require('./package.json').version;
 const { ipcMain, app, dialog, BrowserWindow } = require('electron');
@@ -59,7 +59,7 @@ checkConfigDir(hueConfigsDir);
 const soundsDir = `${app.getPath('appData')}\\varibot\\sounds`;
 checkConfigDir(soundsDir);
 
-let googleCredsExist = false;
+var googleCredsExist = false;
 const googleCredsFilePath = `${app.getPath('appData')}\\varibot\\googleCreds.json`;
 const botSettingsFilePath = `${app.getPath('appData')}\\varibot\\configs\\botSettings.json`;
 const windowSettingsFilePath = `${app.getPath('appData')}\\varibot\\configs\\windowSettings.json`;
