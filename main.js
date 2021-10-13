@@ -697,8 +697,12 @@ ipcMain.handle('getCurrentSettings', async (event, args) => {
     }
 });
 
-ipcMain.handle('getSoundsSettings', async (event, args) => {
+ipcMain.handle('identifyLight', (event, args) => {
+    // console.log(args);
+    flashLight(hueSettings.bridgeIP, hueSettings.username, args, 2);
+});
 
+ipcMain.handle('getSoundsSettings', async (event, args) => {
     await loadChannelPointsSounds();
     let randSounds = [];
     if(soundsDir.length > 1) {

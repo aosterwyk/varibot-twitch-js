@@ -101,6 +101,10 @@ async function loadSettings() {
     return result;
 }
 
+async function identifyLight(lightId) {
+    ipc.invoke('identifyLight',lightId);
+}
+
 function runAd() {
     ipc.invoke('runAd');
 }
@@ -265,7 +269,7 @@ async function populateSettings(settingsPage) {
                             if(hueLightSettings[lightID]) {
                                 hueLightsTableHTML += ` checked `;
                             }
-                            hueLightsTableHTML += `></td></tr>`;
+                            hueLightsTableHTML += `></td><td><button class="btn-secondary btn-sm" onclick="identifyLight(${lightID})">Identify</button></tr>`;
                         }
                         hueLightsTable.innerHTML = hueLightsTableHTML;
                         let channelRewards = await ipc.invoke('getChannelRewards');
