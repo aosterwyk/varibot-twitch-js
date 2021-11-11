@@ -51,7 +51,7 @@ var hueSubsAlertsSettings = {};
 var hueChannelPointsLightsSettings = {};
 var hueChannelPointsRewardsSettings = {};
 var hueOldColors = {};
-var hueLightResetTime = 60000; // 300000 = 5 mins 60000 = 1 min
+var hueLightResetTime = 300000; // 300000 = 5 mins 60000 = 1 min
 const configsDir = `${app.getPath('appData')}\\varibot\\configs`;
 checkConfigDir(configsDir);
 const hueConfigsDir = `${app.getPath('appData')}\\varibot\\configs\\hue`;
@@ -394,7 +394,7 @@ async function createWindow() {
 
     win.loadFile('index.html');
     win.setMenu(null);
-    win.webContents.openDevTools(); // TO DO - comment out before commit 
+    // win.webContents.openDevTools(); // TO DO - comment out before commit 
 }
 
 // hue
