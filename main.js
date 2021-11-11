@@ -915,14 +915,18 @@ async function proecssReward(reward) {
                 case 'colorLoop': {
                     for(light in hueChannelPointsLightsSettings) {
                         if(light != 'mode' && hueChannelPointsLightsSettings[light]) {
-                            if(hueOldColors[light] === undefined || hueOldColors[light] === null) {
-                                hueOldColors[light] = oldState.state.xy;
-                                setTimeout((x) => { // reset to old color
-                                    statusMsg('info', `Reset color on light ID ${x}`);
-                                    setLightColor(hueSettings.bridgeIP, hueSettings.username, hueOldColors[x], x);
-                                    hueOldColors[x] = null;
-                                }, hueLightResetTime,light);                                    
-                            }
+                            // if(hueOldColors[light] === undefined || hueOldColors[light] === null) {
+                            //     hueOldColors[light] = oldState.state.xy;
+                            //     setTimeout((x) => { // reset to old color
+                            //         statusMsg('info', `Reset color on light ID ${x}`);
+                            //         setLightColor(hueSettings.bridgeIP, hueSettings.username, hueOldColors[x], x);
+                            //         hueOldColors[x] = null;
+                            //     }, hueLightResetTime,light);                                    
+                            // }
+                            setTimeout((x) => { // reset to old color
+                                statusMsg('info', `Reset color loop light ID ${x}`);
+                                await colorLoop(hueSettings.bridgeIP, hueSettings.username, light, true);
+                            }, hueLightResetTime,light);                                         
                             await colorLoop(hueSettings.bridgeIP, hueSettings.username, light, true);
                             statusMsg('info', `Enabled color loop on light ${light}`);                
                         }
