@@ -7,9 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 _No unreleased changes_
 
-## [2.2.0] - 2020-09-
+## [2.2.0] - 2020-11-11
+### Added
+- Added Philips HUE channel points rewards 
+
 ### Changed
 - Changed nonce to use a randomized value on each launch
+- Changed channel points section in menu 
 
 ## [2.1.1] - 2021-09-09
 ### Changed

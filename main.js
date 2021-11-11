@@ -925,7 +925,7 @@ async function proecssReward(reward) {
                             // }
                             setTimeout((x) => { // reset to old color
                                 statusMsg('info', `Reset color loop light ID ${x}`);
-                                colorLoop(hueSettings.bridgeIP, hueSettings.username, light, false);
+                                colorLoop(hueSettings.bridgeIP, hueSettings.username, x, false);
                             }, hueLightResetTime,light);                                         
                             await colorLoop(hueSettings.bridgeIP, hueSettings.username, light, true);
                             statusMsg('info', `Enabled color loop on light ${light}`);                
