@@ -51,7 +51,7 @@ var hueSubsAlertsSettings = {};
 var hueChannelPointsLightsSettings = {};
 var hueChannelPointsRewardsSettings = {};
 var hueOldColors = {};
-var hueLightResetTime = 300000; // 300000 = 5 mins 60000 = 1 min
+var hueLightResetTime = 60000; // 300000 = 5 mins 60000 = 1 min
 const configsDir = `${app.getPath('appData')}\\varibot\\configs`;
 checkConfigDir(configsDir);
 const hueConfigsDir = `${app.getPath('appData')}\\varibot\\configs\\hue`;
@@ -925,7 +925,7 @@ async function proecssReward(reward) {
                             // }
                             setTimeout((x) => { // reset to old color
                                 statusMsg('info', `Reset color loop light ID ${x}`);
-                                colorLoop(hueSettings.bridgeIP, hueSettings.username, light, true);
+                                colorLoop(hueSettings.bridgeIP, hueSettings.username, light, false);
                             }, hueLightResetTime,light);                                         
                             await colorLoop(hueSettings.bridgeIP, hueSettings.username, light, true);
                             statusMsg('info', `Enabled color loop on light ${light}`);                
