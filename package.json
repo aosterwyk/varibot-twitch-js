@@ -10,14 +10,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/VariXx/varibot-twitch-js.git"
+    "url": "git+https://github.com/aosterwyk/varibot-twitch-js.git"
   },
-  "author": "VariXx",
+  "author": "Aaron Osterwyk",
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/VariXx/varibot-twitch-js/issues"
+    "url": "https://github.com/aosterwyk/varibot-twitch-js/issues"
   },
-  "homepage": "https://github.com/VariXx/varibot-twitch-js#readme",
+  "homepage": "https://github.com/aosterwyk/varibot-twitch-js#readme",
   "dependencies": {
     "electron-updater": "^4.3.1",
     "google-spreadsheet": "^3.1.15",

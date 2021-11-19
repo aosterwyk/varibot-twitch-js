@@ -78,7 +78,7 @@ _No unreleased changes_
 
 ## [1.2.1] - 2020-09-10
 ### Fixed
-- Removed worksheet ID from Google Spreadsheets settings for [!beat command issue](https://github.com/VariXx/varibot-twitch-js/issues/12) when using share URLs with different formats. Command will now use first worksheet in spreadsheet. 
+- Removed worksheet ID from Google Spreadsheets settings for [!beat command issue](https://github.com/aosterwyk/varibot-twitch-js/issues/12) when using share URLs with different formats. Command will now use first worksheet in spreadsheet. 
 
 ## [1.2.0] - 2020-09-03
 ### Added 
@@ -151,18 +151,18 @@ _No unreleased changes_
 ## [1.0.0] - 2020-06-25
 ### Initial Release
 
-[2.2.0]: https://github.com/VariXx/varibot-twitch-js/tree/v2.2.0
-[2.1.1]: https://github.com/VariXx/varibot-twitch-js/tree/v2.1.1
-[2.1.0]: https://github.com/VariXx/varibot-twitch-js/tree/v2.1.0
-[2.0.0]: https://github.com/VariXx/varibot-twitch-js/tree/v2.0.0
-[1.2.4]: https://github.com/VariXx/varibot-twitch-js/tree/v1.2.4
-[1.2.3]: https://github.com/VariXx/varibot-twitch-js/tree/v1.2.3
-[1.2.2]: https://github.com/VariXx/varibot-twitch-js/tree/v1.2.2
-[1.2.1]: https://github.com/VariXx/varibot-twitch-js/tree/v1.2.1
-[1.2.0]: https://github.com/VariXx/varibot-twitch-js/tree/v1.2.0
-[1.1.1]: https://github.com/VariXx/varibot-twitch-js/tree/v1.1.1
-[1.1.0]: https://github.com/VariXx/varibot-twitch-js/tree/v1.1.0
-[1.0.3]: https://github.com/VariXx/varibot-twitch-js/tree/v1.0.3
-[1.0.1]: https://github.com/VariXx/varibot-twitch-js/tree/v1.0.1
-[1.0.0]: https://github.com/VariXx/varibot-twitch-js/tree/v1.0.0
-[Unreleased]: https://github.com/VariXx/varibot-twitch-js/compare/master...dev
+[2.2.0]: https://github.com/aosterwyk/varibot-twitch-js/tree/v2.2.0
+[2.1.1]: https://github.com/aosterwyk/varibot-twitch-js/tree/v2.1.1
+[2.1.0]: https://github.com/aosterwyk/varibot-twitch-js/tree/v2.1.0
+[2.0.0]: https://github.com/aosterwyk/varibot-twitch-js/tree/v2.0.0
+[1.2.4]: https://github.com/aosterwyk/varibot-twitch-js/tree/v1.2.4
+[1.2.3]: https://github.com/aosterwyk/varibot-twitch-js/tree/v1.2.3
+[1.2.2]: https://github.com/aosterwyk/varibot-twitch-js/tree/v1.2.2
+[1.2.1]: https://github.com/aosterwyk/varibot-twitch-js/tree/v1.2.1
+[1.2.0]: https://github.com/aosterwyk/varibot-twitch-js/tree/v1.2.0
+[1.1.1]: https://github.com/aosterwyk/varibot-twitch-js/tree/v1.1.1
+[1.1.0]: https://github.com/aosterwyk/varibot-twitch-js/tree/v1.1.0
+[1.0.3]: https://github.com/aosterwyk/varibot-twitch-js/tree/v1.0.3
+[1.0.1]: https://github.com/aosterwyk/varibot-twitch-js/tree/v1.0.1
+[1.0.0]: https://github.com/aosterwyk/varibot-twitch-js/tree/v1.0.0
+[Unreleased]: https://github.com/aosterwyk/varibot-twitch-js/compare/master...dev

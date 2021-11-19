@@ -1,5 +1,5 @@
 #  varibot-twitch-js
-[![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/varixx/varibot-twitch-js?sort=semver)](https://github.com/VariXx/varibot-twitch-js/releases) [![GitHub last commit](https://img.shields.io/github/last-commit/varixx/varibot-twitch-js)](https://github.com/VariXx/varibot-twitch-js/commits/master) [![GitHub last commit (branch)](https://img.shields.io/github/last-commit/varixx/varibot-twitch-js/dev?label=last%20commit%20%28dev%29)](https://github.com/VariXx/varibot-twitch-js/commits/dev) [![Discord](https://img.shields.io/discord/90687557523771392?color=000000&label=%20&logo=discord)](https://discord.gg/QNppY7T) [![Twitch Status](https://img.shields.io/twitch/status/varixx?label=%20&logo=twitch)](https://twitch.tv/VariXx) 
+[![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/aosterwyk/varibot-twitch-js?sort=semver)](https://github.com/aosterwyk/varibot-twitch-js/releases) [![GitHub last commit](https://img.shields.io/github/last-commit/aosterwyk/varibot-twitch-js)](https://github.com/aosterwyk/varibot-twitch-js/commits/master) [![GitHub last commit (branch)](https://img.shields.io/github/last-commit/aosterwyk/varibot-twitch-js/dev?label=last%20commit%20%28dev%29)](https://github.com/aosterwyk/varibot-twitch-js/commits/dev) [![Discord](https://img.shields.io/discord/90687557523771392?color=000000&label=%20&logo=discord)](https://discord.gg/QNppY7T) [![Twitch Status](https://img.shields.io/twitch/status/varixx?label=%20&logo=twitch)](https://twitch.tv/VariXx) 
 
 <img src="https://acceptdefaults.com/varibot-twitch-js/varibot.png" align="right" />
 
@@ -15,7 +15,7 @@ This project was started to learn node. ~~It may eventually be public.~~ Now it 
 
 ## Installation
 
-Download and run the installer linked in the [latest release](https://github.com/VariXx/varibot-twitch-js/releases) or build using the instructions below.
+Download and run the installer linked in the [latest release](https://github.com/aosterwyk/varibot-twitch-js/releases) or build using the instructions below.
 
 ### Building  
 - Clone the repository 
@@ -28,7 +28,7 @@ Download and run the installer linked in the [latest release](https://github.com
 
 ## Usage
 
-See the [setup wiki page](https://github.com/VariXx/varibot-twitch-js/wiki/Setup) for steps. 
+See the [setup wiki page](https://github.com/aosterwyk/varibot-twitch-js/wiki/Setup) for steps. 
 
 ### Basic setup
 
