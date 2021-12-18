@@ -204,7 +204,16 @@ async function loadChannelPointsSounds() {
                 name: key,
                 filename: soundsFromFile[key]
             }
-            channelPointsFilenames.push(soundsFromFile[key]);
+            if(Array.isArray(soundsFromFile[key])) {
+                // console.log(`sounds for ${key} is an array`);
+                for(let x = 0; x < (soundsFromFile[key]).length; x++) {
+                    channelPointsFilenames.push(soundsFromFile[key][x]);
+                    // console.log(`Added ${soundsFromFile[key][x]} to random sounds`);
+                }
+            }            
+            else {
+                channelPointsFilenames.push(soundsFromFile[key]);
+            }
         }
         console.log(`Loaded ${Object.keys(channelPointsSounds).length} channel reward sounds`);
     }
@@ -797,13 +806,25 @@ async function proecssReward(reward) {
     else {
         for(let x in channelPointsSounds) {
             if(channelPointsSounds[x].name.toLowerCase() == reward.data.redemption.reward.title.toLowerCase()) {
-                win.webContents.executeJavaScript(`playSound('${channelPointsSounds[x].filename}')`);
-                statusMsg(`info`, `Playing sound ${channelPointsSounds[x].name} (${channelPointsSounds[x].filename})`);
+                let playedSound = '';
+                if(Array.isArray(channelPointsSounds[x].filename)) {
+                    let randomSoundIndex = randomNumber(0, ((channelPointsSounds[x].filename).length)-1);
+                    win.webContents.executeJavaScript(`playSound('${channelPointsSounds[x].filename[randomSoundIndex]}')`);
+                    playedSound = channelPointsSounds[x].filename[randomSoundIndex];
+                }
+                else 
+                {
+                    win.webContents.executeJavaScript(`playSound('${channelPointsSounds[x].filename}')`);
+                    playedSound = channelPointsSounds[x].filename;
+                }
+                statusMsg(`info`, `Playing sound ${channelPointsSounds[x].name} (${playedSound})`);
                 let userInfo = await twitchAPI.getTwitchUserInfo(reward.data.redemption.user.id, botSettings.clientId, botSettings.token);
                 let userImg = userInfo[0].profile_image_url;     
                 // updateChannelPointRedemption(redemptionId, rewardChannelId, rewardId, botSettings.clientId, botSettings.token, 'FULFILLED');                           
-                updateRecentEvents(`${userImg}`,`${reward.data.redemption.user.display_name}`, `played sound ${channelPointsSounds[x].filename}`);
+                // updateRecentEvents(`${userImg}`,`${reward.data.redemption.user.display_name}`, `played sound ${channelPointsSounds[x].filename}`);
                 // updateRecentEvents(`${reward.data.redemption.user.display_name} played sound ${channelPointsSounds[x].filename}`);
+
+                updateRecentEvents(`${userImg}`,`${reward.data.redemption.user.display_name}`, `played sound ${playedSound}`);
                 break;
             }   
         }
