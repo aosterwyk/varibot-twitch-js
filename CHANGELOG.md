@@ -7,7 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 _No unreleased changes_
 
-## [2.2.0] - 2020-11-25
+## [2.3.0] - 2021-12-
+
+## [2.2.0] - 2021-11-25
 ### Added
 - Added Philips HUE channel points rewards 
 
@@ -151,6 +153,7 @@ _No unreleased changes_
 ## [1.0.0] - 2020-06-25
 ### Initial Release
 
+[2.3.0]: https://github.com/aosterwyk/varibot-twitch-js/tree/v2.3.0
 [2.2.0]: https://github.com/aosterwyk/varibot-twitch-js/tree/v2.2.0
 [2.1.1]: https://github.com/aosterwyk/varibot-twitch-js/tree/v2.1.1
 [2.1.0]: https://github.com/aosterwyk/varibot-twitch-js/tree/v2.1.0
