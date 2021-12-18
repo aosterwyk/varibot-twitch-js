@@ -390,6 +390,10 @@ async function populateSettings(settingsPage) {
                 channelRewardsTableHTML += `<tr id="${channelRewards[reward].title}"><td><img src="${rewardImage}"></td><td name="channelRewardName">${channelRewards[reward].title}</td></li></ul></td><td><select class="custom-select custom-select-sm w-100" id="${channelRewards[reward].title}" name="channelRewardSound">`;
                 let foundRewardSound = false; 
                 for(let s in soundsList.rewards) {
+                    if(Array.isArray(soundsList.rewards[s].filename)) {
+                        console.log(`${soundsList.rewards[s].name} is an array`);
+                    }
+                    console.log(soundsList.rewards[s].filename);                    
                     if(channelRewards[reward].title.toLowerCase() == soundsList.rewards[s].name.toLowerCase()) {
                         channelRewardsTableHTML += `<option value="${soundsList.rewards[s].filename}" selected>`;
                         foundRewardSound = true;

@@ -403,7 +403,7 @@ async function createWindow() {
 
     win.loadFile('index.html');
     win.setMenu(null);
-    // win.webContents.openDevTools(); // TO DO - comment out before commit 
+    win.webContents.openDevTools(); // TO DO - comment out before commit 
 }
 
 // hue
