@@ -387,13 +387,13 @@ async function populateSettings(settingsPage) {
                 if(channelRewards[reward].image !== null){
                     rewardImage = channelRewards[reward].image.url_1x;
                 }
-                channelRewardsTableHTML += `<tr id="${channelRewards[reward].title}"><td><img src="${rewardImage}"></td><td name="channelRewardName">${channelRewards[reward].title}</td></li></ul></td><td><select class="custom-select custom-select-sm w-100" id="${channelRewards[reward].title}" name="channelRewardSound">`;
+                channelRewardsTableHTML += `<tr id="${channelRewards[reward].title}Row"><td><img src="${rewardImage}"></td><td name="channelRewardName">${channelRewards[reward].title}</td></li></ul></td><td><select class="custom-select custom-select-sm w-100" id="${channelRewards[reward].title}" name="channelRewardSound">`;
                 let foundRewardSound = false; 
                 for(let s in soundsList.rewards) {
                     if(Array.isArray(soundsList.rewards[s].filename)) {
                         console.log(`${soundsList.rewards[s].name} is an array`);
                     }
-                    console.log(soundsList.rewards[s].filename);                    
+                    // console.log(soundsList.rewards[s].filename);                    
                     if(channelRewards[reward].title.toLowerCase() == soundsList.rewards[s].name.toLowerCase()) {
                         channelRewardsTableHTML += `<option value="${soundsList.rewards[s].filename}" selected>`;
                         foundRewardSound = true;
@@ -407,11 +407,14 @@ async function populateSettings(settingsPage) {
                     channelRewardsTableHTML += `<option value="${soundsList.random[snd]}">${soundsList.random[snd]}</option>`;
                 }
                 if(foundRewardSound) {
-                    channelRewardsTableHTML += `<option value="none">none</option></td></tr>`;
+                    // channelRewardsTableHTML += `<option value="none">none</option></td></tr>`;
+                    channelRewardsTableHTML += `<option value="none">none</option></td>`;
                 }
                 else {
-                    channelRewardsTableHTML += `<option value="none" selected>none</option></td></tr>`;
+                    // channelRewardsTableHTML += `<option value="none" selected>none</option></td></tr>`;
+                    channelRewardsTableHTML += `<option value="none" selected>none</option></td>`;
                 }
+                channelRewardsTableHTML += `<td><input type="checkbox" id="${channelRewards[reward].title}MultiCheckbox" onchange="setSoundRewardMultiple('${channelRewards[reward].title}')"></td></tr>`;
             }
         }
         channelRewardsTable.innerHTML = channelRewardsTableHTML;
@@ -465,12 +468,30 @@ async function saveSoundsForm() {
     let newChannelRewards = document.getElementsByName('channelRewardSound');
     let newpointsSoundsSounds = {};
     let newRandomSounds = {};
+    let soundRewardFilename
     for(let cr = 0; cr < newChannelRewards.length; cr++) {
-        // console.log(`Name: ${newChannelRewards[cr].id} Value: ${newChannelRewards[cr].value}`);
+        console.log(`Name: ${newChannelRewards[cr].id} Value: ${newChannelRewards[cr].value}`);
         if(newChannelRewards[cr].value != 'none') {
+            if(newChannelRewards[cr].multiple) {
+                console.log(`${newChannelRewards[cr].id} is a multiple, listing all selections`);
+                let selectedOptions = [];
+                for(let x = 0; x < (newChannelRewards[cr].options).length; x++ ){
+                    console.log(newChannelRewards[cr].options[x]);
+                    if(newChannelRewards[cr].options[x].selected) {
+                    // add filename to array if selected
+                        selectedOptions.push(newChannelRewards[cr].options[x].value);
+                    }
+                }
+                console.log(selectedOptions);
+                soundRewardFilename = selectedOptions;
+                // console.log(newChannelRewards[cr].options);
+            }
+            else {
+                soundRewardFilename = newChannelRewards[cr].value;
+            }
             newpointsSoundsSounds[newChannelRewards[cr].id] = {
                 name: newChannelRewards[cr].id,
-                filename: newChannelRewards[cr].value
+                filename: soundRewardFilename
             }
         }
     }
@@ -572,6 +593,24 @@ function checkLightRewards() {
                 toggleElement(`${rewardEffects[effect].id}lightStaticColor`, false);    
             }
         }
+    }
+}
+
+function setSoundRewardMultiple(soundRewardSelect) {
+    let soundRewardMultiple = document.getElementById(`${soundRewardSelect}MultiCheckbox`).checked;
+    let soundReward = document.getElementById(soundRewardSelect);
+    if(soundRewardMultiple) {
+        // enable multiple
+        console.log(`${soundRewardSelect} multi checked`);
+        console.log(soundReward);
+        document.getElementById(soundRewardSelect).multiple = true;
+
+    }
+    else {
+        console.log(`${soundRewardSelect} multi unchecked`);        
+        console.log(soundReward);
+        document.getElementById(soundRewardSelect).multiple = false;        
+        // disable multiple and default to none
     }
 }
 
