@@ -470,19 +470,19 @@ async function saveSoundsForm() {
     let newRandomSounds = {};
     let soundRewardFilename
     for(let cr = 0; cr < newChannelRewards.length; cr++) {
-        console.log(`Name: ${newChannelRewards[cr].id} Value: ${newChannelRewards[cr].value}`);
+        // console.log(`Name: ${newChannelRewards[cr].id} Value: ${newChannelRewards[cr].value}`);
         if(newChannelRewards[cr].value != 'none') {
             if(newChannelRewards[cr].multiple) {
-                console.log(`${newChannelRewards[cr].id} is a multiple, listing all selections`);
+                // console.log(`${newChannelRewards[cr].id} is a multiple, listing all selections`);
                 let selectedOptions = [];
                 for(let x = 0; x < (newChannelRewards[cr].options).length; x++ ){
-                    console.log(newChannelRewards[cr].options[x]);
+                    // console.log(newChannelRewards[cr].options[x]);
                     if(newChannelRewards[cr].options[x].selected) {
                     // add filename to array if selected
                         selectedOptions.push(newChannelRewards[cr].options[x].value);
                     }
                 }
-                console.log(selectedOptions);
+                // console.log(selectedOptions);
                 soundRewardFilename = selectedOptions;
                 // console.log(newChannelRewards[cr].options);
             }
@@ -601,14 +601,14 @@ function setSoundRewardMultiple(soundRewardSelect) {
     let soundReward = document.getElementById(soundRewardSelect);
     if(soundRewardMultiple) {
         // enable multiple
-        console.log(`${soundRewardSelect} multi checked`);
-        console.log(soundReward);
+        // console.log(`${soundRewardSelect} multi checked`);
+        // console.log(soundReward);
         document.getElementById(soundRewardSelect).multiple = true;
 
     }
     else {
-        console.log(`${soundRewardSelect} multi unchecked`);        
-        console.log(soundReward);
+        // console.log(`${soundRewardSelect} multi unchecked`);        
+        // console.log(soundReward);
         document.getElementById(soundRewardSelect).multiple = false;        
         // disable multiple and default to none
     }
