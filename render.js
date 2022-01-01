@@ -387,34 +387,63 @@ async function populateSettings(settingsPage) {
                 if(channelRewards[reward].image !== null){
                     rewardImage = channelRewards[reward].image.url_1x;
                 }
-                channelRewardsTableHTML += `<tr id="${channelRewards[reward].title}Row"><td><img src="${rewardImage}"></td><td name="channelRewardName">${channelRewards[reward].title}</td></li></ul></td><td><select class="custom-select custom-select-sm w-100" id="${channelRewards[reward].title}" name="channelRewardSound">`;
+                // channelRewardsTableHTML += `<tr id="${channelRewards[reward].title}Row"><td><img src="${rewardImage}"></td><td name="channelRewardName">${channelRewards[reward].title}</td></li></ul></td><td><select class="custom-select custom-select-sm w-100" id="${channelRewards[reward].title}" name="channelRewardSound">`;
+                let soundRewardHTMLStart = `<tr id="${channelRewards[reward].title}Row"><td><img src="${rewardImage}"></td><td name="channelRewardName">${channelRewards[reward].title}</td></li></ul></td><td class="mw-25"><select class="custom-select custom-select-sm w-100" id="${channelRewards[reward].title}" name="channelRewardSound"`;
+                let soundRewardHTMLInner = ``;
                 let foundRewardSound = false; 
+                let rewardSoundMulti = false;
                 for(let s in soundsList.rewards) {
-                    if(Array.isArray(soundsList.rewards[s].filename)) {
-                        console.log(`${soundsList.rewards[s].name} is an array`);
-                    }
                     // console.log(soundsList.rewards[s].filename);                    
                     if(channelRewards[reward].title.toLowerCase() == soundsList.rewards[s].name.toLowerCase()) {
-                        channelRewardsTableHTML += `<option value="${soundsList.rewards[s].filename}" selected>`;
+                        // channelRewardsTableHTML += `<option value="${soundsList.rewards[s].filename}" selected>`;
+                        if(Array.isArray(soundsList.rewards[s].filename)) {
+                            console.log(`${soundsList.rewards[s].name} is an array`);
+                            rewardSoundMulti = true;
+                            console.log(soundsList.rewards[s].filename);                            
+                            for(let x = 0; x < soundsList.rewards[s].filename.length; x++) {
+                                console.log(soundsList.rewards[s].filename[x]);
+                                soundRewardHTMLInner += `<option value="${soundsList.rewards[s].filename[x]}" selected>${soundsList.rewards[s].filename[x]}</option>`;                                
+                            }
+                        }
+                        else {
+                            soundRewardHTMLInner += `<option value="${soundsList.rewards[s].filename}" selected>`;
+                        }
                         foundRewardSound = true;
                     }
-                    else{
-                        channelRewardsTableHTML += `<option value="${soundsList.rewards[s].filename}">`;
+                    else {
+                        // channelRewardsTableHTML += `<option value="${soundsList.rewards[s].filename}">`;
+                        soundRewardHTMLInner += `<option value="${soundsList.rewards[s].filename}">`;
                     }   
-                    channelRewardsTableHTML += `${soundsList.rewards[s].filename}</option>`;
+                    // channelRewardsTableHTML += `${soundsList.rewards[s].filename}</option>`;
+                    if(!rewardSoundMulti) {
+                        soundRewardHTMLInner += `${soundsList.rewards[s].filename}</option>`;
+                    }
                 }
                 for(let snd = 0; snd < soundsList.random.length; snd++) {
-                    channelRewardsTableHTML += `<option value="${soundsList.random[snd]}">${soundsList.random[snd]}</option>`;
+                    // channelRewardsTableHTML += `<option value="${soundsList.random[snd]}">${soundsList.random[snd]}</option>`;
+                    soundRewardHTMLInner += `<option value="${soundsList.random[snd]}">${soundsList.random[snd]}</option>`;
                 }
                 if(foundRewardSound) {
                     // channelRewardsTableHTML += `<option value="none">none</option></td></tr>`;
-                    channelRewardsTableHTML += `<option value="none">none</option></td>`;
+                    // channelRewardsTableHTML += `<option value="none">none</option></td>`;
+                    soundRewardHTMLInner += `<option value="none">none</option></td>`;
                 }
                 else {
                     // channelRewardsTableHTML += `<option value="none" selected>none</option></td></tr>`;
-                    channelRewardsTableHTML += `<option value="none" selected>none</option></td>`;
+                    // channelRewardsTableHTML += `<option value="none" selected>none</option></td>`;
+                    soundRewardHTMLInner += `<option value="none" selected>none</option></td>`;
                 }
-                channelRewardsTableHTML += `<td><input type="checkbox" id="${channelRewards[reward].title}MultiCheckbox" onchange="setSoundRewardMultiple('${channelRewards[reward].title}')"></td></tr>`;
+                if(rewardSoundMulti) {
+                    soundRewardHTMLStart += `multiple`;
+                }
+                soundRewardHTMLStart += `>`;
+                // channelRewardsTableHTML += `<td><input type="checkbox" id="${channelRewards[reward].title}MultiCheckbox" onchange="setSoundRewardMultiple('${channelRewards[reward].title}')"></td></tr>`;
+                let soundRewardHTMLEnd = `<td><input type="checkbox" id="${channelRewards[reward].title}MultiCheckbox" onchange="setSoundRewardMultiple('${channelRewards[reward].title}')"`;
+                if(rewardSoundMulti) {
+                    soundRewardHTMLEnd += `checked`;
+                }
+                soundRewardHTMLEnd += `></td></tr>`;
+                channelRewardsTableHTML += soundRewardHTMLStart + soundRewardHTMLInner + soundRewardHTMLEnd;
             }
         }
         channelRewardsTable.innerHTML = channelRewardsTableHTML;
