@@ -7,9 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 _No unreleased changes_
 
-## [2.3.0] - 2021-12-
+## [2.3.0] - 2022-01
 ### Added
 - Added random and run ad buttons 
+- Added multiple sounds for rewards
+- Added varibot command for sending download link in chat
+
+### Changes
+- Changed multi and varibot commands to be enabled by default when creating new config. Old configs will not re-enable the mutli command if it is already disabled.
 
 ## [2.2.0] - 2021-11-25
 ### Added
