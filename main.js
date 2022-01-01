@@ -173,6 +173,14 @@ async function runCommand(targetChannel, fromMod, context, inputCmd, args) {
                 return;
             }
         }
+        else if(cmd =='varibot') {
+            try {
+                client.say(targetChannel, `Download VariBot at https://varibot.net/downloads/`);
+            }
+            catch(error) {
+                console.log(error);
+            }
+        }
         else {
             console.log(`Read command ${cmd} (args: ${args}) from ${context['display-name']}, command not found.`);
             return;
@@ -226,7 +234,7 @@ async function loadHueSettings() {
 async function loadCommands() {
     console.log(`Loading commands...`);
     botSettings = await getBotSettings(botSettingsFilePath);
-    let builtinCmds = ['shuffle', 'list', 'multi', 'beat', 'radio'];
+    let builtinCmds = ['shuffle', 'list', 'multi', 'beat', 'radio', 'varibot'];
     for(let x = 0; x < builtinCmds.length; x++) {
         let foundCmd = false;
         for(key in botSettings) { 
@@ -239,12 +247,22 @@ async function loadCommands() {
             }
         }
         if(!foundCmd) {
-            commands[builtinCmds[x]] = {
-                name: builtinCmds[x],
-                enabled: false
-            }
             console.log(`Did not find command ${builtinCmds[x]} in bot settings, creating command.`);
-            await setBotSettings(botSettingsFilePath, builtinCmds[x], false);
+            if(builtinCmds[x] == 'multi' || builtinCmds[x] == 'varibot') {
+                commands[builtinCmds[x]] = {
+                    name: builtinCmds[x],
+                    enabled: true                    
+                }
+                await setBotSettings(botSettingsFilePath, builtinCmds[x], true);
+                console.log(`Setting command ${builtinCmds[x]} to enabled by default`);
+            }
+            else {
+                commands[builtinCmds[x]] = {
+                    name: builtinCmds[x],
+                    enabled: false
+                }
+                await setBotSettings(botSettingsFilePath, builtinCmds[x], false);                
+            }
             console.log(`Added command ${builtinCmds[x]} to bot settings file.`);
         }
     }
