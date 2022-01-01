@@ -397,11 +397,11 @@ async function populateSettings(settingsPage) {
                     if(channelRewards[reward].title.toLowerCase() == soundsList.rewards[s].name.toLowerCase()) {
                         // channelRewardsTableHTML += `<option value="${soundsList.rewards[s].filename}" selected>`;
                         if(Array.isArray(soundsList.rewards[s].filename)) {
-                            console.log(`${soundsList.rewards[s].name} is an array`);
+                            // console.log(`${soundsList.rewards[s].name} is an array`);
                             rewardSoundMulti = true;
-                            console.log(soundsList.rewards[s].filename);                            
+                            // console.log(soundsList.rewards[s].filename);                            
                             for(let x = 0; x < soundsList.rewards[s].filename.length; x++) {
-                                console.log(soundsList.rewards[s].filename[x]);
+                                // console.log(soundsList.rewards[s].filename[x]);
                                 soundRewardHTMLInner += `<option value="${soundsList.rewards[s].filename[x]}" selected>${soundsList.rewards[s].filename[x]}</option>`;                                
                             }
                         }
@@ -411,8 +411,13 @@ async function populateSettings(settingsPage) {
                         foundRewardSound = true;
                     }
                     else {
-                        // channelRewardsTableHTML += `<option value="${soundsList.rewards[s].filename}">`;
-                        soundRewardHTMLInner += `<option value="${soundsList.rewards[s].filename}">`;
+                        if(Array.isArray(soundsList.rewards[s].filename)) {
+                            console.log(`Found array that is not the current reward, skipping. ${soundsList.rewards[s].filename}`);
+                        }
+                        else {
+                            // channelRewardsTableHTML += `<option value="${soundsList.rewards[s].filename}">`;
+                            soundRewardHTMLInner += `<option value="${soundsList.rewards[s].filename}">`;
+                        }
                     }   
                     // channelRewardsTableHTML += `${soundsList.rewards[s].filename}</option>`;
                     if(!rewardSoundMulti) {
