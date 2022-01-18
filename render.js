@@ -161,7 +161,7 @@ function setConnectionStatus(service, status, message) {
 async function updateSoundsList() { 
     let sounds = await ipc.invoke('loadSounds');
     let soundsHTML = ` `;
-    let randomColorMode = true;
+    let randomColorMode = false;
     let buttonColors = ['btn-primary', 'btn-secondary', 'btn-success', 'btn-danger', 'btn-warning', 'btn-info', 'btn-light'];
     if(sounds.length > 0){
         for(let s = 0; s < sounds.length; s++) {  
