@@ -1,4 +1,5 @@
 const fs = require('fs');
+const path = require('path')
 const tmi = require('tmi.js');
 const crypto = require('crypto');
 const WebSocket = require('ws');
@@ -112,19 +113,19 @@ async function runCommand(targetChannel, fromMod, context, inputCmd, args) {
                 }
             }
         }
-        if(cmd == 'shuffle') { 
-            // TO DO - check that the spreadsheet is not called template
-            let searchPlatform = '';
-            args.forEach(searchString => searchPlatform += searchString);
-            if(searchPlatform.length > 0) {
-                searchPlatform = searchPlatform.trim();
-            }
-            else {
-                searchPlatform = 'genesis';
-            }
-            let randomGame = await getRandomOwnedGame(botSettings.googleSheetsClientEmail, botSettings.googleSheetsPrivateKey, botSettings.ownedGamesSpreadSheetID,searchPlatform);
-            randomGame ? client.say(targetChannel, `${randomGame}`) : console.log('could not find game');
-        }
+        // if(cmd == 'shuffle') { 
+        //     // TO DO - check that the spreadsheet is not called template
+        //     let searchPlatform = '';
+        //     args.forEach(searchString => searchPlatform += searchString);
+        //     if(searchPlatform.length > 0) {
+        //         searchPlatform = searchPlatform.trim();
+        //     }
+        //     else {
+        //         searchPlatform = 'genesis';
+        //     }
+        //     let randomGame = await getRandomOwnedGame(botSettings.googleSheetsClientEmail, botSettings.googleSheetsPrivateKey, botSettings.ownedGamesSpreadSheetID,searchPlatform);
+        //     randomGame ? client.say(targetChannel, `${randomGame}`) : console.log('could not find game');
+        // }
         else if(cmd == 'list') {
             client.say(targetChannel, `https://docs.google.com/spreadsheets/d/${botSettings.beatSpreadSheetID}`);
         }
@@ -234,7 +235,7 @@ async function loadHueSettings() {
 async function loadCommands() {
     console.log(`Loading commands...`);
     botSettings = await getBotSettings(botSettingsFilePath);
-    let builtinCmds = ['shuffle', 'list', 'multi', 'beat', 'radio', 'varibot'];
+    let builtinCmds = ['list', 'multi', 'beat', 'radio', 'varibot'];
     for(let x = 0; x < builtinCmds.length; x++) {
         let foundCmd = false;
         for(key in botSettings) { 
@@ -409,19 +410,24 @@ async function createWindow() {
             height: 800
         };
     }
+
     win = new BrowserWindow({
         width: newWindowSettings.window.width,
         height: newWindowSettings.window.height,
         x: newWindowSettings.window.x,
         y: newWindowSettings.window.y,
+        // webPreferences: {
+        //     preload: path.join(__dirname, 'preload.js'),
+        //     // nodeIntegration: true
+        // }
         webPreferences: {
-            nodeIntegration: true
-        }
+            preload: path.join(__dirname, 'preload.js'),
+        },        
     });
 
     win.loadFile('index.html');
     win.setMenu(null);
-    // win.webContents.openDevTools(); // TO DO - comment out before commit 
+    win.webContents.openDevTools(); // TO DO - comment out before commit 
 }
 
 // hue
@@ -583,7 +589,7 @@ ipcMain.handle('getChannelRewards', async () => {
     return channelRewards.data;
 });
 
-ipcMain.handle('runAd', async (event) => {
+ipcMain.handle('runAd', async () => {
     let channelId = await twitchAPI.getChannelID(botSettings.channel, botSettings.clientId, botSettings.token);    
     if(channelId !== undefined) {
         const adResult = await twitchAPI.runAd(channelId, botSettings.clientId, botSettings.token, 90);
@@ -604,7 +610,7 @@ ipcMain.handle('runAd', async (event) => {
     }
 });
 
-ipcMain.handle('createStreamMarker', async (event) => {
+ipcMain.handle('createStreamMarker', async () => {
     let channelId = await twitchAPI.getChannelID(botSettings.channel, botSettings.clientId, botSettings.token);    
     if(channelId !== undefined) {
         const markerResult = await twitchAPI.createStreamMarker(channelId, botSettings.clientId, botSettings.token, `Created from VariBot quick actions`)
@@ -679,7 +685,7 @@ ipcMain.handle('botSettingsFromForm', async (event, args) => {
     return true;
 });
 
-ipcMain.handle('loadSounds', async (event, args) => {
+ipcMain.handle('loadSounds', async () => {
     await loadChannelPointsSounds();
     if(soundsDir.length > 1) {
         randomSounds = await loadSounds(soundsDir, channelPointsFilenames);

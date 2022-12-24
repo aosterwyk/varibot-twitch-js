@@ -1,7 +1,9 @@
-const ipc = require('electron').ipcRenderer;
-const remote = require('electron').remote;
-const { shell } = require('electron');
+// const ipc = require('electron').ipcRenderer;
+// const remote = require('electron').remote;
+// const { shell } = require('electron');
 var currentPage = `None`;
+
+// console.log(window.varibot);
 
 ipc.on('status', (event, msg) => {
     updateStatus(msg.type, msg.message);
@@ -159,7 +161,8 @@ function setConnectionStatus(service, status, message) {
 }
 
 async function updateSoundsList() { 
-    let sounds = await ipc.invoke('loadSounds');
+    // let sounds = await ipc.invoke('loadSounds');
+    let sounds = await window.varibot.loadSounds();
     let soundsHTML = ` `;
     let randomColorMode = false;
     let buttonColors = ['btn-primary', 'btn-secondary', 'btn-success', 'btn-danger', 'btn-warning', 'btn-info', 'btn-light'];
