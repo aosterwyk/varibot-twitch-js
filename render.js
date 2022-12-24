@@ -5,13 +5,21 @@ var currentPage = `None`;
 
 // console.log(window.varibot);
 
-ipc.on('status', (event, msg) => {
+// ipc.on('status', (event, msg) => {
+//     updateStatus(msg.type, msg.message);
+// });
+
+window.varibot.receive('status', (msg) => {
     updateStatus(msg.type, msg.message);
 });
 
-ipc.on('updateRecentEvents', (event, args) => {
-    // console.log(args);
-    updateRecentEvents(args.image, args.user, args.msg);
+// ipc.on('updateRecentEvents', (event, args) => {
+//     // console.log(args);
+//     updateRecentEvents(args.image, args.user, args.msg);
+// });
+
+window.varibot.receive('updateRecentEvents', (recentEvent) => {
+    updateRecentEvents(recentEvent.image, recentEvent.user, recentEvent.msg);
 });
 
 function loadedGoogleCredsFile(savedResult) {
@@ -32,7 +40,8 @@ function loadedGoogleCredsFile(savedResult) {
 }
 
 function openGoogleCredsFile() {
-    ipc.invoke('loadGoogleCredsFile');
+    // ipc.invoke('loadGoogleCredsFile');
+    window.varibot.loadGoogleCredsFile();
 }
 
 function updateRecentEvents(image,user,msg) {
@@ -104,15 +113,18 @@ async function loadSettings() {
 }
 
 async function identifyLight(lightId) {
-    ipc.invoke('identifyLight',lightId);
+    // ipc.invoke('identifyLight',lightId);
+    window.varibot.identifyLight(lightId);
 }
 
 function runAd() {
-    ipc.invoke('runAd');
+    // ipc.invoke('runAd');
+    window.varibot.runAd();
 }
 
 function createStreamMarker() {
-    ipc.invoke('createStreamMarker');
+    // ipc.invoke('createStreamMarker');
+    window.varibot.createStreamMarker();
 }
 
 function brb() {
@@ -183,11 +195,13 @@ async function updateSoundsList() {
 }
 
 function playRandomSound() {
-    ipc.invoke('playRandomSound');
+    // ipc.invoke('playRandomSound');
+    window.varibot.playRandomSound();
 }
 
 async function playSound(sound) {
-    let result = await ipc.invoke('getCurrentSettings');
+    // let result = await ipc.invoke('getCurrentSettings');
+    let result = await window.varibot.getCurrentSettings();
     if(result !== undefined) {
         let audio = new Audio(`${result.soundsDir}\\${sound}`);
         try { audio.play(); }
@@ -195,40 +209,44 @@ async function playSound(sound) {
     }    
 }
 
-function checkWin() {
-    ipc.send('checkWin');
-}
+// function checkWin() {
+//     ipc.send('checkWin');
+// }
 
 async function externalLink(destination) {
-    let result = await ipc.invoke('getCurrentSettings');   
+    // let result = await ipc.invoke('getCurrentSettings');   
+    let result = await window.varibot.getCurrentSettings();   
     if(destination == 'token') {
-        shell.openExternal(`https://id.twitch.tv/oauth2/authorize?client_id=rq2a841j8f63fndu5lnbwzwmbzamoy&redirect_uri=https://acceptdefaults.com/twitch-oauth-token-generator/&response_type=token&scope=bits:read+channel:read:redemptions+channel:manage:redemptions+channel:moderate+chat:edit+chat:read+user:edit:broadcast+channel:edit:commercial`);
+        window.varibot.externalPage(`https://id.twitch.tv/oauth2/authorize?client_id=rq2a841j8f63fndu5lnbwzwmbzamoy&redirect_uri=https://acceptdefaults.com/twitch-oauth-token-generator/&response_type=token&scope=bits:read+channel:read:redemptions+channel:manage:redemptions+channel:moderate+chat:edit+chat:read+user:edit:broadcast+channel:edit:commercial`);
     }
     else if(destination == 'manageRewards') {
-        shell.openExternal(`https://dashboard.twitch.tv/u/${result.username.toLowerCase()}/community/channel-points/rewards`);
+        window.varibot.externalPage(`https://dashboard.twitch.tv/u/${result.username.toLowerCase()}/community/channel-points/rewards`);
     }
     else if(destination == 'wiki') {
-        shell.openExternal(`https://github.com/VariXx/varibot-twitch-js/wiki`);
+        window.varibot.externalPage(`https://github.com/VariXx/varibot-twitch-js/wiki`);
     }
     else if(destination == 'discord') {
-        shell.openExternal(`https://discord.gg/QNppY7T`);
+        window.varibot.externalPage(`https://discord.gg/QNppY7T`);
     }
     else if(destination == 'botSettingsHelp') {
-        shell.openExternal(`https://github.com/VariXx/varibot-twitch-js/wiki/Settings#general-settings`);
+        window.varibot.externalPage(`https://github.com/VariXx/varibot-twitch-js/wiki/Settings#general-settings`);
     }
     else if(destination == 'googleSheetsHelp') {
-        shell.openExternal(`https://github.com/VariXx/varibot-twitch-js/wiki/Settings#google-spreadsheets-settings`);
+        window.varibot.externalPage(`https://github.com/VariXx/varibot-twitch-js/wiki/Settings#google-spreadsheets-settings`);
     }
 }
 
 async function openDir(dirToOpen) {
-    let result = await ipc.invoke('getCurrentSettings');
+    // let result = await ipc.invoke('getCurrentSettings');
+    let result = await window.varibot.getCurrentSettings();
     if(result !== undefined) {
         if(dirToOpen == 'sounds') {               
-            shell.openPath(`${result.soundsDir}`);
+            // shell.openPath(`${result.soundsDir}`);
+            window.varibot.openDir(`${result.soundsDir}`);
         }
         if(dirToOpen == 'configs') {               
-            shell.openPath(`${result.configsDir}`);
+            // shell.openPath(`${result.configsDir}`);
+            window.varibot.openDir(`${result.configsDir}`);
         }
     }
 }
@@ -275,7 +293,8 @@ async function populateSettings(settingsPage) {
                             hueLightsTableHTML += `></td><td><button class="btn-secondary btn-sm" onclick="identifyLight(${lightID})">Identify</button></tr>`;
                         }
                         hueLightsTable.innerHTML = hueLightsTableHTML;
-                        let channelRewards = await ipc.invoke('getChannelRewards');
+                        // let channelRewards = await ipc.invoke('getChannelRewards');
+                        let channelRewards = await window.varibot.getChannelRewards();
                         let loadedHueRewardsList = await getHueAlertsSettings('channelPointsRewards');
                         // console.log(loadedHueRewardsList);
                         let hueChannelRewardsTable = document.getElementById('hueRewardsTable');
@@ -336,7 +355,8 @@ async function populateSettings(settingsPage) {
         }
     }
     if(settingsPage == 'settings') {
-        let result = await ipc.invoke('getCurrentSettings');
+        // let result = await ipc.invoke('getCurrentSettings');
+        let result = await window.varibot.getCurrentSettings();
         if(result !== undefined) {
             if(result.username !== undefined) {
                 document.getElementById('botUsername').value = result.username;
@@ -359,7 +379,8 @@ async function populateSettings(settingsPage) {
             }
         }        
 
-        let cmdsResult = await ipc.invoke('getCurrentCommands');
+        // let cmdsResult = await ipc.invoke('getCurrentCommands');
+        let cmdsResult = await window.varibot.getCurrentCommands();
         let newCmdSettingsList = ``;
         if(cmdsResult !== undefined) {
             if(Object.keys(cmdsResult)) {                
@@ -376,9 +397,12 @@ async function populateSettings(settingsPage) {
         document.getElementById('commandsSettingsList').innerHTML = newCmdSettingsList;
     }
     if(settingsPage == 'pointsSounds') {
-        await ipc.invoke('loadSounds');        
-        let soundsList = await ipc.invoke('getSoundsSettings');
-        let channelRewards = await ipc.invoke('getChannelRewards');
+        // await ipc.invoke('loadSounds');        
+        await window.varibot.loadSounds();        
+        // let soundsList = await ipc.invoke('getSoundsSettings');
+        let soundsList = await window.varibot.getSoundsSettings();
+        // let channelRewards = await ipc.invoke('getChannelRewards');
+        let channelRewards = await window.varibot.getChannelRewards();
         let channelRewardsTable = document.getElementById('channelRewardsTable');
         let channelRewardsTableHTML = ``;
         if(channelRewards !== undefined && channelRewards.length > 0) {
@@ -457,7 +481,8 @@ async function populateSettings(settingsPage) {
         channelRewardsTable.innerHTML = channelRewardsTableHTML;
     }
     if(settingsPage == 'about') {
-        let result = await ipc.invoke('getAbout');
+        // let result = await ipc.invoke('getAbout');
+        let result = await window.varibot.getAbout();
         document.getElementById('aboutBotVersion').innerHTML = `VariBot v${result.versionNumber}`;
         document.getElementById('aboutSoundsLoaded').innerHTML = `Random sounds loaded: ${result.randomSoundsCount}`;
         document.getElementById('aboutChannelRewardsLoaded').innerHTML = `Channel reward sounds loaded: ${result.pointsSoundsSoundsCount}`;
@@ -533,7 +558,8 @@ async function saveSoundsForm() {
         }
     }
 
-    await ipc.invoke('newSoundsSettings', newpointsSoundsSounds);
+    // await ipc.invoke('newSoundsSettings', newpointsSoundsSounds);
+    await window.varibot.newSoundsSettings(newpointsSoundsSounds);
     alertMsg(true, 'success', 'Sounds updated');
     showPage('pointsSounds');
 }
@@ -582,7 +608,8 @@ async function saveSettingsFromForm() {
             enabled: cmdStatus
         }
     }
-    await ipc.invoke('updateCmdSettings', cmdChanges);
+    // await ipc.invoke('updateCmdSettings', cmdChanges);
+    await window.varibot.updateCmdSettings(cmdChanges);
 
     let beatSpreadSheetUrl = document.getElementById('beatSpreadSheetUrl');
     if(beatSpreadSheetUrl.value !== undefined && beatSpreadSheetUrl.value.length > 1) {
@@ -595,7 +622,8 @@ async function saveSettingsFromForm() {
         }
     }    
     
-    let result = ipc.invoke('botSettingsFromForm', botSettingsFromForm);
+    // let result = ipc.invoke('botSettingsFromForm', botSettingsFromForm);
+    let result = window.varibot.botSettingsFromForm(botSettingsFromForm);
     showPage('home');    
 }
 
@@ -661,7 +689,8 @@ async function hueControls(lightID, command, enabled) {
         bridgeIP: hueSettings.bridgeIP,
         username: hueSettings.username
     };
-    ipc.invoke('hueControls', sendCommand);
+    // ipc.invoke('hueControls', sendCommand);
+    window.varibot.hueControls(sendCommand);
 }
 
 async function setHueSettings(setting, newValue) {
@@ -670,18 +699,21 @@ async function setHueSettings(setting, newValue) {
         setting: setting,
         newValue: newValue
     };
-    let response = await ipc.invoke('hueSettings', sendMsg);
+    // let response = await ipc.invoke('hueSettings', sendMsg);
+    let response = await window.varibot.hueSettings(sendMsg);
     return response;
 }
 
 async function getHueSettings() {
     let sendMsg = { command: 'getHueSettings' };
-    let response = await ipc.invoke('hueSettings', sendMsg);
+    // let response = await ipc.invoke('hueSettings', sendMsg);
+    let response = await window.varibot.hueSettings(sendMsg);
     return response.hueSettings;
 }
 
 async function getAllLights() { 
-    let response = await ipc.invoke('getAllLights');
+    // let response = await ipc.invoke('getAllLights');
+    let response = await window.varibot.getAllLights();
     if(response) {
         return response.hueLights;
     }
@@ -703,7 +735,8 @@ async function saveHueBridgeIP() {
 
 async function createHueBridgeUser() {
     let sendMsg = { command: 'createUser' };    
-    let response = await ipc.invoke('hueSettings', sendMsg);
+    // let response = await ipc.invoke('hueSettings', sendMsg);
+    let response = await window.varibot.hueSettings(sendMsg);
     if(response.success) {
         showPage('pointsHue');
         document.getElementById('hueBridgeConnectSetttings').style.display = 'none';
@@ -720,11 +753,13 @@ async function updateHueAlertsSettings(alertType, newAlertsSettings) {
         type: alertType,
         newSettings: newAlertsSettings
     };
-    ipc.invoke('setHueAlertsSettings', sendMsg);
+    // ipc.invoke('setHueAlertsSettings', sendMsg);
+    window.varibot.setHueAlertsSettings(sendMsg);
 }
 
 async function getHueAlertsSettings(alertType) {
-    const result = await ipc.invoke('getHueAlertsSettings', alertType);
+    // const result = await ipc.invoke('getHueAlertsSettings', alertType);
+    const result = await window.varibot.getHueAlertsSettings(alertType);
     return result;
 }
 

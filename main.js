@@ -416,12 +416,9 @@ async function createWindow() {
         height: newWindowSettings.window.height,
         x: newWindowSettings.window.x,
         y: newWindowSettings.window.y,
-        // webPreferences: {
-        //     preload: path.join(__dirname, 'preload.js'),
-        //     // nodeIntegration: true
-        // }
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
+            // nodeIntegration: true
         },        
     });
 
@@ -445,7 +442,7 @@ async function reloadHueSettings() {
     hueChannelPointsRewardsSettings = await getHueSettings(hueChannelPointsRewardsSettingsFilePath);
 }
 
-ipcMain.handle('setHueAlertsSettings', async(event, args) => {
+ipcMain.handle('setHueAlertsSettings', async(event, args) => { // done 
     let settingsFileToChange = null;
     let newSettings = args.newSettings;
     if(args.type == 'bits') {
@@ -478,7 +475,7 @@ ipcMain.handle('setHueAlertsSettings', async(event, args) => {
     await reloadHueSettings();
 });
 
-ipcMain.handle('getHueAlertsSettings', async(event, args) => {
+ipcMain.handle('getHueAlertsSettings', async(event, args) => { // done
     let settingsFileToRead = null;
     if(args == 'bits') {
         settingsFileToRead = hueBitsAlertsSettingsFilePath;
@@ -498,7 +495,7 @@ ipcMain.handle('getHueAlertsSettings', async(event, args) => {
     }
 });
 
-ipcMain.handle('getAllLights', async(event) => {
+ipcMain.handle('getAllLights', async(event) => { // done
     await reloadHueSettings();
     let lights = await getAllLights(hueSettings.bridgeIP, hueSettings.username);
     let returnResult = {};
@@ -514,7 +511,7 @@ ipcMain.handle('getAllLights', async(event) => {
     return returnResult;
 });
 
-ipcMain.handle('hueSettings', async (event, args) => {
+ipcMain.handle('hueSettings', async (event, args) => { // done
     let returnResult = {};
     await reloadHueSettings();
     if(hueSettings === undefined && args.command != 'setHueSetting') {
@@ -563,7 +560,7 @@ ipcMain.handle('hueSettings', async (event, args) => {
     return returnResult;
 });
 
-ipcMain.handle('hueControls', async (event, args) => {
+ipcMain.handle('hueControls', async (event, args) => { // done
 
     if(args.command == 'colorLoop') {
         await colorLoop(args.bridgeIP, args.username, args.light, args.enabled);
@@ -584,12 +581,12 @@ if (BrowserWindow.getAllWindows().length === 0) {
 }
 });
 
-ipcMain.handle('getChannelRewards', async () => {
+ipcMain.handle('getChannelRewards', async () => { // done 
     let channelRewards = await twitchAPI.getChannelRewards(botSettings.channel, botSettings.clientId, botSettings.token);
     return channelRewards.data;
 });
 
-ipcMain.handle('runAd', async () => {
+ipcMain.handle('runAd', async () => { // done
     let channelId = await twitchAPI.getChannelID(botSettings.channel, botSettings.clientId, botSettings.token);    
     if(channelId !== undefined) {
         const adResult = await twitchAPI.runAd(channelId, botSettings.clientId, botSettings.token, 90);
@@ -610,7 +607,7 @@ ipcMain.handle('runAd', async () => {
     }
 });
 
-ipcMain.handle('createStreamMarker', async () => {
+ipcMain.handle('createStreamMarker', async () => { // done
     let channelId = await twitchAPI.getChannelID(botSettings.channel, botSettings.clientId, botSettings.token);    
     if(channelId !== undefined) {
         const markerResult = await twitchAPI.createStreamMarker(channelId, botSettings.clientId, botSettings.token, `Created from VariBot quick actions`)
@@ -630,7 +627,7 @@ ipcMain.handle('createStreamMarker', async () => {
     }
 });
 
-ipcMain.handle('newSoundsSettings', async (event, args) => {
+ipcMain.handle('newSoundsSettings', async (event, args) => { // done
     let newChannelPointsSounds = {};
     for(let key in args) {
         newChannelPointsSounds[args[key].name] = args[key].filename;
@@ -643,7 +640,7 @@ ipcMain.handle('newSoundsSettings', async (event, args) => {
     }    
 });
 
-ipcMain.handle('botSettingsFromForm', async (event, args) => {
+ipcMain.handle('botSettingsFromForm', async (event, args) => { // done
     // TO DO - change names to match and run this through a loop - skip any blank values
     if(args.botUsername.length > 1 && args.botUsername !== undefined) {
         // await updateBotSettings('username', args.botUsername);
@@ -685,7 +682,7 @@ ipcMain.handle('botSettingsFromForm', async (event, args) => {
     return true;
 });
 
-ipcMain.handle('loadSounds', async () => {
+ipcMain.handle('loadSounds', async () => { // done
     await loadChannelPointsSounds();
     if(soundsDir.length > 1) {
         randomSounds = await loadSounds(soundsDir, channelPointsFilenames);
@@ -694,12 +691,12 @@ ipcMain.handle('loadSounds', async () => {
     return returnSounds;
 });
 
-ipcMain.handle('getCurrentCommands', async (event, args) => {
+ipcMain.handle('getCurrentCommands', async (event, args) => { // done
     await loadCommands();
     return commands;
 });
 
-ipcMain.handle('getAbout', async (event, args) => {
+ipcMain.handle('getAbout', async (event, args) => { // done
     checkGoogleCreds();
     let aboutInfo = {
         versionNumber: versionNumber,
@@ -711,14 +708,14 @@ ipcMain.handle('getAbout', async (event, args) => {
     return aboutInfo;
 });
 
-ipcMain.handle('updateCmdSettings', async (event, args) => {
+ipcMain.handle('updateCmdSettings', async (event, args) => { // done
     let newCmdSettings = args;
     for(key in newCmdSettings) {
         await setBotSettings(botSettingsFilePath, newCmdSettings[key].name, newCmdSettings[key].enabled);        
     }
 });
 
-ipcMain.handle('getCurrentSettings', async (event, args) => {
+ipcMain.handle('getCurrentSettings', async (event, args) => { // done
     let currentSettings = await getBotSettings(botSettingsFilePath);
     if(currentSettings.successful) {
         currentSettings['soundsDir'] = soundsDir;
@@ -730,12 +727,12 @@ ipcMain.handle('getCurrentSettings', async (event, args) => {
     }
 });
 
-ipcMain.handle('identifyLight', (event, args) => {
+ipcMain.handle('identifyLight', (event, args) => { // done
     // console.log(args);
     flashLight(hueSettings.bridgeIP, hueSettings.username, args, 2);
 });
 
-ipcMain.handle('getSoundsSettings', async (event, args) => {
+ipcMain.handle('getSoundsSettings', async (event, args) => { // done
     await loadChannelPointsSounds();
     let randSounds = [];
     if(soundsDir.length > 1) {
@@ -749,13 +746,13 @@ ipcMain.handle('getSoundsSettings', async (event, args) => {
     return returnSounds; 
 });
 
-ipcMain.handle('playRandomSound', (event) => {
+ipcMain.handle('playRandomSound', (event) => { // done
     let soundName = playRandomSound();
     // updateRecentEvents(`You played random sound ${soundName}`);
     updateRecentEvents('you','you',`You played random sound ${soundName}`);
 });
 
-ipcMain.handle('loadGoogleCredsFile', async () => {
+ipcMain.handle('loadGoogleCredsFile', async () => { // done
     let openOptions = {
         title: "Open Google Creds File",
         buttonLabel: "Open",
