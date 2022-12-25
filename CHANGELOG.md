@@ -8,7 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 _No unreleased changes_
 
 ## [2.4.0] - 2022-12-
+### Added
+- Added check to prevent same random sound playing twice in a row
 
+### Security
+- Updated Electron
+- Moved ipcs to preload.js 
 
 ## [2.3.0] - 2022-01-17
 ### Added
