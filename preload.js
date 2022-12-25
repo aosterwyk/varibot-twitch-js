@@ -47,7 +47,7 @@ contextBridge.exposeInMainWorld('varibot', {
         return ipcRenderer.invoke('getCurrentSettings');
     },
     identifyLight: (lightId) => {
-        ipcRenderer.invoke('identifyLight',lightId);
+        ipcRenderer.invoke('identifyLight', lightId);
     },
     getSoundsSettings: () => {
         return ipcRenderer.invoke('getSoundsSettings');
@@ -58,11 +58,11 @@ contextBridge.exposeInMainWorld('varibot', {
     loadGoogleCredsFile: () => {
         ipcRenderer.invoke('loadGoogleCredsFile');
     },
-    externalPage: (page) => {
-        shell.openExternal(page);        
-    },
     openDir: (dirToOpen) => {
-        shell.openPath(dirToOpen);
+        ipcRenderer.invoke('openDir', dirToOpen);
+    },
+    openWebpage: (url) => {
+        ipcRenderer.invoke('openWebpage', url);
     },
     receive: (channel, func) => {
         let validChannels = ['status', 'updateRecentEvents'];

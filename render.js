@@ -217,22 +217,24 @@ async function externalLink(destination) {
     // let result = await ipc.invoke('getCurrentSettings');   
     let result = await window.varibot.getCurrentSettings();   
     if(destination == 'token') {
-        window.varibot.externalPage(`https://id.twitch.tv/oauth2/authorize?client_id=rq2a841j8f63fndu5lnbwzwmbzamoy&redirect_uri=https://acceptdefaults.com/twitch-oauth-token-generator/&response_type=token&scope=bits:read+channel:read:redemptions+channel:manage:redemptions+channel:moderate+chat:edit+chat:read+user:edit:broadcast+channel:edit:commercial`);
+        window.open(`https://id.twitch.tv/oauth2/authorize?client_id=rq2a841j8f63fndu5lnbwzwmbzamoy&redirect_uri=https://acceptdefaults.com/twitch-oauth-token-generator/&response_type=token&scope=bits:read+channel:read:redemptions+channel:manage:redemptions+channel:moderate+chat:edit+chat:read+user:edit:broadcast+channel:edit:commercial`, '_blank');
     }
     else if(destination == 'manageRewards') {
-        window.varibot.externalPage(`https://dashboard.twitch.tv/u/${result.username.toLowerCase()}/community/channel-points/rewards`);
+        // window.open(`https://dashboard.twitch.tv/u/${result.username.toLowerCase()}/community/channel-points/rewards`, '_blank');
+        window.varibot.openWebpage(`https://dashboard.twitch.tv/u/${result.username.toLowerCase()}/community/channel-points/rewards`);
     }
     else if(destination == 'wiki') {
-        window.varibot.externalPage(`https://github.com/VariXx/varibot-twitch-js/wiki`);
+        // window.open(`https://github.com/VariXx/varibot-twitch-js/wiki`, '_blank');
+        window.varibot.openWebpage(`https://github.com/VariXx/varibot-twitch-js/wiki`);
     }
     else if(destination == 'discord') {
-        window.varibot.externalPage(`https://discord.gg/QNppY7T`);
+        window.open(`https://discord.gg/QNppY7T`, '_blank');
     }
     else if(destination == 'botSettingsHelp') {
-        window.varibot.externalPage(`https://github.com/VariXx/varibot-twitch-js/wiki/Settings#general-settings`);
+        window.open(`https://github.com/VariXx/varibot-twitch-js/wiki/Settings#general-settings`, '_blank');
     }
     else if(destination == 'googleSheetsHelp') {
-        window.varibot.externalPage(`https://github.com/VariXx/varibot-twitch-js/wiki/Settings#google-spreadsheets-settings`);
+        window.open(`https://github.com/VariXx/varibot-twitch-js/wiki/Settings#google-spreadsheets-settings`, '_blank');
     }
 }
 
@@ -240,13 +242,8 @@ async function openDir(dirToOpen) {
     // let result = await ipc.invoke('getCurrentSettings');
     let result = await window.varibot.getCurrentSettings();
     if(result !== undefined) {
-        if(dirToOpen == 'sounds') {               
-            // shell.openPath(`${result.soundsDir}`);
-            window.varibot.openDir(`${result.soundsDir}`);
-        }
-        if(dirToOpen == 'configs') {               
-            // shell.openPath(`${result.configsDir}`);
-            window.varibot.openDir(`${result.configsDir}`);
+        if(dirToOpen == 'sounds' || dirToOpen == 'configs') {               
+            window.varibot.openDir(`${dirToOpen}`);
         }
     }
 }

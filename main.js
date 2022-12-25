@@ -22,7 +22,7 @@ const { setChannelPointsSounds } = require('./utils/config/setChannelPointsSound
 // const { getLightChannelPointRewards } = require('./utils/hue/getLightChannelPointRewards');
 const { setLightChannelPointRewards } = require('./utils/hue/setLightChannelPointRewards');
 const versionNumber = require('./package.json').version;
-const { ipcMain, app, dialog, BrowserWindow } = require('electron');
+const { ipcMain, app, dialog, BrowserWindow, shell } = require('electron');
 
 // hue
 const { colorLoop } = require('./utils/hue/colorLoop');
@@ -778,6 +778,20 @@ ipcMain.handle('loadGoogleCredsFile', async () => { // done
         checkGoogleCreds();
         win.webContents.executeJavaScript(`loadedGoogleCredsFile(false)`);
     }
+});
+
+ipcMain.handle('openDir', (event, dirToOpen) => {
+    // console.log(dirToOpen);
+    if(dirToOpen == 'sounds') {
+        shell.openPath(soundsDir);
+    }
+    if(dirToOpen == 'configs') {
+        shell.openPath(configsDir);
+    }
+});
+
+ipcMain.handle('openWebpage', (event, url) => {
+    shell.openExternal(url);
 });
 
 function statusMsg(msgType, msg) { 
