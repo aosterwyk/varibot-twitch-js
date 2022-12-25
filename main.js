@@ -37,6 +37,7 @@ const { setHueSettings } = require('./utils/hue/setHueSettings');
 
 
 var win = null;
+var lastSound; 
 // TO DO - change to globals? 
 let client = null;
 let commands = {};
@@ -798,9 +799,18 @@ function updateRecentEvents(image, user, msg) {
 }
 
 function playRandomSound() { 
-    let randomIndex = Math.floor(Math.random() * Math.floor(randomSounds.length));
-    let randomSound = randomSounds[randomIndex];
+    let randomSound;
+    if(randomSounds.length > 1) {
+        do {
+            let randomIndex = Math.floor(Math.random() * Math.floor(randomSounds.length));
+            randomSound = randomSounds[randomIndex];    
+        }while(randomSound == lastSound)
+    }
+    else {
+        randomSound = randomSounds[0];
+    }
     win.webContents.executeJavaScript(`playSound('${randomSound}')`);
+    lastSound = randomSound; 
     statusMsg(`info`, `Playing sound ${randomSound}`); 
     return randomSound;
 }
