@@ -28,14 +28,14 @@ function loadedGoogleCredsFile(savedResult) {
         let googleCredsUploadButton = document.getElementById('googleCredsUploadButton'); 
         googleCredsUploadButton.innerHTML = `Google Creds File Saved &#10003;`
         googleCredsUploadButton.classList.add('btn-success');
-        googleCredsUploadButton.classList.add('btn-secondary');
+        googleCredsUploadButton.classList.remove('btn-dark');
     }
     else {
         alertMsg(true, 'error', 'Error saving Google creds file. See status box for details.')
         let googleCredsUploadButton = document.getElementById('googleCredsUploadButton'); 
         googleCredsUploadButton.innerHTML = `Error saving file &#10007;`
         googleCredsUploadButton.classList.add('btn-danger');
-        googleCredsUploadButton.classList.add('btn-secondary');
+        googleCredsUploadButton.classList.remove('btn-dark');
     }
 }
 
@@ -193,7 +193,7 @@ async function updateSoundsList() {
                 
             }
             else {
-                soundsHTML += `<button type="button" class="btn btn-primary m-1" onclick="playSound('${sounds[s]}')">${soundName}</button>`;
+                soundsHTML += `<button type="button" class="btn btn-dark m-1" onclick="playSound('${sounds[s]}')">${soundName}</button>`;
             }
         }
     }
