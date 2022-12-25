@@ -161,15 +161,21 @@ function setConnectionStatus(service, status, message) {
     }
 
     if(service == 'chatBot') { 
-        document.getElementById('chatBotStatusIcon').innerHTML = newStatusIcon;
+        document.getElementById('chatBotStatusIcon').innerHTML = `${newStatusIcon} Chat bot`;
         document.getElementById('aboutChatBotStatus').innerHTML = `Chat bot status: ${newStatusMessage}`;
     }
     
     if(service == 'pubsub') { 
-        document.getElementById('pubsubStatusIcon').innerHTML = newStatusIcon;
+        document.getElementById('pubsubStatusIcon').innerHTML = `${newStatusIcon} Pubsub`;
         document.getElementById('aboutPubsubStatus').innerHTML = `Pubsub status: ${newStatusMessage}`;
     }
 
+}
+
+function updateChannelIcon(iconUrl) {
+    if(iconUrl !== undefined) {
+        document.getElementById('userAvatar').src = iconUrl;
+    }
 }
 
 async function updateSoundsList() { 
@@ -187,7 +193,7 @@ async function updateSoundsList() {
                 
             }
             else {
-                soundsHTML += `<button type="button" class="btn btn-secondary m-1" onclick="playSound('${sounds[s]}')">${soundName}</button>`;
+                soundsHTML += `<button type="button" class="btn btn-primary m-1" onclick="playSound('${sounds[s]}')">${soundName}</button>`;
             }
         }
     }

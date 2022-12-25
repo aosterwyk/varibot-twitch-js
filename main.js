@@ -394,7 +394,14 @@ async function startBot() {
         };
         
         win.webContents.executeJavaScript(`updateSoundsList()`);
-        win.webContents.executeJavaScript(`showPage('home')`);        
+        win.webContents.executeJavaScript(`showPage('home')`);     
+        
+        const channelIconID = await twitchAPI.getChannelID(botSettings.channel, botSettings.clientId, botSettings.token);
+        const channelIconInfo = await twitchAPI.getTwitchUserInfo(channelIconID, botSettings.clientId, botSettings.token);
+        let channelIconUrl = channelIconInfo[0].profile_image_url;
+        if(channelIconUrl !== undefined) {
+            win.webContents.executeJavaScript(`updateChannelIcon('${channelIconUrl}')`);
+        }
 
     }
     else {
@@ -423,7 +430,8 @@ async function createWindow() {
         },        
     });
 
-    win.loadFile('index.html');
+    // win.loadFile('index.html');
+    win.loadFile('ui/index.html');
     win.setMenu(null);
     win.webContents.openDevTools(); // TO DO - comment out before commit 
 }
