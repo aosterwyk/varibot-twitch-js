@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 _No unreleased changes_
 
-## [3.0.0] - 2022-12-
+## [3.0.0] - 2022-12-26
 ### Added
 - Added check to prevent same random sound playing twice in a row
 
