@@ -244,7 +244,7 @@ async function externalLink(destination) {
     }
     else if(destination == 'chatPopout') {
         let result = await window.varibot.getCurrentSettings();   
-        window.open(`https://www.twitch.tv/popout/${result.username}/chat`);
+        window.open(`https://www.twitch.tv/popout/${result.username}/chat`, '_blank');
     }
     else if(destination == 'twitchDashboard') {
         let result = await window.varibot.getCurrentSettings();   
@@ -263,16 +263,17 @@ async function openDir(dirToOpen) {
 }
 
 function changeActiveTab(activeTab) { 
-    // let navbar = document.getElementById('navBar-left');
-    // let navList = navbar.getElementsByTagName('li');
-    // for(let x = 0; x < navList.length; x++) {
-    //     if(navList[x].classList.contains('active')) {
-    //         navList[x].classList.remove('active');
-    //     }
-    // }
-    // let newActive = document.getElementById(`${activeTab}Nav`);
-    // newActive.classList.add('active');
-    console.log(`Changed to ${activeTab}`);
+    let navBar = document.getElementById('navBarList');
+    // let navList = navBar.getElementsByTagName('li');
+    let navList = navBar.getElementsByClassName('nav-link');
+    for(let x = 0; x < navList.length; x++) {
+        if(navList[x].classList.contains('active')) {
+            navList[x].classList.remove('active');
+        }
+    }
+    let newActive = document.getElementById(`${activeTab}Nav`);
+    newActive.classList.add('active');
+    // console.log(`Changed to ${activeTab}`);
 }
 
 async function populateSettings(settingsPage) {
@@ -450,7 +451,7 @@ async function populateSettings(settingsPage) {
                     }
                     else {
                         if(Array.isArray(soundsList.rewards[s].filename)) {
-                            console.log(`Found array that is not the current reward, skipping. ${soundsList.rewards[s].filename}`);
+                            // console.log(`Found array that is not the current reward, skipping. ${soundsList.rewards[s].filename}`);
                         }
                         else {
                             // channelRewardsTableHTML += `<option value="${soundsList.rewards[s].filename}">`;
@@ -586,7 +587,7 @@ async function showPage(page) {
     }
     await populateSettings(showPage);
     currentPage = showPage;
-    // changeActiveTab(showPage);
+    changeActiveTab(showPage);
     document.getElementById(showPage).style.display = 'block';
 }
 
