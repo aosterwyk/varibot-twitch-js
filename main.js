@@ -127,7 +127,7 @@ async function runCommand(targetChannel, fromMod, context, inputCmd, args) {
         //     let randomGame = await getRandomOwnedGame(botSettings.googleSheetsClientEmail, botSettings.googleSheetsPrivateKey, botSettings.ownedGamesSpreadSheetID,searchPlatform);
         //     randomGame ? client.say(targetChannel, `${randomGame}`) : console.log('could not find game');
         // }
-        else if(cmd == 'list') {
+        if(cmd == 'list') {
             client.say(targetChannel, `https://docs.google.com/spreadsheets/d/${botSettings.beatSpreadSheetID}`);
         }
         else if(cmd == 'multi') { 

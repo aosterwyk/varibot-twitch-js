@@ -11,9 +11,9 @@ async function beatGame(beatComments, beatChannel, beatSpreadSheetID, clientId, 
     let beatSheet = await doc.sheetsByIndex[0];
     let lookupChannel = beatChannel.substr(1);
     let channelID = await getChannelID(lookupChannel, clientId, token);
-    // let gameName = await getCurrentGame(channelID, clientId, token);
     let channelInfo = await getStreamInfo(channelID, clientId, token);
     let gameName = channelInfo.game_name;
+    // let gameName = "test game";
     if(gameName) {
         let commentsString = '';        
         let beatMsg = '';
