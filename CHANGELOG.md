@@ -7,9 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 _No unreleased changes_
 
-## [3.1.0] - 2023-01-22
+## [3.1.0] - 2023-02-03
 ### Fixed
 - Fixed chat commands
+- Added cursor pointer for menu items
 
 ## [3.0.0] - 2022-12-26
 ### Added
