@@ -223,32 +223,29 @@ async function externalLink(destination) {
     // let result = await ipc.invoke('getCurrentSettings');   
     if(destination == 'token') {
         window.open(`https://id.twitch.tv/oauth2/authorize?client_id=rq2a841j8f63fndu5lnbwzwmbzamoy&redirect_uri=https://acceptdefaults.com/twitch-oauth-token-generator/&response_type=token&scope=bits:read+channel:read:redemptions+channel:manage:redemptions+channel:moderate+chat:edit+chat:read+user:edit:broadcast+channel:edit:commercial`, '_blank');
-    }
-    else if(destination == 'manageRewards') {
+    } else if(destination == 'manageRewards') {
         let result = await window.varibot.getCurrentSettings();   
         // window.open(`https://dashboard.twitch.tv/u/${result.username.toLowerCase()}/community/channel-points/rewards`, '_blank');
         window.varibot.openWebpage(`https://dashboard.twitch.tv/u/${result.username.toLowerCase()}/community/channel-points/rewards`);
-    }
-    else if(destination == 'wiki') {
+    } else if(destination == 'wiki') {
         // window.open(`https://github.com/VariXx/varibot-twitch-js/wiki`, '_blank');
         window.varibot.openWebpage(`https://github.com/VariXx/varibot-twitch-js/wiki`);
-    }
-    else if(destination == 'discord') {
+    } else if(destination == 'discord') {
         window.open(`https://discord.gg/QNppY7T`, '_blank');
-    }
-    else if(destination == 'botSettingsHelp') {
+    } else if(destination == 'botSettingsHelp') {
         window.open(`https://github.com/VariXx/varibot-twitch-js/wiki/Settings#general-settings`, '_blank');
-    }
-    else if(destination == 'googleSheetsHelp') {
+    } else if(destination == 'googleSheetsHelp') {
         window.open(`https://github.com/VariXx/varibot-twitch-js/wiki/Settings#google-spreadsheets-settings`, '_blank');
-    }
-    else if(destination == 'chatPopout') {
+    } else if(destination == 'chatPopout') {
         let result = await window.varibot.getCurrentSettings();   
         window.open(`https://www.twitch.tv/popout/${result.username}/chat`, '_blank');
-    }
-    else if(destination == 'twitchDashboard') {
+    } else if(destination == 'twitchDashboard') {
         let result = await window.varibot.getCurrentSettings();   
         window.varibot.openWebpage(`https://dashboard.twitch.tv/u/${result.username}/stream-manager`);
+    } else if(destination == 'twitchRewardQueue') {
+        let result = await window.varibot.getCurrentSettings();   
+        // window.varibot.openWebpage(`https://www.twitch.tv/popout/${result.username}/reward-queue`);        
+        window.open(`https://www.twitch.tv/popout/${result.username}/reward-queue`);        
     }
 }
 
