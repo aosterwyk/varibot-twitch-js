@@ -1,10 +1,11 @@
 const fs = require('fs');
 const path = require('path')
 const tmi = require('tmi.js');
+const axios = require('axios');
 const crypto = require('crypto');
 const WebSocket = require('ws');
 const twitchAPI = require('./utils/api');
-const pubsubSocket = new WebSocket('wss://pubsub-edge.twitch.tv');
+// const pubsubSocket = new WebSocket('wss://pubsub-edge.twitch.tv');
 const { autoUpdater } = require('electron-updater');
 const { checkConfigDir } = require('./utils/config/checkConfigDir');
 const { randomRadio, isGTAGame } = require('./utils/gta/gtaCmds');
@@ -34,7 +35,6 @@ const { flashLight } = require('./utils/hue/flashLight');
 const { getAllLights } = require('./utils/hue/getAllLights');
 const hueColors = require('./utils/hue/hueColors.json');
 const { setHueSettings } = require('./utils/hue/setHueSettings');
-
 
 var win = null;
 var lastSound; 
@@ -74,6 +74,9 @@ const hueChannelPointsRewardsSettingsFilePath = `${app.getPath('appData')}\\vari
 
 let lastRunTimestamp = new Date(); // hacky cooldown
 
+// new channel points
+let ws;
+let sessionId = null;
 
 function checkGoogleCreds() {
     if (fs.existsSync(googleCredsFilePath)) { 
@@ -86,6 +89,89 @@ function checkGoogleCreds() {
 }
 
 console.log(`VariBot ${versionNumber}`);
+
+// start new channel points
+
+// function checkReward(redemption) {
+//   const rewardId = redemption.reward.id;
+//   const userInput = redemption.user_input || '';
+//   const userName = redemption.user_name;
+//   const rewardTitle = redemption.reward.title;
+
+//   if (config.rewards[rewardId]) {
+//     const reward = config.rewards[rewardId];
+//     if (reward.sound) {
+//       playAudio(reward.sound);
+//     }
+//     // if (reward.spreadsheet) {
+//     //   updateSpreadsheet(userName, userInput, rewardTitle, reward.spreadsheet);
+//     // }
+//   }
+// }
+
+async function setupEventSub() {
+  try {
+    ws = new WebSocket('wss://eventsub.wss.twitch.tv/ws');
+
+    ws.on('open', () => {
+        console.log('Connected to Twitch EventSub WebSocket');
+        let eventsubConnectedMessage = 'Connected to Twitch EventSub WebSocket';        
+        statusMsg('info', eventsubConnectedMessage);
+        win.webContents.executeJavaScript(`setConnectionStatus('pubsub', 'connected', 'none')`);                                      
+    });
+
+    ws.on('message', async (data) => {
+    const message = JSON.parse(data);
+    // console.log('EventSub message:', message);
+
+    if (message.metadata.message_type === 'session_welcome') {
+        sessionId = message.payload.session.id;
+        await subscribeToRedemptions();
+    } else if (message.metadata.message_type === 'notification' &&
+                message.payload.subscription.type === 'channel.channel_points_custom_reward_redemption.add') {
+        const redemption = message.payload.event;
+        processReward(redemption); 
+    }
+    });
+
+    ws.on('error', (error) => {
+      console.error('EventSub WebSocket error:', error);
+    });
+
+    ws.on('close', () => {
+      console.log('EventSub WebSocket closed, attempting to reconnect...');
+      setTimeout(setupEventSub, 5000);
+    });
+  } catch (error) {
+    console.error('Failed to set up EventSub:', error);
+  }
+}
+
+async function subscribeToRedemptions() {
+  try {
+    const twitchChannelID = await twitchAPI.getChannelID(botSettings.username, botSettings.clientId, botSettings.token);
+    const response = await axios.post('https://api.twitch.tv/helix/eventsub/subscriptions', {
+      type: 'channel.channel_points_custom_reward_redemption.add',
+      version: '1',
+      condition: { broadcaster_user_id: twitchChannelID },
+      transport: {
+        method: 'websocket',
+        session_id: sessionId
+      }
+    }, {
+      headers: {
+        'Client-ID': botSettings.clientId,
+        'Authorization': `Bearer ${botSettings.token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+    console.log('Subscribed to channel point redemptions:', response.data);
+  } catch (error) {
+    console.error('Failed to subscribe to redemptions:', error.response ? error.response.data : error);
+  }
+}
+
+// end new channel points
 
 async function runCommand(targetChannel, fromMod, context, inputCmd, args) {   
     let cmd = inputCmd.toLowerCase();
@@ -362,36 +448,48 @@ async function startBot() {
             win.webContents.executeJavaScript(`alertMsg(true, 'error', 'Chatbot disconnected: ${reason}')`);            
         });
 
+        // start new channel points
 
-        pubsubSocket.onopen = async function(e) {
-            botSettings = await getBotSettings(botSettingsFilePath);            
-            if(botSettings !== undefined) {
-                try {
-                    let channelId = await twitchAPI.getChannelID(botSettings.channel, botSettings.clientId, botSettings.token);
-                    nonce = crypto.randomBytes(32).toString('hex');
-                    console.log(nonce);
-                    let connectMsg =  {
-                        type: "LISTEN",
-                        // nonce: "44h1k13746815ab1r2",
-                        nonce: nonce,
-                        data:  {
-                        topics: ["channel-points-channel-v1." + channelId],
-                        auth_token: botSettings.token
-                        }
-                    };
-                    pubsubSocket.send(JSON.stringify(connectMsg));
-                    let pubsubConnectedMessage = `Pubsub connected. Listed topics: ${connectMsg.data.topics}`;
-                    statusMsg('info', pubsubConnectedMessage);
-                    win.webContents.executeJavaScript(`setConnectionStatus('pubsub', 'connected', 'none')`);                                
-                    pubsubPings();
-                }
-                catch(error) {
-                    console.log(error);
-                    statusMsg('error', `Pubsub connection error: ${error}`);
-                    win.webContents.executeJavaScript(`setConnectionStatus('pubsub', 'error', '${error}')`);                                                      
-                }
-            }
-        };
+        // Start EventSub
+        await setupEventSub();
+
+        // Handle graceful shutdown
+        process.on('SIGINT', () => {
+        ws.close();
+        client.disconnect();
+        process.exit();
+        });
+        // end new channel points
+
+        // pubsubSocket.onopen = async function(e) {
+        //     botSettings = await getBotSettings(botSettingsFilePath);            
+        //     if(botSettings !== undefined) {
+        //         try {
+        //             let channelId = await twitchAPI.getChannelID(botSettings.channel, botSettings.clientId, botSettings.token);
+        //             nonce = crypto.randomBytes(32).toString('hex');
+        //             console.log(nonce);
+        //             let connectMsg =  {
+        //                 type: "LISTEN",
+        //                 // nonce: "44h1k13746815ab1r2",
+        //                 nonce: nonce,
+        //                 data:  {
+        //                 topics: ["channel-points-channel-v1." + channelId],
+        //                 auth_token: botSettings.token
+        //                 }
+        //             };
+        //             pubsubSocket.send(JSON.stringify(connectMsg));
+        //             let pubsubConnectedMessage = `Pubsub connected. Listed topics: ${connectMsg.data.topics}`;
+        //             statusMsg('info', pubsubConnectedMessage);
+        //             win.webContents.executeJavaScript(`setConnectionStatus('pubsub', 'connected', 'none')`);                                
+        //             pubsubPings();
+        //         }
+        //         catch(error) {
+        //             console.log(error);
+        //             statusMsg('error', `Pubsub connection error: ${error}`);
+        //             win.webContents.executeJavaScript(`setConnectionStatus('pubsub', 'error', '${error}')`);                                                      
+        //         }
+        //     }
+        // };
         
         win.webContents.executeJavaScript(`updateSoundsList()`);
         win.webContents.executeJavaScript(`showPage('home')`);     
@@ -837,278 +935,229 @@ function playRandomSound() {
     return randomSound;
 }
 
-async function proecssReward(reward) {
-    statusMsg(`reward`, 'Reward ' + reward.data.redemption.reward.title + ' was redeemed by ' + reward.data.redemption.user.display_name + ' for ' + reward.data.redemption.reward.cost + ' points');
-    // console.log(reward.data.redemption);
-    // console.log(`Redemption ID: ${reward.data.redemption.id}`);
-    // console.log(`Reward ID: ${reward.data.redemption.reward.id}`);
-    // console.log(`Channel ID: ${reward.data.redemption.reward.channel_id}`);        
-    let redemptionId = reward.data.redemption.id;  
-    let rewardId = reward.data.redemption.reward.id;
-    let rewardChannelId = reward.data.redemption.reward.channel_id;
+async function processReward(rwd) {
+    console.log(rwd);
+    statusMsg(`reward`, 'Reward ' + rwd.reward.title + ' was redeemed by ' + rwd.user_name + ' for ' + rwd.reward.cost + ' points');
 
-    if(reward.data.redemption.reward.title.toLowerCase() == 'random sound') {
+    if(rwd.reward.title.toLowerCase() == 'random sound') {
         // add a while loop to re-roll random if it picks the same sound twice or the beat game sound
         let soundName = playRandomSound();
-        let userInfo = await twitchAPI.getTwitchUserInfo(reward.data.redemption.user.id, botSettings.clientId, botSettings.token);
+        let userInfo = await twitchAPI.getTwitchUserInfo(rwd.user_id, botSettings.clientId, botSettings.token);
         let userImg = userInfo[0].profile_image_url;
-        // updateChannelPointRedemption(redemptionId, rewardChannelId, rewardId, botSettings.clientId, botSettings.token, 'FULFILLED'); // maybe one day, the client ID used by the bot has to create the reward for this to work 
-        updateRecentEvents(`${userImg}`,`${reward.data.redemption.user.display_name}`,`played random sound ${soundName}`);
-        // updateRecentEvents(`${reward.data.redemption.user.display_name} played random sound ${soundName}`);
-    }
-    else {
+        // await twitchAPI.acknowledgeRedemption(rwd.broadcaster_user_id,rwd.reward.id,rwd.id,botSettings.clientId,botSettings.token); // maybe one day, the client ID used by the bot has to create the reward for this to work 
+        updateRecentEvents(`${userImg}`,`${rwd.user_name}`,`played random sound ${soundName}`);
+    } else {
         for(let x in channelPointsSounds) {
-            if(channelPointsSounds[x].name.toLowerCase() == reward.data.redemption.reward.title.toLowerCase()) {
+            if(channelPointsSounds[x].name.toLowerCase() == rwd.reward.title.toLowerCase()) {
                 let playedSound = '';
                 if(Array.isArray(channelPointsSounds[x].filename)) {
                     let randomSoundIndex = randomNumber(0, ((channelPointsSounds[x].filename).length)-1);
                     win.webContents.executeJavaScript(`playSound('${channelPointsSounds[x].filename[randomSoundIndex]}')`);
                     playedSound = channelPointsSounds[x].filename[randomSoundIndex];
-                }
-                else 
-                {
+                } else {
                     win.webContents.executeJavaScript(`playSound('${channelPointsSounds[x].filename}')`);
                     playedSound = channelPointsSounds[x].filename;
                 }
                 statusMsg(`info`, `Playing sound ${channelPointsSounds[x].name} (${playedSound})`);
-                let userInfo = await twitchAPI.getTwitchUserInfo(reward.data.redemption.user.id, botSettings.clientId, botSettings.token);
+                let userInfo = await twitchAPI.getTwitchUserInfo(rwd.user_id, botSettings.clientId, botSettings.token);
                 let userImg = userInfo[0].profile_image_url;     
                 // updateChannelPointRedemption(redemptionId, rewardChannelId, rewardId, botSettings.clientId, botSettings.token, 'FULFILLED');                           
                 // updateRecentEvents(`${userImg}`,`${reward.data.redemption.user.display_name}`, `played sound ${channelPointsSounds[x].filename}`);
                 // updateRecentEvents(`${reward.data.redemption.user.display_name} played sound ${channelPointsSounds[x].filename}`);
 
-                updateRecentEvents(`${userImg}`,`${reward.data.redemption.user.display_name}`, `played sound ${playedSound}`);
+                updateRecentEvents(`${userImg}`,`${rwd.user_name}`, `played sound ${playedSound}`);
                 break;
             }   
         }
-    }
+    }        
 
-    // hue rewards
-    // TO DO - add to recent events
-    for(let h in hueChannelPointsRewardsSettings) {
-        if(hueChannelPointsRewardsSettings[h].name.toLowerCase() == reward.data.redemption.reward.title.toLowerCase()) {
-            // console.log(`${hueChannelPointsRewardsSettings[h].name} ${hueChannelPointsRewardsSettings[h].effect}`);
-            await reloadHueSettings();
-            // TO DO - get old colors before running anything and reset after command
-            switch(hueChannelPointsRewardsSettings[h].effect) {
-                case 'staticColor': {
-                    console.log(`This doesn't work yet. No refunds!`);
-                    break;
-                }
-                case 'userColor': {
-                    let newColor = ``;
-                    if(reward.data.redemption.user_input !== undefined) {            
-                        let userColor = reward.data.redemption.user_input.toLowerCase();
-                        console.log(`Searching for ${userColor}`);
-                        let colorMatches = [];
-                        let colorMatchesCount = 0;
-                        for(let searchColor in hueColors) {
-                            if(searchColor.toLowerCase().includes(userColor)) {
-                                colorMatchesCount++;
-                                console.log(`Found ${searchColor}`);
-                                colorMatches.push(hueColors[searchColor]);
-                            }
-                        }
-                        if(colorMatchesCount > 0) {
-                            newColor = colorMatches[randomNumber(0, (colorMatches.length - 1))];
-                        }
-                        else { 
-                            console.log(`Can't find color ${userColor}, picking a random color instead.`);
-                            let allColors = [];
-                            for(let searchColor in hueColors) {
-                                allColors.push(hueColors[searchColor]);
-                            }
-                            newColor = allColors[randomNumber(0, (allColors.length -1))];                
-                        }
-                    }
-                    else {
-                        // no text so pick a random color - reward should require text. you should not get here. 
-                        let allColors = [];
-                        for(let searchColor in hueColors) {
-                            allColors.push(hueColors[searchColor]);
-                        }
-                        newColor = allColors[randomNumber(0, (allColors.length -1))];                
-                    }
-                    for(light in hueChannelPointsLightsSettings) {
-                        if(light != 'mode' && hueChannelPointsLightsSettings[light]) {
-                            let oldState = await getLight(hueSettings.bridgeIP, hueSettings.username, light); // get old color
-                            // let oldColor = oldState.state.xy;
-                            if(hueOldColors[light] === undefined || hueOldColors[light] === null) {
-                                hueOldColors[light] = oldState.state.xy;
-                                setTimeout((x) => { // reset to old color
-                                    statusMsg('info', `Reset color on light ID ${x}`);
-                                    setLightColor(hueSettings.bridgeIP, hueSettings.username, hueOldColors[x], x);
-                                    hueOldColors[x] = null;
-                                }, hueLightResetTime,light);                                    
-                            }
-                            await setLightColor(hueSettings.bridgeIP, hueSettings.username, newColor, light);
-                        }
-                    }                    
-                    let userInfo = await twitchAPI.getTwitchUserInfo(reward.data.redemption.user.id, botSettings.clientId, botSettings.token);
-                    let userImg = userInfo[0].profile_image_url;     
-                    updateRecentEvents(`${userImg}`,`${reward.data.redemption.user.display_name}`, `changed light color to ${newColor}`);
-                    break;
-                }
-                case 'flash': {
-                    for(light in hueChannelPointsLightsSettings) {
-                        if(light != 'mode' && hueChannelPointsLightsSettings[light]) {
-                            flashLight(hueSettings.bridgeIP, hueSettings.username, light, 4);
-                        }
-                    }     
-                    let userInfo = await twitchAPI.getTwitchUserInfo(reward.data.redemption.user.id, botSettings.clientId, botSettings.token);
-                    let userImg = userInfo[0].profile_image_url;     
-                    updateRecentEvents(`${userImg}`,`${reward.data.redemption.user.display_name}`, `flashed lights (${reward.data.redemption.reward.title})`);                                                  
-                    break;               
-                }
-                case 'randomColor': {
-                    for(light in hueChannelPointsLightsSettings) {
-                        if(light != 'mode' && hueChannelPointsLightsSettings[light]) {
-                            let allColors = [];
-                            for(let searchColor in hueColors) {
-                                allColors.push(hueColors[searchColor]);
-                            }
-                            let newColor = allColors[randomNumber(0, (allColors.length -1))];                
-                            let oldState = await getLight(hueSettings.bridgeIP, hueSettings.username, light); // get old color
-                            // let oldColor = oldState.state.xy;
-                            if(hueOldColors[light] === undefined || hueOldColors[light] === null) {
-                                hueOldColors[light] = oldState.state.xy;
-                                setTimeout((x) => { // reset to old color
-                                    statusMsg('info', `Reset color on light ID ${x}`);
-                                    setLightColor(hueSettings.bridgeIP, hueSettings.username, hueOldColors[x], x);
-                                    hueOldColors[x] = null;
-                                }, hueLightResetTime,light);                                    
-                            }
-                            await setLightColor(hueSettings.bridgeIP, hueSettings.username, newColor, light);
-                        }
-                    }
-                    let userInfo = await twitchAPI.getTwitchUserInfo(reward.data.redemption.user.id, botSettings.clientId, botSettings.token);
-                    let userImg = userInfo[0].profile_image_url;                         
-                    updateRecentEvents(`${userImg}`,`${reward.data.redemption.user.display_name}`, `changed lights random colors (${reward.data.redemption.reward.title}).`);                    
-                    break;
-                }
-                case 'colorLoop': {
-                    for(light in hueChannelPointsLightsSettings) {
-                        if(light != 'mode' && hueChannelPointsLightsSettings[light]) {
-                            // if(hueOldColors[light] === undefined || hueOldColors[light] === null) {
-                            //     hueOldColors[light] = oldState.state.xy;
-                            //     setTimeout((x) => { // reset to old color
-                            //         statusMsg('info', `Reset color on light ID ${x}`);
-                            //         setLightColor(hueSettings.bridgeIP, hueSettings.username, hueOldColors[x], x);
-                            //         hueOldColors[x] = null;
-                            //     }, hueLightResetTime,light);                                    
-                            // }
-                            setTimeout((x) => { // reset to old color
-                                statusMsg('info', `Reset color loop light ID ${x}`);
-                                colorLoop(hueSettings.bridgeIP, hueSettings.username, x, false);
-                            }, hueLightResetTime,light);                                         
-                            await colorLoop(hueSettings.bridgeIP, hueSettings.username, light, true);
-                            statusMsg('info', `Enabled color loop on light ${light}`);                
-                        }
-                    }
-                    let userInfo = await twitchAPI.getTwitchUserInfo(reward.data.redemption.user.id, botSettings.clientId, botSettings.token);
-                    let userImg = userInfo[0].profile_image_url;                         
-                    updateRecentEvents(`${userImg}`,`${reward.data.redemption.user.display_name}`, `enabled color loop (${reward.data.redemption.reward.title})`);                    
-                    break;
-                }
-            }   
-        }
-    }
-}
-    
-    // old hue
-    // if(reward.data.redemption.reward.title.toLowerCase() == 'test reward') {    
-    //     await reloadHueSettings();
-    //     await colorLoop(hueSettings.bridgeIP, hueSettings.username, 9, true);
-    //     await flashLight(hueSettings.bridgeIP, hueSettings.username, 9, 2);
-    //     await colorLoop(hueSettings.bridgeIP, hueSettings.username, 9, false);
+    // start old reward code
+    // statusMsg(`reward`, 'Reward ' + reward.data.redemption.reward.title + ' was redeemed by ' + reward.data.redemption.user.display_name + ' for ' + reward.data.redemption.reward.cost + ' points');
+    // // console.log(reward.data.redemption);
+    // // console.log(`Redemption ID: ${reward.data.redemption.id}`);
+    // // console.log(`Reward ID: ${reward.data.redemption.reward.id}`);
+    // // console.log(`Channel ID: ${reward.data.redemption.reward.channel_id}`);        
+    // let redemptionId = reward.data.redemption.id;  
+    // let rewardId = reward.data.redemption.reward.id;
+    // let rewardChannelId = reward.data.redemption.reward.channel_id;
+
+    // if(reward.data.redemption.reward.title.toLowerCase() == 'random sound') {
+    //     // add a while loop to re-roll random if it picks the same sound twice or the beat game sound
+    //     let soundName = playRandomSound();
+    //     let userInfo = await twitchAPI.getTwitchUserInfo(reward.data.redemption.user.id, botSettings.clientId, botSettings.token);
+    //     let userImg = userInfo[0].profile_image_url;
+    //     // updateChannelPointRedemption(redemptionId, rewardChannelId, rewardId, botSettings.clientId, botSettings.token, 'FULFILLED'); // maybe one day, the client ID used by the bot has to create the reward for this to work 
+    //     updateRecentEvents(`${userImg}`,`${reward.data.redemption.user.display_name}`,`played random sound ${soundName}`);
+    //     // updateRecentEvents(`${reward.data.redemption.user.display_name} played random sound ${soundName}`);
     // }
-    // if(reward.data.redemption.reward.title.toLowerCase() == 'color loop') {
-    //     await reloadHueSettings();
-    //     for(light in hueChannelPointsLightsSettings) {
-    //         if(light != 'mode' && hueChannelPointsLightsSettings[light]) {
-    //             await colorLoop(hueSettings.bridgeIP, hueSettings.username, light, true);
-    //             statusMsg('info', `Enabled color loop on light ${light}`);                
-    //             setTimeout((x) => {
-    //                 statusMsg('info', `Disabled color loop on light ${x}`);
-    //                 colorLoop(hueSettings.bridgeIP, hueSettings.username, x, false);
-    //             }, 300000, light);
-    //         }
+    // else {
+    //     for(let x in channelPointsSounds) {
+    //         if(channelPointsSounds[x].name.toLowerCase() == reward.data.redemption.reward.title.toLowerCase()) {
+    //             let playedSound = '';
+    //             if(Array.isArray(channelPointsSounds[x].filename)) {
+    //                 let randomSoundIndex = randomNumber(0, ((channelPointsSounds[x].filename).length)-1);
+    //                 win.webContents.executeJavaScript(`playSound('${channelPointsSounds[x].filename[randomSoundIndex]}')`);
+    //                 playedSound = channelPointsSounds[x].filename[randomSoundIndex];
+    //             }
+    //             else 
+    //             {
+    //                 win.webContents.executeJavaScript(`playSound('${channelPointsSounds[x].filename}')`);
+    //                 playedSound = channelPointsSounds[x].filename;
+    //             }
+    //             statusMsg(`info`, `Playing sound ${channelPointsSounds[x].name} (${playedSound})`);
+    //             let userInfo = await twitchAPI.getTwitchUserInfo(reward.data.redemption.user.id, botSettings.clientId, botSettings.token);
+    //             let userImg = userInfo[0].profile_image_url;     
+    //             // updateChannelPointRedemption(redemptionId, rewardChannelId, rewardId, botSettings.clientId, botSettings.token, 'FULFILLED');                           
+    //             // updateRecentEvents(`${userImg}`,`${reward.data.redemption.user.display_name}`, `played sound ${channelPointsSounds[x].filename}`);
+    //             // updateRecentEvents(`${reward.data.redemption.user.display_name} played sound ${channelPointsSounds[x].filename}`);
+
+    //             updateRecentEvents(`${userImg}`,`${reward.data.redemption.user.display_name}`, `played sound ${playedSound}`);
+    //             break;
+    //         }   
     //     }
     // }
-    // if(reward.data.redemption.reward.title.toLowerCase() == 'light color') {
-    //     if(reward.data.redemption.user_input !== undefined) {            
-    //         let userColor = reward.data.redemption.user_input.toLowerCase();
-    //         console.log(`Searching for ${userColor}`);
-    //         let colorMatches = [];
-    //         let colorMatchesCount = 0;
-    //         for(let searchColor in hueColors) {
-    //             if(searchColor.toLowerCase().includes(userColor)) {
-    //                 // console.log(`Match: ${searchColor} (${hueColors[searchColor]})`);
-    //                 colorMatchesCount++;
-    //                 colorMatches.push(hueColors[searchColor]);
-    //             }
-    //         }
-    //         // console.log(colorMatches);
-    //         if(colorMatchesCount > 0) {
-    //             newColor = colorMatches[randomNumber(0, (colorMatches.length - 1))];
-    //         }
-    //         else { 
-    //             console.log(`Can't find color ${userColor}, picking a random color instead.`);
-    //             let allColors = [];
-    //             for(let searchColor in hueColors) {
-    //                 allColors.push(hueColors[searchColor]);
-    //             }
-    //             newColor = allColors[randomNumber(0, (allColors.length -1))];                
-    //         }
-    //     }
-    //     else {
-    //         // no text so pick a random color - reward should require text. you should not get here. 
-    //         let allColors = [];
-    //         for(let searchColor in hueColors) {
-    //             allColors.push(hueColors[searchColor]);
-    //         }
-    //         newColor = allColors[randomNumber(0, (allColors.length -1))];                
-    //     }
-    //     // console.log(`Picked color ${newColor}`);        
-    //     await reloadHueSettings();
-    //     for(light in hueChannelPointsLightsSettings) {
-    //         if(light != 'mode' && hueChannelPointsLightsSettings[light]) {
-    //             let oldLightInfo = await getLight(hueSettings.bridgeIP, hueSettings.username, light);
-    //             let oldLightColor = oldLightInfo.state.xy;
-    //             // console.log(`Old light color: ${oldLightColor}`);
-    //             statusMsg('info', `Changing light ${light} color to ${newColor}`);
-    //             await setLightColor(hueSettings.bridgeIP, hueSettings.username, newColor, light);
-    //             setTimeout((light, oldLightColor) => {
-    //                 statusMsg('info', `Resetting light ${light} to ${oldLightColor}`);
-    //                 setLightColor(hueSettings.bridgeIP, hueSettings.username, oldLightColor, light);
-    //             }, 300000, light, oldLightColor);             
-    //         }
-    //     }
-    // }    
 
-async function pubsubHandle(msg) {
-    if(msg.type == 'MESSAGE') {
-        pubsubMessage = JSON.parse(msg.data.message);
-        if(pubsubMessage.type == 'reward-redeemed') {
-            proecssReward(pubsubMessage);
-        }
-    }
-}
-
-function pubsubPings() {
-    pubsubSocket.send(JSON.stringify({type:"PING"}));
-    saveWindowPosition(); // save window position, nothing specific to pubsub just using the timer here.
-    setTimeout(pubsubPings,120000); // 2 minutes
+    // // hue rewards
+    // // TO DO - add to recent events
+    // for(let h in hueChannelPointsRewardsSettings) {
+    //     if(hueChannelPointsRewardsSettings[h].name.toLowerCase() == reward.data.redemption.reward.title.toLowerCase()) {
+    //         // console.log(`${hueChannelPointsRewardsSettings[h].name} ${hueChannelPointsRewardsSettings[h].effect}`);
+    //         await reloadHueSettings();
+    //         // TO DO - get old colors before running anything and reset after command
+    //         switch(hueChannelPointsRewardsSettings[h].effect) {
+    //             case 'staticColor': {
+    //                 console.log(`This doesn't work yet. No refunds!`);
+    //                 break;
+    //             }
+    //             case 'userColor': {
+    //                 let newColor = ``;
+    //                 if(reward.data.redemption.user_input !== undefined) {            
+    //                     let userColor = reward.data.redemption.user_input.toLowerCase();
+    //                     console.log(`Searching for ${userColor}`);
+    //                     let colorMatches = [];
+    //                     let colorMatchesCount = 0;
+    //                     for(let searchColor in hueColors) {
+    //                         if(searchColor.toLowerCase().includes(userColor)) {
+    //                             colorMatchesCount++;
+    //                             console.log(`Found ${searchColor}`);
+    //                             colorMatches.push(hueColors[searchColor]);
+    //                         }
+    //                     }
+    //                     if(colorMatchesCount > 0) {
+    //                         newColor = colorMatches[randomNumber(0, (colorMatches.length - 1))];
+    //                     }
+    //                     else { 
+    //                         console.log(`Can't find color ${userColor}, picking a random color instead.`);
+    //                         let allColors = [];
+    //                         for(let searchColor in hueColors) {
+    //                             allColors.push(hueColors[searchColor]);
+    //                         }
+    //                         newColor = allColors[randomNumber(0, (allColors.length -1))];                
+    //                     }
+    //                 }
+    //                 else {
+    //                     // no text so pick a random color - reward should require text. you should not get here. 
+    //                     let allColors = [];
+    //                     for(let searchColor in hueColors) {
+    //                         allColors.push(hueColors[searchColor]);
+    //                     }
+    //                     newColor = allColors[randomNumber(0, (allColors.length -1))];                
+    //                 }
+    //                 for(light in hueChannelPointsLightsSettings) {
+    //                     if(light != 'mode' && hueChannelPointsLightsSettings[light]) {
+    //                         let oldState = await getLight(hueSettings.bridgeIP, hueSettings.username, light); // get old color
+    //                         // let oldColor = oldState.state.xy;
+    //                         if(hueOldColors[light] === undefined || hueOldColors[light] === null) {
+    //                             hueOldColors[light] = oldState.state.xy;
+    //                             setTimeout((x) => { // reset to old color
+    //                                 statusMsg('info', `Reset color on light ID ${x}`);
+    //                                 setLightColor(hueSettings.bridgeIP, hueSettings.username, hueOldColors[x], x);
+    //                                 hueOldColors[x] = null;
+    //                             }, hueLightResetTime,light);                                    
+    //                         }
+    //                         await setLightColor(hueSettings.bridgeIP, hueSettings.username, newColor, light);
+    //                     }
+    //                 }                    
+    //                 let userInfo = await twitchAPI.getTwitchUserInfo(reward.data.redemption.user.id, botSettings.clientId, botSettings.token);
+    //                 let userImg = userInfo[0].profile_image_url;     
+    //                 updateRecentEvents(`${userImg}`,`${reward.data.redemption.user.display_name}`, `changed light color to ${newColor}`);
+    //                 break;
+    //             }
+    //             case 'flash': {
+    //                 for(light in hueChannelPointsLightsSettings) {
+    //                     if(light != 'mode' && hueChannelPointsLightsSettings[light]) {
+    //                         flashLight(hueSettings.bridgeIP, hueSettings.username, light, 4);
+    //                     }
+    //                 }     
+    //                 let userInfo = await twitchAPI.getTwitchUserInfo(reward.data.redemption.user.id, botSettings.clientId, botSettings.token);
+    //                 let userImg = userInfo[0].profile_image_url;     
+    //                 updateRecentEvents(`${userImg}`,`${reward.data.redemption.user.display_name}`, `flashed lights (${reward.data.redemption.reward.title})`);                                                  
+    //                 break;               
+    //             }
+    //             case 'randomColor': {
+    //                 for(light in hueChannelPointsLightsSettings) {
+    //                     if(light != 'mode' && hueChannelPointsLightsSettings[light]) {
+    //                         let allColors = [];
+    //                         for(let searchColor in hueColors) {
+    //                             allColors.push(hueColors[searchColor]);
+    //                         }
+    //                         let newColor = allColors[randomNumber(0, (allColors.length -1))];                
+    //                         let oldState = await getLight(hueSettings.bridgeIP, hueSettings.username, light); // get old color
+    //                         // let oldColor = oldState.state.xy;
+    //                         if(hueOldColors[light] === undefined || hueOldColors[light] === null) {
+    //                             hueOldColors[light] = oldState.state.xy;
+    //                             setTimeout((x) => { // reset to old color
+    //                                 statusMsg('info', `Reset color on light ID ${x}`);
+    //                                 setLightColor(hueSettings.bridgeIP, hueSettings.username, hueOldColors[x], x);
+    //                                 hueOldColors[x] = null;
+    //                             }, hueLightResetTime,light);                                    
+    //                         }
+    //                         await setLightColor(hueSettings.bridgeIP, hueSettings.username, newColor, light);
+    //                     }
+    //                 }
+    //                 let userInfo = await twitchAPI.getTwitchUserInfo(reward.data.redemption.user.id, botSettings.clientId, botSettings.token);
+    //                 let userImg = userInfo[0].profile_image_url;                         
+    //                 updateRecentEvents(`${userImg}`,`${reward.data.redemption.user.display_name}`, `changed lights random colors (${reward.data.redemption.reward.title}).`);                    
+    //                 break;
+    //             }
+    //             case 'colorLoop': {
+    //                 for(light in hueChannelPointsLightsSettings) {
+    //                     if(light != 'mode' && hueChannelPointsLightsSettings[light]) {
+    //                         // if(hueOldColors[light] === undefined || hueOldColors[light] === null) {
+    //                         //     hueOldColors[light] = oldState.state.xy;
+    //                         //     setTimeout((x) => { // reset to old color
+    //                         //         statusMsg('info', `Reset color on light ID ${x}`);
+    //                         //         setLightColor(hueSettings.bridgeIP, hueSettings.username, hueOldColors[x], x);
+    //                         //         hueOldColors[x] = null;
+    //                         //     }, hueLightResetTime,light);                                    
+    //                         // }
+    //                         setTimeout((x) => { // reset to old color
+    //                             statusMsg('info', `Reset color loop light ID ${x}`);
+    //                             colorLoop(hueSettings.bridgeIP, hueSettings.username, x, false);
+    //                         }, hueLightResetTime,light);                                         
+    //                         await colorLoop(hueSettings.bridgeIP, hueSettings.username, light, true);
+    //                         statusMsg('info', `Enabled color loop on light ${light}`);                
+    //                     }
+    //                 }
+    //                 let userInfo = await twitchAPI.getTwitchUserInfo(reward.data.redemption.user.id, botSettings.clientId, botSettings.token);
+    //                 let userImg = userInfo[0].profile_image_url;                         
+    //                 updateRecentEvents(`${userImg}`,`${reward.data.redemption.user.display_name}`, `enabled color loop (${reward.data.redemption.reward.title})`);                    
+    //                 break;
+    //             }
+    //         }   
+    //     }
+    // }
+    // end old reward code
 }
 
 function saveWindowPosition() {
     setBotSettings(windowSettingsFilePath, 'window', win.getBounds());
 }
 
-pubsubSocket.onmessage = function(event)  {
-    pubsubResonse = JSON.parse(event.data);
-    pubsubHandle(pubsubResonse);
-};
+// pubsubSocket.onmessage = function(event)  {
+//     pubsubResonse = JSON.parse(event.data);
+//     pubsubHandle(pubsubResonse);
+// };
 
 app.on('ready', () => {
     autoUpdater.checkForUpdatesAndNotify();

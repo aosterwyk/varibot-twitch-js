@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 _No unreleased changes_
 
+## [3.2.0] - 2025-07-06
+### Changed
+- Changed channel point redemptions to use EventSub
+
 ## [3.1.0] - 2023-02-03
 ### Fixed
 - Fixed chat commands

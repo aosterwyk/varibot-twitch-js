@@ -103,6 +103,29 @@ async function updateChannelPointRedemption(redemptionId, channelId, rewardId, c
     return result;
 }
 
+async function acknowledgeRedemption(broadcasterId, rewardId, redemptionId, clientId, token, status = 'FULFILLED') {
+  const url = `https://api.twitch.tv/helix/channel_points/custom_rewards/redemptions?broadcaster_id=${broadcasterId}&reward_id=${rewardId}&id=${redemptionId}`;
+  try {
+    const response = await fetch(url, {
+      method: 'PATCH',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Client-Id': clientId,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ status }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}, ${await response.text()}`);
+    }
+
+    console.log(`Redemption ${redemptionId} marked as ${status}`);
+  } catch (error) {
+    console.error(`Failed to acknowledge redemption ${redemptionId}:`, error);
+  }
+}
+
 module.exports.getChannelID = getChannelID;
 module.exports.createStreamMarker = createStreamMarker;
 module.exports.runAd = runAd;
@@ -110,3 +133,4 @@ module.exports.getChannelRewards = getChannelRewards;
 module.exports.getTwitchUserInfo = getTwitchUserInfo;
 module.exports.updateChannelPointRedemption = updateChannelPointRedemption;
 module.exports.getStreamInfo = getStreamInfo;
+module.exports.acknowledgeRedemption = acknowledgeRedemption;
