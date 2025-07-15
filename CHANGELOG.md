@@ -10,9 +10,11 @@ _No unreleased changes_
 ## [3.2.0] - 2025-07-06
 ### Added 
 - Added twitch rewards queue link
+- Added display names to soundboard buttons
 
 ### Changed
 - Changed channel point redemptions to use EventSub
+- Changed soundboard button sizes
 
 ## [3.1.0] - 2023-02-03
 ### Fixed
