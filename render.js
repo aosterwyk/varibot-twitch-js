@@ -179,25 +179,36 @@ function updateChannelIcon(iconUrl) {
 }
 
 async function updateSoundsList() { 
-    // let sounds = await ipc.invoke('loadSounds');
     let sounds = await window.varibot.loadSounds();
     let soundsHTML = ` `;
-    let randomColorMode = false;
+    let randomColorMode = true;
     let buttonColors = ['btn-primary', 'btn-secondary', 'btn-success', 'btn-danger', 'btn-warning', 'btn-info', 'btn-light'];
-    if(sounds.length > 0){
-        for(let s = 0; s < sounds.length; s++) {  
-            let soundName = sounds[s].replace('.mp3','');
-            if(randomColorMode) {
-                let buttonColor = Math.floor(Math.random() * ((buttonColors.length - 1) - 0 + 1) + 0);            
-                soundsHTML += `<button type="button" class="btn ${buttonColors[buttonColor]} m-1" onclick="playSound('${sounds[s]}')">${soundName}</button>`; // lol
-                
-            }
-            else {
-                soundsHTML += `<button type="button" class="btn btn-dark m-1" onclick="playSound('${sounds[s]}')">${soundName}</button>`;
-            }
+
+    // Filter out invalid entries and map to display names
+    sounds = sounds.filter(sound => sound && typeof sound === 'string' && sound.endsWith('.mp3'));
+    if (sounds.length > 0) {
+    soundsHTML = sounds.map(sound => {
+        // Generate display name: remove .mp3, replace underscores with spaces, capitalize words
+        const displayName = sound
+        .replace('.mp3', '')
+        .replace(/_/g, ' ')
+        .replace(/\b\w/g, c => c.toUpperCase());
+        
+        // Choose button class based on randomColorMode
+        let buttonClass;
+        if (randomColorMode) {
+        buttonClass = buttonColors[Math.floor(Math.random() * buttonColors.length)];
+        } else {
+        buttonClass = 'btn-dark';
         }
+        
+        return `<button type="button" class="btn ${buttonClass}" onclick="playSound('${sound}')">${displayName}</button>`;
+    }).join('');
+    } else {
+        soundsHTML = '<p class="text-muted">No sounds available. Add .mp3 files to the sounds folder.</p>';
     }
-    document.getElementById('soundboard').innerHTML = soundsHTML;
+
+    document.getElementById('soundboard').innerHTML = soundsHTML;    
 }
 
 function playRandomSound() {
