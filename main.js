@@ -737,7 +737,15 @@ ipcMain.handle('createStreamMarker', async () => { // done
 ipcMain.handle('newSoundsSettings', async (event, args) => { // done
     let newChannelPointsSounds = {};
     for(let key in args) {
-        newChannelPointsSounds[args[key].name] = args[key].filename;
+        // Always treat filename as array
+        let filenames = args[key].filename;
+        if(!Array.isArray(filenames)) {
+            filenames = [filenames];
+        }
+        newChannelPointsSounds[key] = {
+            name: args[key].name,
+            filename: filenames
+        };
     }
     await setChannelPointsSounds(soundsSettingsFilePath, newChannelPointsSounds);
     await loadChannelPointsSounds(); // load channel points sounds     
@@ -940,32 +948,35 @@ async function processReward(rwd) {
     statusMsg(`reward`, 'Reward ' + rwd.reward.title + ' was redeemed by ' + rwd.user_name + ' for ' + rwd.reward.cost + ' points');
 
     if(rwd.reward.title.toLowerCase() == 'random sound') {
-        // add a while loop to re-roll random if it picks the same sound twice or the beat game sound
         let soundName = playRandomSound();
         let userInfo = await twitchAPI.getTwitchUserInfo(rwd.user_id, botSettings.clientId, botSettings.token);
         let userImg = userInfo[0].profile_image_url;
-        // await twitchAPI.acknowledgeRedemption(rwd.broadcaster_user_id,rwd.reward.id,rwd.id,botSettings.clientId,botSettings.token); // maybe one day, the client ID used by the bot has to create the reward for this to work 
         updateRecentEvents(`${userImg}`,`${rwd.user_name}`,`played random sound ${soundName}`);
     } else {
         for(let x in channelPointsSounds) {
             if(channelPointsSounds[x].name.toLowerCase() == rwd.reward.title.toLowerCase()) {
                 let playedSound = '';
-                if(Array.isArray(channelPointsSounds[x].filename)) {
-                    let randomSoundIndex = randomNumber(0, ((channelPointsSounds[x].filename).length)-1);
-                    win.webContents.executeJavaScript(`playSound('${channelPointsSounds[x].filename[randomSoundIndex]}')`);
-                    playedSound = channelPointsSounds[x].filename[randomSoundIndex];
+                let filenames = channelPointsSounds[x].filename;
+                // Always treat as array, pick one string
+                if(Array.isArray(filenames)) {
+                    if(filenames.length > 0) {
+                        let randomSoundIndex = randomNumber(0, filenames.length - 1);
+                        playedSound = filenames[randomSoundIndex];
+                    } else {
+                        playedSound = '';
+                    }
+                } else if (typeof filenames === 'string') {
+                    playedSound = filenames;
                 } else {
-                    win.webContents.executeJavaScript(`playSound('${channelPointsSounds[x].filename}')`);
-                    playedSound = channelPointsSounds[x].filename;
+                    playedSound = '';
                 }
+                // Only send string to playSound
+                win.webContents.executeJavaScript(`playSound('${playedSound}')`);
                 statusMsg(`info`, `Playing sound ${channelPointsSounds[x].name} (${playedSound})`);
                 let userInfo = await twitchAPI.getTwitchUserInfo(rwd.user_id, botSettings.clientId, botSettings.token);
                 let userImg = userInfo[0].profile_image_url;     
-                // updateChannelPointRedemption(redemptionId, rewardChannelId, rewardId, botSettings.clientId, botSettings.token, 'FULFILLED');                           
-                // updateRecentEvents(`${userImg}`,`${reward.data.redemption.user.display_name}`, `played sound ${channelPointsSounds[x].filename}`);
-                // updateRecentEvents(`${reward.data.redemption.user.display_name} played sound ${channelPointsSounds[x].filename}`);
-
                 updateRecentEvents(`${userImg}`,`${rwd.user_name}`, `played sound ${playedSound}`);
+                // await twitchAPI.acknowledgeRedemption(rwd.broadcaster_user_id,rwd.reward.id,rwd.id,botSettings.clientId,botSettings.token); // maybe one day, the client ID used by the bot has to create the reward for this to work 
                 break;
             }   
         }

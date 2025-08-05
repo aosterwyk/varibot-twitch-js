@@ -7,7 +7,19 @@ async function getChannelPointsSounds(soundsSettingsFilePath) {
     if(fs.existsSync(soundsSettingsFilePath)) {     
         try {
             const settingsFile = await readFile(soundsSettingsFilePath);
-            botSettings = JSON.parse(settingsFile);
+            let rawSettings = JSON.parse(settingsFile);
+            // Convert to {rewardName: [filenames]} format
+            for(let key in rawSettings) {
+                if(rawSettings[key] && Array.isArray(rawSettings[key].filename)) {
+                    botSettings[key] = rawSettings[key].filename;
+                } else if(rawSettings[key] && typeof rawSettings[key].filename === 'string') {
+                    botSettings[key] = [rawSettings[key].filename];
+                } else if(Array.isArray(rawSettings[key])) {
+                    botSettings[key] = rawSettings[key];
+                } else {
+                    botSettings[key] = [];
+                }
+            }
         }
         catch(error) {
             console.log(error);
