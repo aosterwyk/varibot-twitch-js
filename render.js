@@ -135,10 +135,10 @@ function brb() {
 function setConnectionStatus(service, status, message) {
     let newStatusIcon = ``;
     let newStatusMessage = ``;
-    let connectedIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="green" class="bi bi-check-circle-fill" viewBox="0 0 20 20"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/></svg>`;
-    let warningIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="yellow" class="bi bi-exclamation-circle-fill" viewBox="0 0 20 20"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8 4a.905.905 0 0 0-.9.995l.35 3.507a.552.552 0 0 0 1.1 0l.35-3.507A.905.905 0 0 0 8 4zm.002 6a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"/></svg>`;
-    let errorIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="red" class="bi bi-x-circle-fill" viewBox="0 0 20 20"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293 5.354 4.646z"/></svg>`;
-    let questionIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="grey" class="bi bi-question-circle-fill" viewBox="0 0 20 20"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.496 6.033h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286a.237.237 0 0 0 .241.247zm2.325 6.443c.61 0 1.029-.394 1.029-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94 0 .533.425.927 1.01.927z"/></svg>`;
+    let connectedIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="green" class="bi bi-check-circle-fill" viewBox="0 0 20 20"><path d="M16 8A8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/></svg>`;
+    let warningIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="yellow" class="bi bi-exclamation-circle-fill" viewBox="0 0 20 20"><path d="M16 8A8 0 1 1 0 8a8 8 0 0 1 16 0zM8 4a.905.905 0 0 0-.9.995l.35 3.507a.552.552 0 0 0 1.1 0l.35-3.507A.905.905 0 0 0 8 4zm.002 6a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"/></svg>`;
+    let errorIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="red" class="bi bi-x-circle-fill" viewBox="0 0 20 20"><path d="M16 8A8 0 1 1 0 8a8 8 0 0 1 16 0zM5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293 5.354 4.646z"/></svg>`;
+    let questionIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="grey" class="bi bi-question-circle-fill" viewBox="0 0 20 20"><path d="M16 8A8 0 1 1 0 8a8 8 0 0 1 16 0zM5.496 6.033h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286a.237.237 0 0 0 .241.247zm2.325 6.443c.61 0 1.029-.394 1.029-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94 0 .533.425.927 1.01.927z"/></svg>`;
     
     switch(status) {
         case 'connected':
@@ -443,7 +443,12 @@ async function populateSettings(settingsPage) {
                 if(channelRewards[reward].image !== null){
                     rewardImage = channelRewards[reward].image.url_1x;
                 }
-                let soundRewardHTMLStart = `<tr id=\"${channelRewards[reward].title}Row\"><td><img src=\"${rewardImage}\"></td><td name=\"channelRewardName\">${channelRewards[reward].title}</td><td class=\"mw-25\"><select class=\"custom-select custom-select-sm w-100\" id=\"${channelRewards[reward].title}\" name=\"channelRewardSound\" multiple>`;
+                let selectId = `${channelRewards[reward].title}`;
+                let searchId = `${selectId}SoundSearch`;
+                let clearId = `${selectId}ClearBtn`;
+                let soundRewardHTMLStart = `<tr id="${selectId}Row"><td><img src="${rewardImage}"></td><td name="channelRewardName">${channelRewards[reward].title}</td><td class="mw-25">`;
+                soundRewardHTMLStart += `<input type="text" class="form-control form-control-sm mb-1" style="background:white;color:black;" id="${searchId}" placeholder="Search sounds..." oninput="filterSoundOptions('${selectId}','${searchId}')">`;
+                soundRewardHTMLStart += `<select class="custom-select custom-select-sm w-100 mb-2" id="${selectId}" name="channelRewardSound" multiple>`;
                 let soundRewardHTMLInner = `<option value=\"none\">none</option>`;
                 let selectedFilenames = [];
                 // Always expect array, but catch if not
@@ -470,11 +475,57 @@ async function populateSettings(settingsPage) {
                     soundRewardHTMLInner += `<option value=\"${filename}\" ${selected}>${filename}</option>`;
                 }
                 soundRewardHTMLStart += `>`;
-                let soundRewardHTMLEnd = `</select></td></tr>`;
+                let soundRewardHTMLEnd = `</select><button type="button" class="btn btn-dark btn-sm mb-1" style="width:120px;" id="${clearId}" onclick="clearSoundSelection('${selectId}')">Clear sounds</button></td></tr>`;
                 channelRewardsTableHTML += soundRewardHTMLStart + soundRewardHTMLInner + soundRewardHTMLEnd;
             }
         }
         channelRewardsTable.innerHTML = channelRewardsTableHTML;
+        // Add filterSoundOptions and clearSoundSelection functions to window for search boxes
+        window.filterSoundOptions = function(selectId, searchId) {
+            let searchValue = document.getElementById(searchId).value.toLowerCase();
+            let select = document.getElementById(selectId);
+            for(let i = 0; i < select.options.length; i++) {
+                let option = select.options[i];
+                let text = option.text.toLowerCase();
+                // Always show 'none' option
+                if(option.value === 'none') {
+                    option.style.display = '';
+                    continue;
+                }
+                if(text.includes(searchValue)) {
+                    option.style.display = '';
+                } else {
+                    option.style.display = 'none';
+                }
+            }
+        };
+        window.clearSoundSelection = function(selectId) {
+            let select = document.getElementById(selectId);
+            for(let i = 0; i < select.options.length; i++) {
+                select.options[i].selected = false;
+            }
+        };
+        // Make option clicks toggle selection without Ctrl/Shift and handle 'none' selection
+        let selects = document.getElementsByName('channelRewardSound');
+        for(let s = 0; s < selects.length; s++) {
+            selects[s].addEventListener('mousedown', function(e) {
+                e.preventDefault();
+                let option = e.target;
+                if(option.tagName.toLowerCase() !== 'option') return;
+                if(option.value === 'none') {
+                    // Clear all selections if 'none' is clicked
+                    for(let i = 0; i < this.options.length; i++) {
+                        this.options[i].selected = false;
+                    }
+                    option.selected = true;
+                } else {
+                    option.selected = !option.selected;
+                    // Unselect 'none' if another option is selected
+                    let noneOption = this.querySelector('option[value="none"]');
+                    if(noneOption) noneOption.selected = false;
+                }
+            });
+        }
     }
     if(settingsPage == 'about') {
         // let result = await ipc.invoke('getAbout');
