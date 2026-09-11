@@ -1,21 +1,6 @@
 const { ipcRenderer, contextBridge, shell } = require('electron');
 
 contextBridge.exposeInMainWorld('varibot', {
-    setHueAlertsSettings: (sendMsg) => {
-        ipcRenderer.invoke('setHueAlertsSettings', sendMsg);
-    },
-    getHueAlertsSettings: (alertType) => {
-        return ipcRenderer.invoke('getHueAlertsSettings', alertType);
-    },
-    getAllLights: () => {
-        return ipcRenderer.invoke('getAllLights');
-    },
-    hueSettings: (sendMsg) => {
-        return ipcRenderer.invoke('hueSettings', sendMsg);
-    },
-    hueControls: (sendCommand) => {
-        ipcRenderer.invoke('hueControls', sendCommand);
-    },
     getChannelRewards: () => {
         return ipcRenderer.invoke('getChannelRewards');
     },
@@ -45,9 +30,6 @@ contextBridge.exposeInMainWorld('varibot', {
     },
     getCurrentSettings: () => { 
         return ipcRenderer.invoke('getCurrentSettings');
-    },
-    identifyLight: (lightId) => {
-        ipcRenderer.invoke('identifyLight', lightId);
     },
     getSoundsSettings: () => {
         return ipcRenderer.invoke('getSoundsSettings');

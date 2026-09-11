@@ -97,11 +97,8 @@
               <a class="nav-link" style="cursor: pointer;" id="pointsSoundsNav" onclick="showPage('pointsSounds')">Sounds</a>
             </li>            
             <li class="nav-item">
-              <a class="nav-link" style="cursor: pointer;" id="pointsHueNav" onclick="showPage('pointsHue')">Hue</a>
-            </li>
-            <li class="nav-item">
               <a class="nav-link" style="cursor: pointer;" id="aboutNav" onclick="showPage('about')">About</a>
-            </li>            
+            </li>
 
           </ul>
           <!-- Left links -->
@@ -163,7 +160,7 @@
                 <span class="dropdown-item" onclick="externalLink('discord')">Discord</span>
               </li>
               <li>
-                <a class="dropdown-item" onclick="externalLink('wiki')"">Wiki</a>
+                <a class="dropdown-item" onclick="externalLink('wiki')">Wiki</a>
               </li>
             </ul>
           </div>
@@ -294,11 +291,8 @@
           </div>
           <div id="settings">
               <div class="card my-4">
-                  <div class="card-header">General Settings</div>              
+                  <div class="card-header">General Settings</div>
                   <div class="card-body">
-                      <path fill-rule="evenodd" d="M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
-                      <path d="M5.25 6.033h1.32c0-.781.458-1.384 1.36-1.384.685 0 1.313.343 1.313 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.007.463h1.307v-.355c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.326 0-2.786.647-2.754 2.533zm1.562 5.516c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94z"/>
-                      </svg></h4>
                       <!-- <form id="settingsForm"> -->
                       <div class="form-group mb-2">
                           <label for="botUsername">Username</label>
@@ -336,10 +330,6 @@
               <div class="card my-4">
                   <div class="card-header">Google Spreadsheets Settings</div>              
                   <div class="card-body">
-                      <!-- <h4 class="card-title">Google Spreadsheets Settings <svg width=".75em" height=".75em" viewBox="0 0 16 16" class="bi bi-question-circle" fill="currentColor" xmlns="http://www.w3.org/2000/svg" onclick="externalLink('googleSheetsHelp')"> -->
-                          <path fill-rule="evenodd" d="M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
-                          <path d="M5.25 6.033h1.32c0-.781.458-1.384 1.36-1.384.685 0 1.313.343 1.313 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.007.463h1.307v-.355c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.326 0-2.786.647-2.754 2.533zm1.562 5.516c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94z"/>
-                      </svg></h4>
                       <div class="form-group mb-2">
                           <label for="beatSpreadSheetUrl">Completed games spreadsheet URL</label>
                           <input type="text" class="form-control" id="beatSpreadSheetUrl" placeholder="https://docs.google.com/spreadsheets/d/<spreadsheet-id>/edit#gid=<worksheet-id>">
@@ -390,117 +380,6 @@
                   </div>
               </div>                                 
           </div>
-          <div id="pointsHue">
-              <div class="card my-4" id="hueBridgeIPSettings">
-                  <div class="card-header">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-hdd-network-fill" viewBox="0 0 16 16">
-                          <path d="M2 2a2 2 0 0 0-2 2v1a2 2 0 0 0 2 2h5.5v3A1.5 1.5 0 0 0 6 11.5H.5a.5.5 0 0 0 0 1H6A1.5 1.5 0 0 0 7.5 14h1a1.5 1.5 0 0 0 1.5-1.5h5.5a.5.5 0 0 0 0-1H10A1.5 1.5 0 0 0 8.5 10V7H14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H2zm.5 3a.5.5 0 1 1 0-1 .5.5 0 0 1 0 1zm2 0a.5.5 0 1 1 0-1 .5.5 0 0 1 0 1z"/>
-                          </svg> Hue Bridge Settings
-                  </div>
-                  <div class="card-body">
-                      <div class="row justify-content-md-center" id="hueBridgeIPSettings">
-                          <div class="col col-lg-6">
-                              <input type="text" class="form-control" id="hueBridgeIP" placeholder="Hue Bridge IP">
-                          </div>
-                          <div class="col col-lg-2">
-                              <button class="btn btn-primary" onclick="saveHueBridgeIP()">Save Bridge IP</button>
-                          </div>
-                      </div>                                        
-                      <div class="row justify-content-center my-4" id="hueBridgeConnectSetttings" style="display: none;">
-                          <div class="col text-center">
-                              <p class="text-center" id="hueBridgeCreateUserMsg">Press link button on bridge and click create user button below.</p>
-                              <button class="btn btn-sm btn-success" id="hueBridgeCreateUserButton" onclick="createHueBridgeUser()">Create User</button>
-                          </div>
-                      </div>                                        
-                  </div>
-              </div>
-              <div class="card my-4" id="hueBridgeRewardSettings" style="display: none;">
-                  <div class="card-header">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-gift-fill" viewBox="0 0 16 16">
-                          <path d="M3 2.5a2.5 2.5 0 0 1 5 0 2.5 2.5 0 0 1 5 0v.006c0 .07 0 .27-.038.494H15a1 1 0 0 1 1 1v1a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h2.038A2.968 2.968 0 0 1 3 2.506V2.5zm1.068.5H7v-.5a1.5 1.5 0 1 0-3 0c0 .085.002.274.045.43a.522.522 0 0 0 .023.07zM9 3h2.932a.56.56 0 0 0 .023-.07c.043-.156.045-.345.045-.43a1.5 1.5 0 0 0-3 0V3zm6 4v7.5a1.5 1.5 0 0 1-1.5 1.5H9V7h6zM2.5 16A1.5 1.5 0 0 1 1 14.5V7h6v9H2.5z"/>
-                          </svg> Rewards
-                  </div>
-                  <div class="card-body">
-                      <button class="btn btn-primary btn-sm mb-2 mx-1" onclick="saveHueSettings()">Save Hue Settings</button><button class="btn btn-dark btn-sm mb-2 mx-1" onclick="populateSettings('pointsHue')"><svg class="bi bi-arrow-clockwise" width="1em" height="1em" viewBox="0 0 16 16" fill="white" xmlns="http://www.w3.org/2000/svg">
-                          <path fill-rule="evenodd" d="M3.17 6.706a5 5 0 0 1 7.103-3.16.5.5 0 1 0 .454-.892A6 6 0 1 0 13.455 5.5a.5.5 0 0 0-.91.417 5 5 0 1 1-9.375.789z"/>
-                          <path fill-rule="evenodd" d="M8.147.146a.5.5 0 0 1 .707 0l2.5 2.5a.5.5 0 0 1 0 .708l-2.5 2.5a.5.5 0 1 1-.707-.708L10.293 3 8.147.854a.5.5 0 0 1 0-.708z"/>
-                      </svg> Reload Channel Rewards<button class="btn btn-dark btn-sm mb-2 mx-1" onclick="externalLink('manageRewards')">Manage Channel Rewards</button>                                                                        
-                      <p>Select the reward to use with the lights enabled below. <a class="text-decoration-none" onclick="lightHelpList('show')">Click here</a> for info on reward types</p>
-                      <span class="my-2" id="lightHelpList" style="display:none;">
-                          <strong class="text-info">None</strong> Disabled<br>
-                          <strong class="text-info">Static color</strong> Changes lights to a color. Enter the color in the text box that appears when selecting this option.<br>
-                          <strong class="text-info">User color</strong> Changes light to a color set by user. ("Require Viewer to Enter Text" must be enabled on edit custom rewards page)<br>
-                          <strong class="text-info">Flash lights</strong> Flashes lights random colors.<br>
-                          <strong class="text-info">Fade random colors</strong> Fades between random colors.<br>
-                          <strong class="text-info">Random color</strong> Changes lights random colors.<br>
-                          <strong class="text-info">Color loop</strong> Loops colors<br>
-                      </span>
-                      <table class="table table-striped table-dark my-2">
-                          <theader><tr><td colspan="2">Reward Name</td><td colspan="2">Effect</td></tr></theader>
-                          <tbody id="hueRewardsTable">
-                              <!-- <tr><td>reward picture</td><td>Test reward</td><td><select class="custom-select">
-                                  <option value="none" selected>None</option>
-                                  <option value="staticColor">Static color</option>
-                                  <option value="flash">Flash lights</option>
-                                  <option value="fadeColors">Fade random colors</option>
-                                  <option value="randomColor">Random color</option>
-                              </select></td>
-                              <td><input type="text" id="lightStaticColor" placeholder="Static color (hide unless static color is selected)"></td>
-                              </tr>
-                              <tr><td>reward picture</td><td>Test reward</td><td><select class="custom-select">
-                                  <option value="none" selected>None</option>
-                                  <option value="staticColor">Static color</option>
-                                  <option value="flash">Flash lights</option>
-                                  <option value="fadeColors">Fade random colors</option>
-                                  <option value="randomColor">Random color</option>
-                              </select></td>
-                              <td></td>
-                              </tr>
-                              <tr><td>reward picture</td><td>Test reward</td><td><select class="custom-select">
-                                  <option value="none" selected>None</option>
-                                  <option value="staticColor">Static color</option>
-                                  <option value="flash">Flash lights</option>
-                                  <option value="fadeColors">Fade random colors</option>
-                                  <option value="randomColor">Random color</option>
-                              </select></td>
-                              <td></td>
-                              </tr> -->
-                          </tbody>
-                      </table>                                       
-                  </div>
-                  <div class="card-footer">
-                      <div class="col my-1"><button class="btn btn-primary btn-sm mb-2 mx-1" onclick="saveHueSettings()">Save Hue Settings</button><button class="btn btn-dark btn-sm mb-2 mx-1" onclick="populateSettings('pointsHue')"><svg class="bi bi-arrow-clockwise" width="1em" height="1em" viewBox="0 0 16 16" fill="white" xmlns="http://www.w3.org/2000/svg">
-                          <path fill-rule="evenodd" d="M3.17 6.706a5 5 0 0 1 7.103-3.16.5.5 0 1 0 .454-.892A6 6 0 1 0 13.455 5.5a.5.5 0 0 0-.91.417 5 5 0 1 1-9.375.789z"/>
-                          <path fill-rule="evenodd" d="M8.147.146a.5.5 0 0 1 .707 0l2.5 2.5a.5.5 0 0 1 0 .708l-2.5 2.5a.5.5 0 1 1-.707-.708L10.293 3 8.147.854a.5.5 0 0 1 0-.708z"/>
-                      </svg> Reload Channel Rewards<button class="btn btn-dark btn-sm mb-2 mx-1" onclick="externalLink('manageRewards')">Manage Channel Rewards</button></div>
-                  </div>                                    
-              </div>                                
-              <div class="card my-4" id="hueBridgeLightsSettings" style="display: none;">
-                  <div class="card-header">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-lightbulb-fill" viewBox="0 0 16 16">
-                          <path d="M2 6a6 6 0 1 1 10.174 4.31c-.203.196-.359.4-.453.619l-.762 1.769A.5.5 0 0 1 10.5 13h-5a.5.5 0 0 1-.46-.302l-.761-1.77a1.964 1.964 0 0 0-.453-.618A5.984 5.984 0 0 1 2 6zm3 8.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1l-.224.447a1 1 0 0 1-.894.553H6.618a1 1 0 0 1-.894-.553L5.5 15a.5.5 0 0 1-.5-.5z"/>
-                          </svg> Lights                                        
-                  </div>
-                  <div class="card-body">
-                      <p>Select lights to be used with channel point rewards</p>
-                      <table class="table table-striped table-dark my-2">
-                          <theader><tr><td>Light</td><td colspan="2">Enabled</td></tr></theader>
-                          <tbody id="hueLightsTable">                                            
-                              <!-- <tr><td>Office light 1</td><td><input type="checkbox"></td></tr>
-                              <tr><td>Office light 1</td><td><input type="checkbox"></td></tr>
-                              <tr><td>Office light 1</td><td><input type="checkbox"></td></tr>
-                              <tr><td>Office light 1</td><td><input type="checkbox"></td></tr>
-                              <tr><td>Office light 1</td><td><input type="checkbox"></td></tr>
-                              <tr><td>Office light 1</td><td><input type="checkbox"></td></tr>
-                              <tr><td>Office light 1</td><td><input type="checkbox"></td></tr> -->
-                          </tbody>
-                      </table>
-                  </div>
-                  <div class="card-footer">
-                      <div class="col my-1"><button class="btn btn-primary btn-sm" onclick="saveHueSettings()">Save Hue Settings</button></div>
-                  </div>
-              </div>
-          </div>                        
           <div id="about">
               <div class="card my-4">
                   <div class="card-header">About</div>
@@ -523,8 +402,8 @@
               </div>                        
               <div class="text-muted">
                   <small>Theme based on <a class="text-decoration-none" href="https://mdbootstrap.com/freebies/dark-theme/" target="_blank" rel="noreferrer">MDB Dark Theme</a></small><br />
-                  <small>Twitch chat uses tmi.js <a class="text-decoration-none" href="https://github.com/tmijs" target="_blank" rel="noreferrer">tmi.js</a></small>    
-              </span>                    
+                  <small>Twitch chat uses tmi.js <a class="text-decoration-none" href="https://github.com/tmijs" target="_blank" rel="noreferrer">tmi.js</a></small>
+              </div>
           </div>
       </div>
   </main>

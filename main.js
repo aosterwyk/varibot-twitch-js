@@ -20,21 +20,8 @@ const { getBotSettings } = require('./utils/config/getBotSettings');
 const { setBotSettings } = require('./utils/config/setBotSettings');
 const { getChannelPointsSounds } = require('./utils/config/getChannelPointsSounds');
 const { setChannelPointsSounds } = require('./utils/config/setChannelPointsSounds');
-// const { getLightChannelPointRewards } = require('./utils/hue/getLightChannelPointRewards');
-const { setLightChannelPointRewards } = require('./utils/hue/setLightChannelPointRewards');
 const versionNumber = require('./package.json').version;
 const { ipcMain, app, dialog, BrowserWindow, shell } = require('electron');
-
-// hue
-const { colorLoop } = require('./utils/hue/colorLoop');
-const { getHueSettings } = require('./utils/hue/getHueSettings');
-const { getLight } = require('./utils/hue/getLight');
-const { createBridgeUser } = require('./utils/hue/createBridgeUser');
-const { setLightColor } = require('./utils/hue/setLightColor');
-const { flashLight } = require('./utils/hue/flashLight');
-const { getAllLights } = require('./utils/hue/getAllLights');
-const hueColors = require('./utils/hue/hueColors.json');
-const { setHueSettings } = require('./utils/hue/setHueSettings');
 
 var win = null;
 var lastSound; 
@@ -47,17 +34,8 @@ let randomSounds = [];
 let readyToConnect = true;
 let channelPointsSounds = {};
 let channelPointsFilenames = []; // add beat game sound to this
-var hueSettings = {};
-var hueBitsAlertsSettings = {};
-var hueSubsAlertsSettings = {};
-var hueChannelPointsLightsSettings = {};
-var hueChannelPointsRewardsSettings = {};
-var hueOldColors = {};
-var hueLightResetTime = 300000; // 300000 = 5 mins 60000 = 1 min
 const configsDir = `${app.getPath('appData')}\\varibot\\configs`;
 checkConfigDir(configsDir);
-const hueConfigsDir = `${app.getPath('appData')}\\varibot\\configs\\hue`;
-checkConfigDir(hueConfigsDir);
 const soundsDir = `${app.getPath('appData')}\\varibot\\sounds`;
 checkConfigDir(soundsDir);
 
@@ -66,11 +44,6 @@ const googleCredsFilePath = `${app.getPath('appData')}\\varibot\\googleCreds.jso
 const botSettingsFilePath = `${app.getPath('appData')}\\varibot\\configs\\botSettings.json`;
 const windowSettingsFilePath = `${app.getPath('appData')}\\varibot\\configs\\windowSettings.json`;
 const soundsSettingsFilePath = `${app.getPath('appData')}\\varibot\\configs\\soundsSettings.json`;
-const hueSettingsFilePath = `${app.getPath('appData')}\\varibot\\configs\\hue\\hueSettings.json`;
-const hueBitsAlertsSettingsFilePath = `${app.getPath('appData')}\\varibot\\configs\\hue\\hueBitsAlertsSettings.json`;
-const hueSubsAlertsSettingsFilePath = `${app.getPath('appData')}\\varibot\\configs\\hue\\hueSubsAlertsSettings.json`;
-const hueChannelPointsLightsSettingsFilePath = `${app.getPath('appData')}\\varibot\\configs\\hue\\hueChannelPointsLightsSettings.json`;
-const hueChannelPointsRewardsSettingsFilePath = `${app.getPath('appData')}\\varibot\\configs\\hue\\hueChannelPointsRewardsSettings.json`;
 
 let lastRunTimestamp = new Date(); // hacky cooldown
 
@@ -315,10 +288,6 @@ async function loadChannelPointsSounds() {
     }
 }
 
-async function loadHueSettings() {
-
-}
-
 async function loadCommands() {
     console.log(`Loading commands...`);
     botSettings = await getBotSettings(botSettingsFilePath);
@@ -361,7 +330,6 @@ async function startBot() {
     let botSettings = await getBotSettings(botSettingsFilePath);
 
     checkGoogleCreds();
-    await reloadHueSettings();    
     if(googleCredsExist) {
         botSettings.googleSheetsClientEmail = googleCreds.client_email;
         botSettings.googleSheetsPrivateKey = googleCreds.private_key;
@@ -534,146 +502,6 @@ async function createWindow() {
     // win.webContents.openDevTools(); // TO DO - comment out before commit 
 }
 
-// hue
-async function reloadHueSettings() {
-    hueSettings = {};
-    hueBitsAlertsSettings = {};
-    hueSubsAlertsSettings = {};
-    hueChannelPointsLightsSettings = {};    
-    hueChannelPointsRewardsSettings = {};
-
-    hueSettings = await getHueSettings(hueSettingsFilePath);
-    hueBitsAlertsSettings = await getHueSettings(hueBitsAlertsSettingsFilePath);
-    hueSubsAlertsSettings = await getHueSettings(hueSubsAlertsSettingsFilePath);
-    hueChannelPointsLightsSettings = await getHueSettings(hueChannelPointsLightsSettingsFilePath);
-    hueChannelPointsRewardsSettings = await getHueSettings(hueChannelPointsRewardsSettingsFilePath);
-}
-
-ipcMain.handle('setHueAlertsSettings', async(event, args) => { // done 
-    let settingsFileToChange = null;
-    let newSettings = args.newSettings;
-    if(args.type == 'bits') {
-        settingsFileToChange = hueBitsAlertsSettingsFilePath;
-    }
-    else if(args.type == 'subs') {
-        settingsFileToChange = hueSubsAlertsSettingsFilePath;
-    }
-    else if(args.type == 'channelPointsLights') {
-        settingsFileToChange = hueChannelPointsLightsSettingsFilePath;
-    }
-    if(settingsFileToChange !== null) {
-        for(x in newSettings) {
-            await setHueSettings(settingsFileToChange, x, newSettings[x]);
-        }
-    }
-    if(args.type == 'channelPointsRewards') {
-        hueChannelPointsRewardsSettings = {};
-        for(x in newSettings) {
-            hueChannelPointsRewardsSettings[newSettings[x].name] = {
-                name: newSettings[x].name,
-                effect: newSettings[x].effect
-            }
-            if(newSettings[x].color !== undefined && newSettings[x].color.length > 1) {
-                hueChannelPointsRewardsSettings[newSettings[x].name].color = newSettings[x].color;
-            }
-        }
-        await setLightChannelPointRewards(hueChannelPointsRewardsSettingsFilePath, hueChannelPointsRewardsSettings);        
-    }
-    await reloadHueSettings();
-});
-
-ipcMain.handle('getHueAlertsSettings', async(event, args) => { // done
-    let settingsFileToRead = null;
-    if(args == 'bits') {
-        settingsFileToRead = hueBitsAlertsSettingsFilePath;
-    }
-    else if(args == 'subs') {
-        settingsFileToRead = hueSubsAlertsSettingsFilePath;
-    }
-    else if(args == 'channelPointsLights') {
-        settingsFileToRead = hueChannelPointsLightsSettingsFilePath;
-    }    
-    else if(args == 'channelPointsRewards') {
-        settingsFileToRead = hueChannelPointsRewardsSettingsFilePath;
-    }
-    if(settingsFileToRead !== undefined || settingsFileToRead !== null) {
-        let hueBitsAlertsSettings = await getHueSettings(settingsFileToRead);
-        return hueBitsAlertsSettings;
-    }
-});
-
-ipcMain.handle('getAllLights', async(event) => { // done
-    await reloadHueSettings();
-    let lights = await getAllLights(hueSettings.bridgeIP, hueSettings.username);
-    let returnResult = {};
-    if(lights !== undefined) {
-        returnResult = {
-            success: true,
-            hueLights: lights
-        };
-    }
-    else {
-        returnResult = { success: false };
-    }
-    return returnResult;
-});
-
-ipcMain.handle('hueSettings', async (event, args) => { // done
-    let returnResult = {};
-    await reloadHueSettings();
-    if(hueSettings === undefined && args.command != 'setHueSetting') {
-        returnResult.success = false;
-        returnResult.message = 'HUE settings file does not exist. Please set an IP and create a bridge user.';
-        return returnResult;
-    }
-    if(args.command == 'setHueSetting') {
-        console.log(`Saving to ${hueSettingsFilePath}`);
-        let result = await setHueSettings(hueSettingsFilePath, args.setting, args.newValue);
-        await reloadHueSettings();
-        if(result) {
-            returnResult.success = true;
-            console.log(result);
-        }   
-        else {
-            returnResult.success = false;
-        }
-    }    
-    if(args.command == 'getHueSettings') {
-        await reloadHueSettings();
-        // console.log(hueSettings);
-        if(hueSettings !== undefined) {
-            returnResult.success = true,
-            returnResult.hueSettings = hueSettings
-        }
-        else {
-            returnResult.success = false
-        }
-    }
-    else if(args.command == 'createUser') {
-        let newHueUser = await createBridgeUser(hueSettings.bridgeIP, `VariBot`); 
-        if(newHueUser.created) {
-            hueSettings.username = newHueUser.username;
-            // console.log(`Created hue username ${hueSettings.username}`);
-            await setHueSettings(hueSettingsFilePath, 'username', hueSettings.username);
-            await reloadHueSettings();
-            returnResult.success = true;
-            returnResult.hueSettings = hueSettings;
-        }
-        else {
-            returnResult.success = false;
-            returnResult.message = newHueUser.message;
-        }
-    }
-    return returnResult;
-});
-
-ipcMain.handle('hueControls', async (event, args) => { // done
-
-    if(args.command == 'colorLoop') {
-        await colorLoop(args.bridgeIP, args.username, args.light, args.enabled);
-    }
-});
-
 app.whenReady().then(createWindow);
 
 app.on('window-all-closed', () => {
@@ -840,11 +668,6 @@ ipcMain.handle('getCurrentSettings', async (event, args) => { // done
     else {
         return undefined;
     }
-});
-
-ipcMain.handle('identifyLight', (event, args) => { // done
-    // console.log(args);
-    flashLight(hueSettings.bridgeIP, hueSettings.username, args, 2);
 });
 
 ipcMain.handle('getSoundsSettings', async (event, args) => { // done
@@ -1028,136 +851,6 @@ async function processReward(rwd) {
     //     }
     // }
 
-    // // hue rewards
-    // // TO DO - add to recent events
-    // for(let h in hueChannelPointsRewardsSettings) {
-    //     if(hueChannelPointsRewardsSettings[h].name.toLowerCase() == reward.data.redemption.reward.title.toLowerCase()) {
-    //         // console.log(`${hueChannelPointsRewardsSettings[h].name} ${hueChannelPointsRewardsSettings[h].effect}`);
-    //         await reloadHueSettings();
-    //         // TO DO - get old colors before running anything and reset after command
-    //         switch(hueChannelPointsRewardsSettings[h].effect) {
-    //             case 'staticColor': {
-    //                 console.log(`This doesn't work yet. No refunds!`);
-    //                 break;
-    //             }
-    //             case 'userColor': {
-    //                 let newColor = ``;
-    //                 if(reward.data.redemption.user_input !== undefined) {            
-    //                     let userColor = reward.data.redemption.user_input.toLowerCase();
-    //                     console.log(`Searching for ${userColor}`);
-    //                     let colorMatches = [];
-    //                     let colorMatchesCount = 0;
-    //                     for(let searchColor in hueColors) {
-    //                         if(searchColor.toLowerCase().includes(userColor)) {
-    //                             colorMatchesCount++;
-    //                             console.log(`Found ${searchColor}`);
-    //                             colorMatches.push(hueColors[searchColor]);
-    //                         }
-    //                     }
-    //                     if(colorMatchesCount > 0) {
-    //                         newColor = colorMatches[randomNumber(0, (colorMatches.length - 1))];
-    //                     }
-    //                     else { 
-    //                         console.log(`Can't find color ${userColor}, picking a random color instead.`);
-    //                         let allColors = [];
-    //                         for(let searchColor in hueColors) {
-    //                             allColors.push(hueColors[searchColor]);
-    //                         }
-    //                         newColor = allColors[randomNumber(0, (allColors.length -1))];                
-    //                     }
-    //                 }
-    //                 else {
-    //                     // no text so pick a random color - reward should require text. you should not get here. 
-    //                     let allColors = [];
-    //                     for(let searchColor in hueColors) {
-    //                         allColors.push(hueColors[searchColor]);
-    //                     }
-    //                     newColor = allColors[randomNumber(0, (allColors.length -1))];                
-    //                 }
-    //                 for(light in hueChannelPointsLightsSettings) {
-    //                     if(light != 'mode' && hueChannelPointsLightsSettings[light]) {
-    //                         let oldState = await getLight(hueSettings.bridgeIP, hueSettings.username, light); // get old color
-    //                         // let oldColor = oldState.state.xy;
-    //                         if(hueOldColors[light] === undefined || hueOldColors[light] === null) {
-    //                             hueOldColors[light] = oldState.state.xy;
-    //                             setTimeout((x) => { // reset to old color
-    //                                 statusMsg('info', `Reset color on light ID ${x}`);
-    //                                 setLightColor(hueSettings.bridgeIP, hueSettings.username, hueOldColors[x], x);
-    //                                 hueOldColors[x] = null;
-    //                             }, hueLightResetTime,light);                                    
-    //                         }
-    //                         await setLightColor(hueSettings.bridgeIP, hueSettings.username, newColor, light);
-    //                     }
-    //                 }                    
-    //                 let userInfo = await twitchAPI.getTwitchUserInfo(reward.data.redemption.user.id, botSettings.clientId, botSettings.token);
-    //                 let userImg = userInfo[0].profile_image_url;     
-    //                 updateRecentEvents(`${userImg}`,`${reward.data.redemption.user.display_name}`, `changed light color to ${newColor}`);
-    //                 break;
-    //             }
-    //             case 'flash': {
-    //                 for(light in hueChannelPointsLightsSettings) {
-    //                     if(light != 'mode' && hueChannelPointsLightsSettings[light]) {
-    //                         flashLight(hueSettings.bridgeIP, hueSettings.username, light, 4);
-    //                     }
-    //                 }     
-    //                 let userInfo = await twitchAPI.getTwitchUserInfo(reward.data.redemption.user.id, botSettings.clientId, botSettings.token);
-    //                 let userImg = userInfo[0].profile_image_url;     
-    //                 updateRecentEvents(`${userImg}`,`${reward.data.redemption.user.display_name}`, `flashed lights (${reward.data.redemption.reward.title})`);                                                  
-    //                 break;               
-    //             }
-    //             case 'randomColor': {
-    //                 for(light in hueChannelPointsLightsSettings) {
-    //                     if(light != 'mode' && hueChannelPointsLightsSettings[light]) {
-    //                         let allColors = [];
-    //                         for(let searchColor in hueColors) {
-    //                             allColors.push(hueColors[searchColor]);
-    //                         }
-    //                         let newColor = allColors[randomNumber(0, (allColors.length -1))];                
-    //                         let oldState = await getLight(hueSettings.bridgeIP, hueSettings.username, light); // get old color
-    //                         // let oldColor = oldState.state.xy;
-    //                         if(hueOldColors[light] === undefined || hueOldColors[light] === null) {
-    //                             hueOldColors[light] = oldState.state.xy;
-    //                             setTimeout((x) => { // reset to old color
-    //                                 statusMsg('info', `Reset color on light ID ${x}`);
-    //                                 setLightColor(hueSettings.bridgeIP, hueSettings.username, hueOldColors[x], x);
-    //                                 hueOldColors[x] = null;
-    //                             }, hueLightResetTime,light);                                    
-    //                         }
-    //                         await setLightColor(hueSettings.bridgeIP, hueSettings.username, newColor, light);
-    //                     }
-    //                 }
-    //                 let userInfo = await twitchAPI.getTwitchUserInfo(reward.data.redemption.user.id, botSettings.clientId, botSettings.token);
-    //                 let userImg = userInfo[0].profile_image_url;                         
-    //                 updateRecentEvents(`${userImg}`,`${reward.data.redemption.user.display_name}`, `changed lights random colors (${reward.data.redemption.reward.title}).`);                    
-    //                 break;
-    //             }
-    //             case 'colorLoop': {
-    //                 for(light in hueChannelPointsLightsSettings) {
-    //                     if(light != 'mode' && hueChannelPointsLightsSettings[light]) {
-    //                         // if(hueOldColors[light] === undefined || hueOldColors[light] === null) {
-    //                         //     hueOldColors[light] = oldState.state.xy;
-    //                         //     setTimeout((x) => { // reset to old color
-    //                         //         statusMsg('info', `Reset color on light ID ${x}`);
-    //                         //         setLightColor(hueSettings.bridgeIP, hueSettings.username, hueOldColors[x], x);
-    //                         //         hueOldColors[x] = null;
-    //                         //     }, hueLightResetTime,light);                                    
-    //                         // }
-    //                         setTimeout((x) => { // reset to old color
-    //                             statusMsg('info', `Reset color loop light ID ${x}`);
-    //                             colorLoop(hueSettings.bridgeIP, hueSettings.username, x, false);
-    //                         }, hueLightResetTime,light);                                         
-    //                         await colorLoop(hueSettings.bridgeIP, hueSettings.username, light, true);
-    //                         statusMsg('info', `Enabled color loop on light ${light}`);                
-    //                     }
-    //                 }
-    //                 let userInfo = await twitchAPI.getTwitchUserInfo(reward.data.redemption.user.id, botSettings.clientId, botSettings.token);
-    //                 let userImg = userInfo[0].profile_image_url;                         
-    //                 updateRecentEvents(`${userImg}`,`${reward.data.redemption.user.display_name}`, `enabled color loop (${reward.data.redemption.reward.title})`);                    
-    //                 break;
-    //             }
-    //         }   
-    //     }
-    // }
     // end old reward code
 }
 
