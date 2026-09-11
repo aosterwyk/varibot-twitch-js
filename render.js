@@ -169,7 +169,7 @@ async function updateSoundsList() {
     sounds = sounds.filter(sound => sound && typeof sound === 'string' && sound.endsWith('.mp3'));
     sounds.sort((a, b) => a.localeCompare(b, undefined, {sensitivity: 'base'}));
     let soundsHTML = '';
-    let randomColorMode = true;
+    let randomColorMode = false;
     let buttonColors = ['btn-primary', 'btn-secondary', 'btn-success', 'btn-danger', 'btn-warning', 'btn-info', 'btn-light'];
     if (sounds.length > 0) {
         soundsHTML = sounds.map(sound => {
@@ -178,7 +178,7 @@ async function updateSoundsList() {
                 .replace(/_/g, ' ')
                 .replace(/\b\w/g, c => c.toUpperCase());
             let buttonClass = randomColorMode ? buttonColors[Math.floor(Math.random() * buttonColors.length)] : 'btn-dark';
-            return `<button type=\"button\" class=\"btn ${buttonClass}\" onclick=\"playSound('${sound}')\">${displayName}</button>`;
+            return `<button type=\"button\" class=\"btn ${buttonClass}\" onclick=\"playSound('${sound}')\"><svg viewBox=\"0 0 24 24\" fill=\"currentColor\"><polygon points=\"5,3 19,12 5,21\"/></svg>${displayName}</button>`;
         }).join('');
     } else {
         soundsHTML = '<p class=\"text-muted\">No sounds available. Add .mp3 files to the sounds folder.</p>';
@@ -347,7 +347,7 @@ async function populateSettings(settingsPage) {
                 let searchId = `${selectId}SoundSearch`;
                 let clearId = `${selectId}ClearBtn`;
                 let soundRewardHTMLStart = `<tr id="${selectId}Row"><td><img src="${rewardImage}"></td><td name="channelRewardName">${channelRewards[reward].title}</td><td class="mw-25">`;
-                soundRewardHTMLStart += `<input type="text" class="form-control form-control-sm mb-1" style="background:white;color:black;" id="${searchId}" placeholder="Search sounds..." oninput="filterSoundOptions('${selectId}','${searchId}')">`;
+                soundRewardHTMLStart += `<input type="text" class="form-control form-control-sm mb-1" id="${searchId}" placeholder="Search sounds..." oninput="filterSoundOptions('${selectId}','${searchId}')">`;
                 soundRewardHTMLStart += `<select class="custom-select custom-select-sm w-100 mb-2" id="${selectId}" name="channelRewardSound" multiple>`;
                 let soundRewardHTMLInner = `<option value=\"none\">none</option>`;
                 let selectedFilenames = [];
@@ -508,6 +508,7 @@ async function showPage(page) {
     currentPage = showPage;
     changeActiveTab(showPage);
     document.getElementById(showPage).style.display = 'block';
+    document.getElementById('crumbPage').textContent = showPage === 'pointsSounds' ? 'sounds' : showPage;
 }
 
 async function saveSettingsFromForm() {
