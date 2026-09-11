@@ -18,7 +18,7 @@ const { randomNumber } = require('./utils/randomNumber');
 // const { beatGame } = require('./utils/beatGame');
 const { getMultiLink } = require('./utils/multiLink');
 const { isMod } = require('./utils/isMod');
-const { getSpreadsheetInfo } = require('./utils/getSpreadsheetInfo');
+// const { getSpreadsheetInfo } = require('./utils/getSpreadsheetInfo'); // only used by the disabled !beat command
 const { getBotSettings } = require('./utils/config/getBotSettings');
 const { setBotSettings } = require('./utils/config/setBotSettings');
 const { getChannelPointsSounds } = require('./utils/config/getChannelPointsSounds');
@@ -198,10 +198,26 @@ async function runCommand(targetChannel, fromMod, context, inputCmd, args) {
                 client.say(targetChannel,`${multiLink}`);
             }
         }
-        else if(cmd == 'beat') {
-            // TODO: disabled — see the google-spreadsheet TODO near the top of this file.
-            statusMsg('error', `!beat is temporarily disabled.`);
-        }
+        // TODO: !beat disabled — see the google-spreadsheet TODO near the top of this file.
+        // else if(cmd == 'beat') {
+        //     checkGoogleCreds();
+        //     if(googleCredsExist) {
+        //         if(fromMod) {
+        //             let beatMsg = await beatGame(args, targetChannel, botSettings.beatSpreadSheetID, botSettings.clientId, botSettings.token, googleCredsFilePath)
+        //             .catch(error => {console.log(error);});
+        //             client.say(targetChannel, beatMsg);
+        //             statusMsg('success', beatMsg);
+        //             // updateRecentEvents(beatMsg);
+        //             win.webContents.executeJavaScript(`playSound('${botSettings.beatGameSound}')`);
+        //         }
+        //         else{
+        //             client.say(targetChannel, `${context['display-name']} does not have permission to run this command`);
+        //         }
+        //     }
+        //     else {
+        //         statusMsg('error', `Could not find Google creds file.`);
+        //     }
+        // }
         else if(cmd == 'radio') {
             let lookupChannel = targetChannel.substr(1);
             let channelId = await twitchAPI.getChannelID(lookupChannel, botSettings.clientId, botSettings.token);
@@ -589,21 +605,22 @@ ipcMain.handle('botSettingsFromForm', async (event, args) => { // done
         // await updateBotSettings('channel', args.channel);
         await setBotSettings(botSettingsFilePath,'channel', args.channel);
     }
-    if(args.beatSpreadSheetUrl !== undefined && args.beatSpreadSheetUrl.length > 1) {  
-        try {
-            let beatSheetInfo = getSpreadsheetInfo(args.beatSpreadSheetUrl);
-            // await updateBotSettings('beatSheetID', beatSheetInfo.worksheetId);
-            // await updateBotSettings('beatSpreadSheetID', beatSheetInfo.spreadsheetId);
-            await setBotSettings(botSettingsFilePath,'beatSpreadSheetID', beatSheetInfo.spreadsheetId);
-        }
-        catch(error) {
-            console.log(error);
-        }
-    }
-    if(args.beatGameSound.length > 1) {
-        // await updateBotSettings('beatGameSound', args.beatGameSound);
-        await setBotSettings(botSettingsFilePath,'beatGameSound', args.beatGameSound);
-    }
+    // TODO: !beat disabled — see the google-spreadsheet TODO near the top of this file.
+    // if(args.beatSpreadSheetUrl !== undefined && args.beatSpreadSheetUrl.length > 1) {
+    //     try {
+    //         let beatSheetInfo = getSpreadsheetInfo(args.beatSpreadSheetUrl);
+    //         // await updateBotSettings('beatSheetID', beatSheetInfo.worksheetId);
+    //         // await updateBotSettings('beatSpreadSheetID', beatSheetInfo.spreadsheetId);
+    //         await setBotSettings(botSettingsFilePath,'beatSpreadSheetID', beatSheetInfo.spreadsheetId);
+    //     }
+    //     catch(error) {
+    //         console.log(error);
+    //     }
+    // }
+    // if(args.beatGameSound.length > 1) {
+    //     // await updateBotSettings('beatGameSound', args.beatGameSound);
+    //     await setBotSettings(botSettingsFilePath,'beatGameSound', args.beatGameSound);
+    // }
     let updateMsg = `Settings updated. You will need to restart if your token was added or changed.`;
     statusMsg(`success`, updateMsg);
     // updateRecentEvents(updateMsg);
