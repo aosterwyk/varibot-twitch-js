@@ -10,9 +10,12 @@ const { autoUpdater } = require('electron-updater');
 const { checkConfigDir } = require('./utils/config/checkConfigDir');
 const { randomRadio, isGTAGame } = require('./utils/gta/gtaCmds');
 const { loadSounds } = require('./utils/loadSounds');
-const { getRandomOwnedGame } = require('./utils/ownedGames');
+// TODO: google-spreadsheet feature disabled during dependency upgrade (google-spreadsheet v5
+// removed useServiceAccountAuth()) — utils/ownedGames.js and utils/beatGame.js were not ported.
+// Rewrite using google-auth-library's JWT auth, or remove the feature entirely.
+// const { getRandomOwnedGame } = require('./utils/ownedGames');
 const { randomNumber } = require('./utils/randomNumber');
-const { beatGame } = require('./utils/beatGame');
+// const { beatGame } = require('./utils/beatGame');
 const { getMultiLink } = require('./utils/multiLink');
 const { isMod } = require('./utils/isMod');
 const { getSpreadsheetInfo } = require('./utils/getSpreadsheetInfo');
@@ -196,23 +199,8 @@ async function runCommand(targetChannel, fromMod, context, inputCmd, args) {
             }
         }
         else if(cmd == 'beat') {
-            checkGoogleCreds();
-            if(googleCredsExist) {
-                if(fromMod) {           
-                    let beatMsg = await beatGame(args, targetChannel, botSettings.beatSpreadSheetID, botSettings.clientId, botSettings.token, googleCredsFilePath)
-                    .catch(error => {console.log(error);});
-                    client.say(targetChannel, beatMsg);
-                    statusMsg('success', beatMsg);
-                    // updateRecentEvents(beatMsg);
-                    win.webContents.executeJavaScript(`playSound('${botSettings.beatGameSound}')`);
-                }
-                else{
-                    client.say(targetChannel, `${context['display-name']} does not have permission to run this command`);
-                }
-            }
-            else {
-                statusMsg('error', `Could not find Google creds file.`);
-            }
+            // TODO: disabled — see the google-spreadsheet TODO near the top of this file.
+            statusMsg('error', `!beat is temporarily disabled.`);
         }
         else if(cmd == 'radio') {
             let lookupChannel = targetChannel.substr(1);

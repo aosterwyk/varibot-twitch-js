@@ -1,3 +1,7 @@
+// TODO: disabled — google-spreadsheet was upgraded to v5, which removed useServiceAccountAuth()
+// and changed the GoogleSpreadsheet constructor to take a google-auth-library JWT client.
+// This file has not been ported (and its only call site in main.js is already commented out).
+// Rewrite (using the JWT auth pattern) or remove this feature.
 const { GoogleSpreadsheet } = require('google-spreadsheet');
 
 async function getRandomOwnedGame(googleSheetsClientEmail, googleSheetsPrivateKey, spreadSheetId, platform) {

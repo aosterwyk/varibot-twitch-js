@@ -1,5 +1,3 @@
-const fetch = require('node-fetch');
-
 async function getWebsiteSettings() {
     try {
         const result = await(fetch('https://varibot.net/twitch/webSettings.json'));

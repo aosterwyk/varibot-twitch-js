@@ -1,5 +1,3 @@
-const fetch = require('node-fetch');
-
 // change this to get/post
 async function twitchAPI(url, clientId, token) {
     let result = await fetch(url, {method: 'get', headers: {'Client-ID': clientId, 'Authorization': `Bearer ${token}`}});

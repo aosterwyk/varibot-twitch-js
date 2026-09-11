@@ -4,6 +4,7 @@
 *.lnk
 *.sqlite
 dist/
+.claude/
 .vscode/
 node_modules/
 botSettings.json

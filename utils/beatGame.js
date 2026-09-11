@@ -1,3 +1,6 @@
+// TODO: disabled — google-spreadsheet was upgraded to v5, which removed useServiceAccountAuth()
+// and changed the GoogleSpreadsheet constructor to take a google-auth-library JWT client.
+// This file has not been ported. Rewrite (using the JWT auth pattern) or remove this feature.
 const { GoogleSpreadsheet } = require('google-spreadsheet');
 const { getChannelID, getStreamInfo, createStreamMarker } = require('./api');
 
