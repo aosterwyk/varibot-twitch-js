@@ -1,3 +1,17 @@
+function filterSoundboard(query) {
+  var value = (query || '').trim().toLowerCase();
+  document.querySelectorAll('#soundboard .btn').forEach(function (btn) {
+    btn.style.display = btn.textContent.toLowerCase().includes(value) ? '' : 'none';
+  });
+}
+
+function clearSoundboardSearch() {
+  var input = document.getElementById('soundboardSearch');
+  input.value = '';
+  filterSoundboard('');
+  input.focus();
+}
+
 (function () {
   function closeAllDropdowns(except) {
     document.querySelectorAll('.hud-dropdown.open').forEach(function (d) {

@@ -72,7 +72,10 @@ function updateRecentEvents(image,user,msg) {
             break;
         }
     }
-    recentList.innerHTML = `<tr><td>${userImg}</td><td><span class='text-primary'>${userDisplayName}</span> ${msg}</td></tr>${recentList.innerHTML}`;
+    let now = new Date();
+    let pad = n => String(n).padStart(2, '0');
+    let timeStr = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+    recentList.innerHTML = `<tr><td class="feed-time">${timeStr}</td><td>${userImg}</td><td><span class='text-primary'>${userDisplayName}</span> ${msg}</td></tr>${recentList.innerHTML}`;
 }
 
 function updateStatus(msgType, msg) {
@@ -184,6 +187,7 @@ async function updateSoundsList() {
         soundsHTML = '<p class=\"text-muted\">No sounds available. Add .mp3 files to the sounds folder.</p>';
     }
     document.getElementById('soundboard').innerHTML = soundsHTML;
+    document.getElementById('soundboardCount').textContent = `${sounds.length} LOADED`;
 }
 
 function playRandomSound() {
@@ -347,7 +351,7 @@ async function populateSettings(settingsPage) {
                 let searchId = `${selectId}SoundSearch`;
                 let clearId = `${selectId}ClearBtn`;
                 let soundRewardHTMLStart = `<tr id="${selectId}Row"><td><img src="${rewardImage}"></td><td name="channelRewardName">${channelRewards[reward].title}</td><td class="mw-25">`;
-                soundRewardHTMLStart += `<input type="text" class="form-control form-control-sm mb-1" id="${searchId}" placeholder="Search sounds..." oninput="filterSoundOptions('${selectId}','${searchId}')">`;
+                soundRewardHTMLStart += `<div class="search-box mb-1"><input type="text" class="form-control form-control-sm" id="${searchId}" placeholder="Search sounds..." oninput="filterSoundOptions('${selectId}','${searchId}')"><button type="button" class="search-clear" onclick="clearRewardSearch('${selectId}','${searchId}')" aria-label="Clear search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>`;
                 soundRewardHTMLStart += `<select class="custom-select custom-select-sm w-100 mb-2" id="${selectId}" name="channelRewardSound" multiple>`;
                 let soundRewardHTMLInner = `<option value=\"none\">none</option>`;
                 let selectedFilenames = [];
@@ -404,6 +408,12 @@ async function populateSettings(settingsPage) {
             for(let i = 0; i < select.options.length; i++) {
                 select.options[i].selected = false;
             }
+        };
+        window.clearRewardSearch = function(selectId, searchId) {
+            let input = document.getElementById(searchId);
+            input.value = '';
+            window.filterSoundOptions(selectId, searchId);
+            input.focus();
         };
         // Make option clicks toggle selection without Ctrl/Shift and handle 'none' selection
         let selects = document.getElementsByName('channelRewardSound');

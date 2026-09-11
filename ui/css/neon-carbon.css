@@ -43,6 +43,14 @@ a{color:inherit}
 button{font-family:inherit}
 ::selection{background:var(--cyan-soft);color:#fff}
 
+/* ---------- scrollbars ---------- */
+*{scrollbar-width:thin;scrollbar-color:var(--line-bright) var(--bg)}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--line-bright);border:2px solid var(--bg)}
+::-webkit-scrollbar-thumb:hover{background:var(--cyan)}
+::-webkit-scrollbar-corner{background:var(--bg)}
+
 /* ---------- sidebar ---------- */
 .sidebar{
   position:fixed;
@@ -174,19 +182,33 @@ main{padding:28px 32px 60px;max-width:1280px}
 .panel-head{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--line)}
 .panel-head-title{font-family:'Chakra Petch',sans-serif;font-size:11px;font-weight:600;letter-spacing:.15em;text-transform:uppercase;color:var(--cyan);display:flex;align-items:center;gap:8px}
 .panel-head-title svg{width:14px;height:14px;stroke:var(--cyan);fill:none;stroke-width:1.8}
+.panel-head-meta{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.05em;color:var(--ink-faint)}
 .panel-body{padding:20px}
 .panel + .panel{margin-top:20px}
-.scroll-box{height:230px;overflow-y:auto;overflow-x:hidden;padding-top:6px;padding-bottom:6px}
+.scroll-box{height:150px;overflow-y:auto;overflow-x:hidden;padding-top:6px;padding-bottom:6px}
 
 /* ---------- home: recent feed ---------- */
-#recentList{width:100%;border-collapse:collapse}
+.feed-table{width:100%;border-collapse:collapse;border-spacing:0;table-layout:fixed}
 #recentList tr{border-bottom:1px solid var(--line)}
 #recentList tr:last-child{border-bottom:none}
-#recentList td{padding:8px 6px;font-size:12.5px;vertical-align:middle}
-#recentList img{border-radius:3px;vertical-align:middle}
+#recentList td{padding:5px 2px;font-size:12.5px;vertical-align:middle;text-align:left}
+#recentList td:first-child{padding-left:0;width:56px}
+#recentList td:nth-child(2){width:36px}
+#recentList td:last-child{padding-right:0;width:auto}
+#recentList td.feed-time{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ink-faint);white-space:nowrap;font-variant-numeric:tabular-nums}
+#recentList img{border-radius:3px;vertical-align:middle;display:block}
 .text-primary{color:var(--cyan-text)}
 
 /* ---------- soundboard ---------- */
+.search-box{position:relative;margin-bottom:14px}
+.search-box input{padding-right:34px}
+.search-clear{
+  position:absolute;top:50%;right:8px;transform:translateY(-50%);
+  width:20px;height:20px;display:flex;align-items:center;justify-content:center;
+  background:none;border:none;color:var(--ink-faint);cursor:pointer;padding:0;
+}
+.search-clear:hover{color:var(--cyan)}
+.search-clear svg{width:12px;height:12px}
 #soundboard{
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
@@ -199,7 +221,7 @@ main{padding:28px 32px 60px;max-width:1280px}
   background:var(--bg);color:var(--ink-dim);
   filter:none;
 }
-#soundboard .btn svg{width:13px;height:13px;flex-shrink:0}
+#soundboard .btn svg{width:13px;height:13px;flex-shrink:0;fill:var(--cyan)}
 #soundboard .btn:hover{background:var(--cyan-ghost);color:var(--cyan-text);transform:none}
 #soundboard .btn-primary{border-color:var(--cyan-soft);color:var(--cyan-text)}
 #soundboard .btn-secondary{border-color:var(--line-bright);color:var(--ink-dim)}
@@ -317,13 +339,13 @@ input[type=checkbox]{accent-color:var(--cyan)}
 /* ---------- HUD dropdowns ---------- */
 .hud-dropdown{position:relative}
 .hud-icon-btn{
-  width:28px;height:28px;display:flex;align-items:center;justify-content:center;
+  width:32px;height:32px;display:flex;align-items:center;justify-content:center;
   background:none;border:none;color:var(--ink-dim);cursor:pointer;
   transition:color .2s;
 }
 .hud-icon-btn.with-avatar{width:auto;padding:0 8px;gap:6px}
-.hud-avatar{width:20px;height:20px;border-radius:50%;object-fit:cover;display:block}
-.hud-icon-btn svg{width:14px;height:14px}
+.hud-avatar{width:24px;height:24px;border-radius:50%;object-fit:cover;display:block}
+.hud-icon-btn svg{width:17px;height:17px}
 .hud-icon-btn:hover,.hud-dropdown.open .hud-icon-btn{color:var(--cyan)}
 .hud-menu{
   position:absolute;top:calc(100% + 10px);right:0;min-width:190px;

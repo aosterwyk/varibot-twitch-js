@@ -112,7 +112,7 @@
               </div>
             </div>
             <div class="panel-body scroll-box">
-              <table style="width:100%">
+              <table class="feed-table">
                 <tbody id="recentList"></tbody>
               </table>
             </div>
@@ -124,8 +124,15 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
                 Soundboard
               </div>
+              <span class="panel-head-meta" id="soundboardCount"></span>
             </div>
             <div class="panel-body">
+              <div class="search-box">
+                <input type="text" id="soundboardSearch" placeholder="Search sounds..." oninput="filterSoundboard(this.value)">
+                <button type="button" class="search-clear" onclick="clearSoundboardSearch()" aria-label="Clear search">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+              </div>
               <div id="soundboard"></div>
               <div class="btn-row">
                 <button class="btn btn-primary" onclick="updateSoundsList()">
@@ -187,7 +194,7 @@
           <div class="panel bracket">
             <div class="panel-head"><div class="panel-head-title">Google Spreadsheets Settings</div></div>
             <div class="panel-body">
-              <div class="field-notice">Currently disabled — the !beat command and completed-games spreadsheet logging are turned off pending a Google Sheets auth update.</div>
+              <div class="field-notice">The !beat command and completed-games spreadsheet logging are currently disabled.</div>
               <div class="field">
                 <label for="beatSpreadSheetUrl">Completed games spreadsheet URL</label>
                 <input type="text" id="beatSpreadSheetUrl" placeholder="https://docs.google.com/spreadsheets/d/&lt;spreadsheet-id&gt;/edit#gid=&lt;worksheet-id&gt;">
