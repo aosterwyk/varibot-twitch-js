@@ -90,7 +90,7 @@ async function setupEventSub() {
         console.log('Connected to Twitch EventSub WebSocket');
         let eventsubConnectedMessage = 'Connected to Twitch EventSub WebSocket';        
         statusMsg('info', eventsubConnectedMessage);
-        win.webContents.executeJavaScript(`setConnectionStatus('pubsub', 'connected', 'none')`);                                      
+        win.webContents.executeJavaScript(`setConnectionStatus('eventSub', 'connected', 'none')`);
     });
 
     ws.on('message', async (data) => {

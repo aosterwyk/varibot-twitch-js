@@ -151,9 +151,9 @@ function setConnectionStatus(service, status, message) {
         document.getElementById('aboutChatBotStatus').innerHTML = `Chat bot status: ${newStatusMessage}`;
     }
     
-    if(service == 'pubsub') { 
-        document.getElementById('pubsubStatusIcon').innerHTML = `${newStatusIcon} Pubsub`;
-        document.getElementById('aboutPubsubStatus').innerHTML = `Pubsub status: ${newStatusMessage}`;
+    if(service == 'eventSub') {
+        document.getElementById('eventSubStatusIcon').innerHTML = `${newStatusIcon} EventSub`;
+        document.getElementById('aboutEventSubStatus').innerHTML = `EventSub status: ${newStatusMessage}`;
     }
 
 }
