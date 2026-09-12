@@ -5,6 +5,7 @@
   "main": "main.js",
   "scripts": {
     "postinstall": "install-app-deps",
+    "build": "electron-builder build",
     "publish": "electron-builder -p always",
     "start": "electron ."
   },
