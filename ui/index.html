@@ -154,6 +154,16 @@
             <div class="panel-head"><div class="panel-head-title">General Settings</div></div>
             <div class="panel-body">
               <div class="field">
+                <label for="botTheme">Theme</label>
+                <select class="custom-select" id="botTheme" onchange="changeTheme(this.value)">
+                  <option value="sub-zero">Sub-Zero</option>
+                  <option value="reptile">Reptile</option>
+                  <option value="ermac">Ermac</option>
+                  <option value="raiden">Raiden</option>
+                </select>
+                <div class="field-help" id="botThemeHelp">UI theme</div>
+              </div>
+              <div class="field">
                 <label for="botUsername">Username</label>
                 <input type="text" id="botUsername" placeholder="Enter username">
                 <div class="field-help" id="botUsernameHelp">Username used by the bot</div>

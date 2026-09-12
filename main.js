@@ -601,9 +601,12 @@ ipcMain.handle('botSettingsFromForm', async (event, args) => { // done
         // await updateBotSettings('clientId', args.clientId);
         await setBotSettings(botSettingsFilePath,'clientId', args.clientId);
     }
-    if(args.channel.length > 1 && args.channel !== undefined) {        
+    if(args.channel.length > 1 && args.channel !== undefined) {
         // await updateBotSettings('channel', args.channel);
         await setBotSettings(botSettingsFilePath,'channel', args.channel);
+    }
+    if(args.theme !== undefined && args.theme.length > 1) {
+        await setBotSettings(botSettingsFilePath,'theme', args.theme);
     }
     // TODO: !beat disabled — see the google-spreadsheet TODO near the top of this file.
     // if(args.beatSpreadSheetUrl !== undefined && args.beatSpreadSheetUrl.length > 1) {
@@ -627,6 +630,11 @@ ipcMain.handle('botSettingsFromForm', async (event, args) => { // done
     updateRecentEvents('system', 'system', updateMsg);
     win.webContents.executeJavaScript(`alertMsg('true','success', '${updateMsg}')`);
     saveWindowPosition();
+    return true;
+});
+
+ipcMain.handle('updateTheme', async (event, theme) => {
+    await setBotSettings(botSettingsFilePath, 'theme', theme);
     return true;
 });
 

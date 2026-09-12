@@ -22,6 +22,27 @@ window.varibot.receive('updateRecentEvents', (recentEvent) => {
     updateRecentEvents(recentEvent.image, recentEvent.user, recentEvent.msg);
 });
 
+const validThemes = ['reptile', 'ermac', 'raiden'];
+
+function applyTheme(theme) {
+    if(validThemes.includes(theme)) {
+        document.documentElement.setAttribute('data-theme', theme);
+    }
+    else {
+        document.documentElement.removeAttribute('data-theme');
+    }
+}
+
+async function changeTheme(theme) {
+    applyTheme(theme);
+    await window.varibot.updateTheme(theme);
+}
+
+(async function initTheme() {
+    let result = await window.varibot.getCurrentSettings();
+    applyTheme(result !== undefined ? result.theme : undefined);
+})();
+
 function loadedGoogleCredsFile(savedResult) {
     if(savedResult) {
         alertMsg(true, 'success', 'Google creds file saved.')        
@@ -275,6 +296,7 @@ async function populateSettings(settingsPage) {
         // let result = await ipc.invoke('getCurrentSettings');
         let result = await window.varibot.getCurrentSettings();
         if(result !== undefined) {
+            document.getElementById('botTheme').value = validThemes.includes(result.theme) ? result.theme : 'sub-zero';
             if(result.username !== undefined) {
                 document.getElementById('botUsername').value = result.username;
             }
@@ -527,8 +549,10 @@ async function saveSettingsFromForm() {
         botToken: document.getElementById('botToken').value,
         clientId: document.getElementById('clientId').value,
         channel: document.getElementById('channel').value,
+        theme: document.getElementById('botTheme').value,
         beatGameSound: document.getElementById('beatGameSound').value
     }
+    applyTheme(botSettingsFromForm.theme);
 
     let cmdList = document.getElementsByName('cmdSettingCheckbox');
     let cmdChanges = {};    

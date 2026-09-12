@@ -28,8 +28,11 @@ contextBridge.exposeInMainWorld('varibot', {
     updateCmdSettings: (cmdChanges) => {
         ipcRenderer.invoke('updateCmdSettings', cmdChanges);
     },
-    getCurrentSettings: () => { 
+    getCurrentSettings: () => {
         return ipcRenderer.invoke('getCurrentSettings');
+    },
+    updateTheme: (theme) => {
+        return ipcRenderer.invoke('updateTheme', theme);
     },
     getSoundsSettings: () => {
         return ipcRenderer.invoke('getSoundsSettings');
