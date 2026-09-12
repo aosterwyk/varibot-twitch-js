@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 _No unreleased changes_
 
+## [4.0.0] - 2026-09-11
+### Changed
+- New UI. A lot to list. Most noteable is that multi sound rewards are easier to setup. 
+- Disabled beat and google calendar changes 
+- Changed twitch eventsub to use pubsub
+
+### Removed
+- Removed HUE commands 
+
 ## [3.2.0] - 2025-08-04
 ### Added 
 - Added twitch rewards queue link
